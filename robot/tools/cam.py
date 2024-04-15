@@ -14,30 +14,29 @@
 import os
 import cv2
 import time
+import threading
 
 from robot.tools.daemon import *
+from robot.tools.fps import FPSCounter
 
 
 class CameraDaemon(DaemonBase):
-  def __init__(self, cam_id=0, period=1, path="/dev/shm/frame.jpg"):
+  def __init__(self, cam_id=0, period=0.01, path="/dev/shm/frame.jpg"):
     super().__init__(period=period)
     self.path = path
     self.frame = None
     self.cap = cv2.VideoCapture(cam_id)
+    self.lock_frame = threading.Lock()
     print(type(self).__name__, cam_id, "warming...")
     time.sleep(1)
-    self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    self.fps = FPSCounter(period=10)
 
   def close(self):
     self.cap.release()
 
   def read(self):
-    ret, self.frame = self.cap.read()
-    if ret:
+    with self.lock_frame:
       return self.frame
-    else:
-      print(type(self).__name__, "error")
-      return None
 
   def read_buf(self):
     frame = self.read()
@@ -45,6 +44,8 @@ class CameraDaemon(DaemonBase):
     return buffer.tobytes()
 
   def loop(self):
-    frame = self.read()
-    if frame:
-      cv2.imwrite(self.path, frame, [cv2.IMWRITE_JPEG_QUALITY, 100])
+    with self.lock_frame:
+      ret, self.frame = self.cap.read()
+      self.fps.update()
+      # if ret:
+      #   cv2.imwrite(self.path, self.frame, [cv2.IMWRITE_JPEG_QUALITY, 100])

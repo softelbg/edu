@@ -43,7 +43,7 @@ def command():
 
 
 if __name__ == '__main__':
-  # cam.start()
+  cam.start()
 
   serve(app, host='0.0.0.0', port=9901)
 

@@ -19,6 +19,7 @@ import time
 
 from robot.tools.daemon import *
 from robot.tools.predictors import *
+from robot.tools.fps import FPSCounter
 
 
 class BaseRobotCommandsDaemon(DaemonBase):
@@ -29,12 +30,14 @@ class BaseRobotCommandsDaemon(DaemonBase):
     self.url_command = f"{self.url_base}/command"
     self.frame = None
     self.frame_play = None
+    self.fps = FPSCounter(5)
     print(type(self).__name__, "init", self.url_base)
 
   def command(self, prediction):
     response = requests.get(self.url_command, params={'move': prediction})
     if response.status_code == 200:
-      print(type(self).__name__, "Command sent successfully", response.content)
+      # print(type(self).__name__, "Command sent successfully", response.content)
+      pass
     else:
       print(type(self).__name__, "Failed to send command to server")
 
@@ -61,9 +64,9 @@ class BaseRobotCommandsDaemon(DaemonBase):
 class RobotCommandsDaemon(BaseRobotCommandsDaemon):
   def __init__(self, ip, period=1):
     super().__init__(ip, period)
-    # self.model = DummyPredictor()
-    self.model = KeyboardPredictor()
-    self.model.start()
+    self.model = DummyPredictor()
+    # self.model = KeyboardPredictor()
+    # self.model.start()
 
   def read_frame(self):
     response = requests.get(self.url_frame, stream=True)
@@ -79,16 +82,17 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
   def loop(self):
     self.frame = self.read_frame()
+    self.fps.update()
 
     prediction = self.model.predict(self.frame)
-    print(type(self).__name__, "prediction", prediction)
+    # print(type(self).__name__, "prediction", prediction)
 
     self.command(prediction)
     self.draw_prediction(prediction)
 
 
 if __name__ == "__main__":
-  cmd = RobotCommandsDaemon(ip="192.168.0.40", period=0.1)
+  cmd = RobotCommandsDaemon(ip="127.0.0.1", period=0.5)
   cmd.start()
 
   while(True):

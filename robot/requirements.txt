@@ -1,8 +1,8 @@
 numpy
 requests
-cv2
 pyserial
 flask
 waitress
 sciveo
 openai
+opencv-python
