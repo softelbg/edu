@@ -15,8 +15,9 @@ import time
 
 
 class FPSCounter:
-  def __init__(self, period=10):
+  def __init__(self, period=10, tag=""):
     self.period = period
+    self.tag = tag
     self.n = 0
     self.t1 = time.time()
 
@@ -24,6 +25,19 @@ class FPSCounter:
     self.n += 1
     t2 = time.time()
     if t2 - self.t1 > self.period:
-      print(type(self).__name__, "FPS", self.n / (t2 - self.t1))
+      print(type(self).__name__, self.tag, "FPS", self.n / (t2 - self.t1))
       self.n = 0
+      self.t1 = time.time()
+
+
+class TimerExec:
+  def __init__(self, fn, period=1.0):
+    self.fn = fn
+    self.period = period
+    self.t1 = time.time()
+
+  def run(self):
+    t2 = time.time()
+    if t2 - self.t1 > self.period:
+      self.fn()
       self.t1 = time.time()

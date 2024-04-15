@@ -17,7 +17,7 @@ import time
 import threading
 
 from robot.tools.daemon import *
-from robot.tools.fps import FPSCounter
+from robot.tools.timers import FPSCounter
 
 
 class CameraDaemon(DaemonBase):
@@ -29,7 +29,7 @@ class CameraDaemon(DaemonBase):
     self.lock_frame = threading.Lock()
     print(type(self).__name__, cam_id, "warming...")
     time.sleep(1)
-    self.fps = FPSCounter(period=10)
+    self.fps = FPSCounter(period=10, tag="cam")
 
   def close(self):
     self.cap.release()

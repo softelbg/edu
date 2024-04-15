@@ -19,7 +19,7 @@ import time
 
 from robot.tools.daemon import *
 from robot.tools.predictors import *
-from robot.tools.fps import FPSCounter
+from robot.tools.timers import *
 
 
 class BaseRobotCommandsDaemon(DaemonBase):
@@ -30,30 +30,34 @@ class BaseRobotCommandsDaemon(DaemonBase):
     self.url_command = f"{self.url_base}/command"
     self.frame = None
     self.frame_play = None
-    self.fps = FPSCounter(5)
+    self.fps = FPSCounter(period=5, tag="play")
+    self.fps_predict = FPSCounter(period=5, tag="predict")
+    self.prediction = None
     print(type(self).__name__, "init", self.url_base)
 
-  def command(self, prediction):
-    response = requests.get(self.url_command, params={'move': prediction})
-    if response.status_code == 200:
-      # print(type(self).__name__, "Command sent successfully", response.content)
-      pass
-    else:
-      print(type(self).__name__, "Failed to send command to server")
+  def command(self):
+    if self.prediction is not None:
+      response = requests.get(self.url_command, params={'move': self.prediction})
+      if response.status_code == 200:
+        # print(type(self).__name__, "Command sent successfully", response.content)
+        pass
+      else:
+        print(type(self).__name__, "Failed to send command to server")
 
-  def draw_prediction(self, prediction):
-    overlay = np.ones_like(self.frame) * 0
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 4
-    font_thickness = 8
+  def draw_prediction(self):
+    if self.prediction is not None:
+      overlay = np.ones_like(self.frame) * 0
+      font = cv2.FONT_HERSHEY_SIMPLEX
+      font_scale = 4
+      font_thickness = 8
 
-    (text_width, text_height), _ = cv2.getTextSize('F', font, font_scale, font_thickness)
+      (text_width, text_height), _ = cv2.getTextSize('F', font, font_scale, font_thickness)
 
-    x = self.frame.shape[1] - text_width - 10
-    y = text_height + 10
+      x = self.frame.shape[1] - text_width - 10
+      y = text_height + 10
 
-    cv2.putText(overlay, prediction, (x, y), font, font_scale, (0, 0, 255), font_thickness)
-    self.frame_play = cv2.addWeighted(self.frame, 1, overlay, 1.5, 0)
+      cv2.putText(overlay, self.prediction, (x, y), font, font_scale, (0, 0, 255), font_thickness)
+      self.frame_play = cv2.addWeighted(self.frame, 1, overlay, 1.5, 0)
 
   def play(self):
     if self.frame_play is not None:
@@ -62,8 +66,11 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
 
 class RobotCommandsDaemon(BaseRobotCommandsDaemon):
-  def __init__(self, ip, period=1):
-    super().__init__(ip, period)
+  def __init__(self, ip, period_cap=0.1, period_predict=1.0):
+    super().__init__(ip, period_cap)
+
+    self.timer = TimerExec(fn=self.predict, period=period_predict)
+
     self.model = DummyPredictor()
     # self.model = KeyboardPredictor()
     # self.model.start()
@@ -80,21 +87,23 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
     else:
       print(type(self).__name__, "Failed to fetch frame from server")
 
+  def predict(self):
+    self.prediction = self.model.predict(self.frame)
+    # print(type(self).__name__, "prediction", self.prediction)
+    self.command()
+    self.fps_predict.update()
+
   def loop(self):
     self.frame = self.read_frame()
+    self.timer.run()
+    self.draw_prediction()
     self.fps.update()
-
-    prediction = self.model.predict(self.frame)
-    # print(type(self).__name__, "prediction", prediction)
-
-    self.command(prediction)
-    self.draw_prediction(prediction)
 
 
 if __name__ == "__main__":
-  cmd = RobotCommandsDaemon(ip="127.0.0.1", period=0.5)
+  cmd = RobotCommandsDaemon(ip="127.0.0.1", period_cap=0.02, period_predict=1.0)
   cmd.start()
 
   while(True):
     cmd.play()
-    time.sleep(0.1)
+    time.sleep(0.01)
