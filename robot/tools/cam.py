@@ -26,6 +26,7 @@ class CameraDaemon(DaemonBase):
     self.cap = cv2.VideoCapture(cam_id)
     print(type(self).__name__, cam_id, "warming...")
     time.sleep(1)
+    self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
   def close(self):
     self.cap.release()
