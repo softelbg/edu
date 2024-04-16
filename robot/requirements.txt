@@ -3,6 +3,6 @@ requests
 pyserial
 flask
 waitress
-sciveo
+sciveo[all]
 openai
 opencv-python

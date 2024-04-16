@@ -15,6 +15,7 @@ import cv2
 import requests
 import numpy as np
 import time
+import sciveo
 
 
 from robot.tools.daemon import *
@@ -23,9 +24,15 @@ from robot.tools.timers import *
 
 
 class BaseRobotCommandsDaemon(DaemonBase):
-  def __init__(self, ip, period=1):
+  def __init__(self, ip=None, period=1):
     super().__init__(period=period)
-    self.url_base = f"http://{ip}:9901"
+    self.port = 9901
+    if ip is None:
+      self.ip = self.scan_for_server()
+    else:
+      self.ip = ip
+
+    self.url_base = f"http://{self.ip}:{self.port}"
     self.url_frame = f"{self.url_base}/frame"
     self.url_command = f"{self.url_base}/command"
     self.frame = None
@@ -34,6 +41,17 @@ class BaseRobotCommandsDaemon(DaemonBase):
     self.fps_predict = FPSCounter(period=5, tag="predict")
     self.prediction = None
     print(type(self).__name__, "init", self.url_base)
+
+  def scan_for_server(self):
+    list_ip = []
+    for i in range(10):
+      list_ip = sciveo.network(timeout=0.05 * i * 5, localhost=False).scan_port(port=self.port)
+      if len(list_ip) > 0:
+        break
+    if len(list_ip) > 0:
+      return list_ip[0]
+    else:
+      return "127.0.0.1"
 
   def command(self):
     if self.prediction is not None:
@@ -66,7 +84,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
 
 class RobotCommandsDaemon(BaseRobotCommandsDaemon):
-  def __init__(self, ip, period_cap=0.1, period_predict=1.0):
+  def __init__(self, ip=None, period_cap=0.1, period_predict=1.0):
     super().__init__(ip, period_cap)
 
     self.timer = TimerExec(fn=self.predict, period=period_predict)
@@ -101,7 +119,7 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
 
 if __name__ == "__main__":
-  cmd = RobotCommandsDaemon(ip="127.0.0.1", period_cap=0.02, period_predict=1.0)
+  cmd = RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=1.0)
   cmd.start()
 
   while(True):

@@ -41,3 +41,18 @@ class TimerExec:
     if t2 - self.t1 > self.period:
       self.fn()
       self.t1 = time.time()
+
+
+class Timer:
+  def __init__(self):
+    self.start()
+
+  def start(self):
+    self.start_at = time.time()
+
+  def stop(self):
+    self.end_at = time.time()
+    return self.elapsed()
+
+  def elapsed(self):
+    return self.end_at - self.start_at
