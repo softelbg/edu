@@ -44,6 +44,7 @@ class KeyboardPredictor(DaemonBase):
       's': 'S'
     }
     self.c = 'S'
+    self.m = 'S'
     self.k = 's'
 
   def loop(self):
@@ -59,7 +60,8 @@ class KeyboardPredictor(DaemonBase):
       termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
   def read_commands(self):
-    self.c = self.keyboard.get(self.k, 'S')
+    self.m = self.keyboard.get(self.k, 'S')
+    self.c = self.m
 
   def predict(self, frame_array):
     result = {"move": self.c}
@@ -72,20 +74,21 @@ class KeyboardSpeedPredictor(KeyboardPredictor):
   def __init__(self, period=0.1):
     super().__init__(period=period)
     self.keyboard_speed = {
-      'u': -5,
-      'o': +5,
-      'y': -20,
-      'p': +20
+      'u': -2,
+      'o': +2,
+      'y': -10,
+      'p': +10
     }
     self.speed = 128
 
   def read_commands(self):
     if self.k in self.keyboard:
-      self.c = f"{self.keyboard[self.k]}:{self.speed}"
+      self.m = self.keyboard[self.k]
     if self.k in self.keyboard_speed:
       self.speed += self.keyboard_speed[self.k]
       self.speed = max(self.speed, 0)
       self.speed = min(self.speed, 255)
+    self.c = f"{self.m}:{self.speed}"
 
 
 class OpenAIPredictor:
