@@ -54,15 +54,38 @@ class KeyboardPredictor(DaemonBase):
     try:
       tty.setraw(sys.stdin.fileno())
       self.k = sys.stdin.read(1)
-      self.c = self.keyboard.get(self.k, 'S')
+      self.read_commands()
     finally:
       termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
+  def read_commands(self):
+    self.c = self.keyboard.get(self.k, 'S')
 
   def predict(self, frame_array):
     result = {"move": self.c}
     if self.k == 'z':
       result["poweroff"] = 1
     return result
+
+
+class KeyboardSpeedPredictor(KeyboardPredictor):
+  def __init__(self, period=0.1):
+    super().__init__(period=period)
+    self.keyboard_speed = {
+      'u': -5,
+      'o': +5,
+      'y': -20,
+      'p': +20
+    }
+    self.speed = 128
+
+  def read_commands(self):
+    if self.k in self.keyboard:
+      self.c = f"{self.keyboard[self.k]}:{self.speed}"
+    if self.k in self.keyboard_speed:
+      self.speed += self.keyboard_speed[self.k]
+      self.speed = max(self.speed, 0)
+      self.speed = min(self.speed, 255)
 
 
 class OpenAIPredictor:

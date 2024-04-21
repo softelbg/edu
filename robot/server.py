@@ -24,6 +24,8 @@ from robot.tools.serial import *
 
 cam = CameraDaemon()
 com = SerialDummy()
+# com = SerialCom(address="/dev/ttyACM0")
+# com = SerialCom(address="/dev/ttyUSB0")
 
 app = Flask(__name__)
 
