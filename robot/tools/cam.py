@@ -21,9 +21,8 @@ from robot.tools.timers import FPSCounter
 
 
 class CameraDaemon(DaemonBase):
-  def __init__(self, cam_id=0, period=0.01, path="/dev/shm/frame.jpg"):
+  def __init__(self, cam_id=0, period=0.01):
     super().__init__(period=period)
-    self.path = path
     self.frame = None
     self.cap = cv2.VideoCapture(cam_id)
     self.lock_frame = threading.Lock()
@@ -47,5 +46,3 @@ class CameraDaemon(DaemonBase):
     with self.lock_frame:
       ret, self.frame = self.cap.read()
       self.fps.update()
-      # if ret:
-      #   cv2.imwrite(self.path, self.frame, [cv2.IMWRITE_JPEG_QUALITY, 100])

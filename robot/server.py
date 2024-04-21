@@ -39,6 +39,8 @@ def command():
   print(data)
   if "move" in data:
     com.send(data["move"])
+  if "poweroff" in data:
+    os.system("sudo poweroff")
   return jsonify(data)
 
 

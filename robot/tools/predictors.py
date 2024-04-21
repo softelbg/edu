@@ -30,7 +30,7 @@ class DummyPredictor:
     self.idx += 1
     if self.idx >= len(self.move):
       self.idx = 0
-    return result
+    return {"move": result}
 
 
 class KeyboardPredictor(DaemonBase):
@@ -44,6 +44,7 @@ class KeyboardPredictor(DaemonBase):
       's': 'S'
     }
     self.c = 'S'
+    self.k = 's'
 
   def loop(self):
     import sys
@@ -52,12 +53,16 @@ class KeyboardPredictor(DaemonBase):
     old_settings = termios.tcgetattr(sys.stdin)
     try:
       tty.setraw(sys.stdin.fileno())
-      self.c = self.keyboard.get(sys.stdin.read(1), 'S')
+      self.k = sys.stdin.read(1)
+      self.c = self.keyboard.get(self.k, 'S')
     finally:
       termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
   def predict(self, frame_array):
-    return self.c
+    result = {"move": self.c}
+    if self.k == 'z':
+      result["poweroff"] = 1
+    return result
 
 
 class OpenAIPredictor:
@@ -82,4 +87,4 @@ class OpenAIPredictor:
 
     response = openai.Completion.create(**completion_params)
     print(response.choices[0].text.strip())
-    return response.choices[0].text.strip()
+    return {"move": response.choices[0].text.strip()}

@@ -44,8 +44,8 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
   def scan_for_server(self):
     list_ip = []
-    for i in range(10):
-      list_ip = sciveo.network(timeout=0.05 * i * 5, localhost=False).scan_port(port=self.port)
+    for i in range(1, 10):
+      list_ip = sciveo.network(timeout=0.01 * i, localhost=False).scan_port(port=self.port)
       if len(list_ip) > 0:
         break
     if len(list_ip) > 0:
@@ -55,7 +55,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
   def command(self):
     if self.prediction is not None:
-      response = requests.get(self.url_command, params={'move': self.prediction})
+      response = requests.get(self.url_command, params=self.prediction)
       if response.status_code == 200:
         # print(type(self).__name__, "Command sent successfully", response.content)
         pass
@@ -69,13 +69,18 @@ class BaseRobotCommandsDaemon(DaemonBase):
       font_scale = 4
       font_thickness = 8
 
-      (text_width, text_height), _ = cv2.getTextSize('F', font, font_scale, font_thickness)
+      (text_width, text_height), _ = cv2.getTextSize(self.prediction["move"], font, font_scale, font_thickness)
 
+      w, h = self.frame.shape[1], self.frame.shape[0]
       x = self.frame.shape[1] - text_width - 10
       y = text_height + 10
 
-      cv2.putText(overlay, self.prediction, (x, y), font, font_scale, (0, 0, 255), font_thickness)
+      cv2.putText(overlay, self.prediction["move"], (x, y), font, font_scale, (0, 255, 0), font_thickness)
       self.frame_play = cv2.addWeighted(self.frame, 1, overlay, 1.5, 0)
+
+      lh = h // 4
+      cv2.line(self.frame_play, (w // 2 - lh // 2, h // 2), (w // 2 + lh // 2, h // 2), (0, 255, 0), thickness=2)
+      cv2.line(self.frame_play, (w // 2, h // 2 - lh // 2), (w // 2, h // 2 + lh // 2), (0, 255, 0), thickness=2)
 
   def play(self):
     if self.frame_play is not None:
@@ -89,9 +94,9 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
     self.timer = TimerExec(fn=self.predict, period=period_predict)
 
-    self.model = DummyPredictor()
-    # self.model = KeyboardPredictor()
-    # self.model.start()
+    # self.model = DummyPredictor()
+    self.model = KeyboardPredictor()
+    self.model.start()
 
   def read_frame(self):
     response = requests.get(self.url_frame, stream=True)
@@ -112,7 +117,11 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
     self.fps_predict.update()
 
   def loop(self):
-    self.frame = self.read_frame()
+    try:
+      self.frame = self.read_frame()
+    except Exception as e:
+      print(type(self).__name__, "Error reading frame", e)
+      time.sleep(5)
     self.timer.run()
     self.draw_prediction()
     self.fps.update()
