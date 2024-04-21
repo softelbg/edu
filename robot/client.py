@@ -84,7 +84,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
   def play(self):
     if self.frame_play is not None:
-      cv2.imshow(str(self.prediction), self.frame_play)
+      cv2.imshow("robot", self.frame_play)
       cv2.waitKey(1)
 
 
