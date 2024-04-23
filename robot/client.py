@@ -19,7 +19,8 @@ import sciveo
 
 
 from robot.tools.daemon import *
-from robot.tools.predictors import *
+from robot.predictors.common import *
+from robot.predictors.depth import *
 from robot.tools.timers import *
 
 
@@ -55,7 +56,8 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
   def command(self):
     if self.prediction is not None:
-      response = requests.get(self.url_command, params=self.prediction)
+      params = {k: self.prediction[k] for k in ["move", "poweroff"] if k in self.prediction}
+      response = requests.get(self.url_command, params=params)
       if response.status_code == 200:
         # print(type(self).__name__, "Command sent successfully", response.content)
         pass
@@ -82,6 +84,8 @@ class BaseRobotCommandsDaemon(DaemonBase):
   def play(self):
     if self.frame_play is not None:
       cv2.imshow("robot", self.frame_play)
+      if "play" in self.prediction:
+        cv2.imshow("prediction", self.prediction["play"])
       cv2.waitKey(1)
 
 
@@ -91,9 +95,10 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
     self.timer = TimerExec(fn=self.predict, period=period_predict)
 
+    self.model = DepthEstimator()
     # self.model = DummyPredictor()
     # self.model = KeyboardSpeedPredictor()
-    self.model = KeyboardPredictor()
+    # self.model = KeyboardPredictor()
     self.model.start()
 
   def read_frame(self):
@@ -126,7 +131,7 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
 
 if __name__ == "__main__":
-  cmd = RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=1.0)
+  cmd = RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=0.2)
   cmd.start()
 
   while(True):
