@@ -27,12 +27,19 @@ class DepthEstimator(DaemonBase):
   def __init__(self):
     super().__init__(period=0.1)
     cache_dir = os.environ['ROBOT_MODELS_PATH']
+
+    if torch.cuda.is_available():
+      self.TPU = "cuda"
+    else:
+      self.TPU = "cpu"
+
     model_name = "softel/depth-anything-v0.9"
     self.image_processor = AutoImageProcessor.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True)
-    self.model = AutoModelForDepthEstimation.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True)
+    self.model = AutoModelForDepthEstimation.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True).to(self.TPU)
 
     self.fps = FPSCounter(period=5, tag=type(self).__name__)
     self.prediction = None
+    self.frame = None
     self.lock = threading.Lock()
 
   def crop(self, frame, crop_ratio=0.2):
@@ -46,26 +53,28 @@ class DepthEstimator(DaemonBase):
 
   def predict_depth(self, frame):
     self.fps.update()
-    frame = self.crop(frame)
+    # frame = self.crop(frame)
     h, w, c = frame.shape
-    inputs = self.image_processor(images=frame, return_tensors="pt")
+    inputs = self.image_processor(images=frame, return_tensors="pt").to(self.TPU)
     with torch.no_grad():
       outputs = self.model(**inputs)
       predicted_depth = outputs.predicted_depth
     prediction = torch.nn.functional.interpolate(
       predicted_depth.unsqueeze(1),
-      size=(h // 2, w // 2),
+      size=(h, w),
       mode="bicubic",
       align_corners=False,
     )
     output = prediction.squeeze().cpu().numpy()
-    # formatted = (output * 255 / np.max(output)).astype("uint8")
-    formatted = ((1.0 - output / 30) * 255).astype("uint8")
+    formatted = (output * 255 / np.max(output)).astype("uint8")
+    # formatted = ((1.0 - output / 100) * 255).astype("uint8")
     image_depth = cv2.applyColorMap(formatted, cv2.COLORMAP_RAINBOW)
     return predicted_depth, image_depth
 
   def loop(self):
-    frame = None
+    if self.frame is None:
+      return
+
     with self.lock:
       frame = self.frame.copy()
     t = Timer()

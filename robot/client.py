@@ -20,7 +20,6 @@ import sciveo
 
 from robot.tools.daemon import *
 from robot.predictors.common import *
-from robot.predictors.depth import *
 from robot.tools.timers import *
 
 
@@ -46,7 +45,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
   def scan_for_server(self):
     list_ip = []
     for i in range(1, 10):
-      list_ip = sciveo.network(timeout=0.05 * i, localhost=False).scan_port(port=self.port)
+      list_ip = sciveo.network(timeout=0.1 * i, localhost=False).scan_port(port=self.port)
       if len(list_ip) > 0:
         break
     if len(list_ip) > 0:
@@ -95,11 +94,7 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
     self.timer = TimerExec(fn=self.predict, period=period_predict)
 
-    self.model = DepthEstimator()
-    # self.model = DummyPredictor()
-    # self.model = KeyboardSpeedPredictor()
-    # self.model = KeyboardPredictor()
-    self.model.start()
+    self.model = PipelinePredictor()
 
   def read_frame(self):
     response = requests.get(self.url_frame, stream=True)
