@@ -13,14 +13,14 @@
 
 import os
 import base64
-import openai
+from openai import OpenAI
 import cv2
 import numpy as np
 
 
 class OpenAIPredictor:
   def __init__(self):
-    openai.api_key = os.environ["OPENAI_API_KEY"]
+    self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     self.prompt = "You are a robot with 5 possible actions: forward, backward, left, right and stop. Every command will move the robot for 0.5 seconds. Look at the image and start searching for a computer backpack. If not visible, start rotation. You should respond only with one letter of this list ['F','B','R','L','S']."
 
   def start(self):
@@ -30,17 +30,23 @@ class OpenAIPredictor:
     buffer = cv2.imencode('.jpg', frame_array)[1].tostring()
     image_base64 = base64.b64encode(buffer).decode('utf-8')
 
-    completion_params = {
-      "model": "text-davinci-003",
-      "prompt": f"{self.prompt}\n{image_base64}",
-      "temperature": 0.7,
-      "max_tokens": 100,
-      "top_p": 1.0,
-      "frequency_penalty": 0.0,
-      "presence_penalty": 0.0,
-      "stop": ["\n"]
+    PROMPT_MESSAGES = [
+      {
+        "role": "user",
+        "content": [
+          self.prompt,
+          {"image": image_base64, "resize": 768},
+        ],
+      },
+    ]
+
+    params = {
+      "model": "gpt-4o",
+      "messages": PROMPT_MESSAGES,
+      "max_tokens": 500
     }
 
-    response = openai.Completion.create(**completion_params)
-    print(response.choices[0].text.strip())
-    return {"move": response.choices[0].text.strip()}
+    response = self.client.chat.completions.create(**params)
+    result = response.choices[0].message.content.strip()
+    print(type(self).__name__, "predict", result)
+    return {"move": result}
