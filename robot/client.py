@@ -84,7 +84,11 @@ class BaseRobotCommandsDaemon(DaemonBase):
     if self.frame_play is not None:
       cv2.imshow("robot", self.frame_play)
       if "play" in self.prediction:
-        cv2.imshow("prediction", self.prediction["play"])
+        if isinstance(self.prediction["play"], list):
+          for i, frame in enumerate(self.prediction["play"]):
+            cv2.imshow(f"prediction {i}", frame)
+        else:
+          cv2.imshow("prediction", self.prediction["play"])
       cv2.waitKey(1)
 
 
@@ -126,7 +130,7 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
 
 if __name__ == "__main__":
-  cmd = RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=0.2)
+  cmd = RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=0.1)
   cmd.start()
 
   while(True):

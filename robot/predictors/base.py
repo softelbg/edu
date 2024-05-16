@@ -26,6 +26,7 @@ class BaseDaemonPredictor(DaemonBase):
     self.fps = FPSCounter(period=5, tag=type(self).__name__)
     self.prediction = None
     self.frame = None
+    self.frame_play = None
     self.lock = threading.Lock()
 
   def predict_frame(self, frame):
@@ -45,3 +46,17 @@ class BaseDaemonPredictor(DaemonBase):
     with self.lock:
       self.frame = frame
       return self.prediction
+
+  def draw_prediction(self, prediction):
+    if self.frame is not None:
+      self.frame_play = self.frame.copy()
+
+      font = cv2.FONT_HERSHEY_SIMPLEX
+      font_scale = 4
+      font_thickness = 8
+      (text_width, text_height), _ = cv2.getTextSize(prediction["move"], font, font_scale, font_thickness)
+      w, h = self.frame.shape[1], self.frame.shape[0]
+      x = self.frame.shape[1] - text_width - 10
+      y = text_height + 10
+      cv2.putText(self.frame_play, prediction["move"], (x, y), font, font_scale, (0, 255, 0), font_thickness)
+    return self.frame_play

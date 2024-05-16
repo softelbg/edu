@@ -69,7 +69,9 @@ class OpenAIPredictor(BaseDaemonPredictor):
     response = self.client.chat.completions.create(**params)
     result = response.choices[0].message.content.strip()
     print(type(self).__name__, "predict", result)
-    return {"move": result}
+    prediction = {"move": result}
+    prediction["play"] = self.draw_prediction(prediction)
+    return prediction
 
   def predict(self, frame):
     with self.lock:

@@ -63,7 +63,7 @@ class DepthEstimator(BaseDaemonPredictor):
     output = prediction.squeeze().cpu().numpy()
     formatted = (output * 255 / np.max(output)).astype("uint8")
     # formatted = ((1.0 - output / 100) * 255).astype("uint8")
-    image_depth = cv2.applyColorMap(formatted, cv2.COLORMAP_RAINBOW)
+    image_depth = cv2.applyColorMap(formatted, cv2.COLORMAP_JET)
     return predicted_depth, image_depth
 
   def predict_frame(self, frame):

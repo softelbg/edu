@@ -37,10 +37,17 @@ class PipelinePredictor:
       model.start()
 
   def predict(self, frame):
-    prediction = {}
+    predictions = {}
     for model in self.pipeline:
-      prediction.update(model.predict(frame))
-    return prediction
+      prediction = model.predict(frame)
+      for k, v in prediction.items():
+        if k == "play":
+          predictions.setdefault("play", [])
+          if v is not None:
+            predictions["play"].append(v)
+        else:
+          predictions[k] = v
+    return predictions
 
 
 class DummyPredictor:
