@@ -17,16 +17,36 @@ from openai import OpenAI
 import cv2
 import numpy as np
 
+from robot.predictors.base import BaseDaemonPredictor
 
-class OpenAIPredictor:
+
+class OpenAIPredictor(BaseDaemonPredictor):
   def __init__(self):
+    super().__init__()
     self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    self.prompt = "You are a robot with 5 possible actions: forward, backward, left, right and stop. Every command will move the robot for 0.5 seconds. Look at the image and start searching for a computer backpack. If not visible, start rotation. You should respond only with one letter of this list ['F','B','R','L','S']."
+    self.set_prompt(
+      [
+        "Start searching for a computer backpack.",
+        "If the backpack is not visible, start rotation.",
+        "When backpack is visible start moving toward it.",
+        "When distance to the backpack is less than 15 centimeters then stop.",
+        "When obstacles in front try to avoid collision."
+      ]
+    )
 
-  def start(self):
-    pass
+  def set_prompt(self, command_prompt):
+    if isinstance(command_prompt, list):
+      command_prompt = " ".join(command_prompt)
+    self.prompt = " ".join([
+      "You are a robot with 5 possible actions: forward, backward, left, right and stop.",
+      "Every command will move the robot for 0.5 seconds.",
+      "Look at the image from the front facing robot camera for navigation.",
+      command_prompt,
+      "You should respond only with one letter of this list ['F','B','R','L','S']."
+    ])
+    print(type(self).__name__, "set prompt", self.prompt)
 
-  def predict(self, frame_array):
+  def predict_frame(self, frame_array):
     buffer = cv2.imencode('.jpg', frame_array)[1].tostring()
     image_base64 = base64.b64encode(buffer).decode('utf-8')
 
@@ -43,10 +63,17 @@ class OpenAIPredictor:
     params = {
       "model": "gpt-4o",
       "messages": PROMPT_MESSAGES,
-      "max_tokens": 500
+      "max_tokens": 32
     }
 
     response = self.client.chat.completions.create(**params)
     result = response.choices[0].message.content.strip()
     print(type(self).__name__, "predict", result)
     return {"move": result}
+
+  def predict(self, frame):
+    with self.lock:
+      self.frame = frame
+      current_prediction = self.prediction
+      self.prediction = {"move": 'S'}
+      return current_prediction

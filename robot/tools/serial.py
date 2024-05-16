@@ -13,6 +13,7 @@
 
 import serial
 import time
+import datetime
 
 
 class SerialDummy:
@@ -23,7 +24,7 @@ class SerialDummy:
     print(type(self).__name__)
 
   def send(self, value):
-    print(type(self).__name__, "send", value)
+    print(datetime.datetime.now(), type(self).__name__, "send", value)
 
 
 class SerialCom:

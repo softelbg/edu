@@ -15,6 +15,7 @@ import os
 import cv2
 import requests
 import time
+import datetime
 from flask import Flask, jsonify, render_template, request, url_for, Response
 from waitress import serve
 
@@ -34,11 +35,10 @@ def frame():
   # return Response(cam.read_buf(), mimetype='multipart/x-mixed-replace; boundary=frame')
   return Response(cam.read_buf(), mimetype='image/jpeg')
 
-
 @app.route('/command')
 def command():
   data = request.args.to_dict()
-  print(data)
+  print(datetime.datetime.now(), "command", data)
   if "move" in data:
     com.send(data["move"])
   if "poweroff" in data:

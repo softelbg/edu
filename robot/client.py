@@ -45,7 +45,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
   def scan_for_server(self):
     list_ip = []
     for i in range(1, 10):
-      list_ip = sciveo.network(timeout=0.1 * i, localhost=False).scan_port(port=self.port)
+      list_ip = sciveo.network(timeout=0.3 * i, localhost=False).scan_port(port=self.port)
       if len(list_ip) > 0:
         break
     if len(list_ip) > 0:

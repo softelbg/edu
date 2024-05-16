@@ -20,12 +20,12 @@ import torch
 from transformers import AutoImageProcessor, AutoModelForDepthEstimation
 
 from robot.tools.timers import *
-from robot.tools.daemon import *
+from robot.predictors.base import BaseDaemonPredictor
 
 
-class DepthEstimator(DaemonBase):
+class DepthEstimator(BaseDaemonPredictor):
   def __init__(self):
-    super().__init__(period=0.1)
+    super().__init__()
     cache_dir = os.environ['ROBOT_MODELS_PATH']
 
     if torch.cuda.is_available():
@@ -36,11 +36,6 @@ class DepthEstimator(DaemonBase):
     model_name = "softel/depth-anything-v0.9"
     self.image_processor = AutoImageProcessor.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True)
     self.model = AutoModelForDepthEstimation.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True).to(self.TPU)
-
-    self.fps = FPSCounter(period=5, tag=type(self).__name__)
-    self.prediction = None
-    self.frame = None
-    self.lock = threading.Lock()
 
   def crop(self, frame, crop_ratio=0.2):
     height, width = frame.shape[:2]
@@ -71,23 +66,11 @@ class DepthEstimator(DaemonBase):
     image_depth = cv2.applyColorMap(formatted, cv2.COLORMAP_RAINBOW)
     return predicted_depth, image_depth
 
-  def loop(self):
-    if self.frame is None:
-      return
-
-    with self.lock:
-      frame = self.frame.copy()
+  def predict_frame(self, frame):
     t = Timer()
     predicted_depth, image_depth = self.predict_depth(frame)
-    result = {
+    print(type(self).__name__, "predict elapsed", t.stop(), "depth", [predicted_depth.min(), predicted_depth.max()])
+    return {
       "move": "S:0",
       "play": image_depth
     }
-    print(type(self).__name__, "predict elapsed", t.stop(), "depth", [predicted_depth.min(), predicted_depth.max()])
-    with self.lock:
-      self.prediction = result
-
-  def predict(self, frame):
-    with self.lock:
-      self.frame = frame
-      return self.prediction

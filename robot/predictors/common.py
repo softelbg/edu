@@ -15,15 +15,19 @@ import os
 import cv2
 import numpy as np
 
-from robot.tools.daemon import *
 from robot.predictors.depth import *
+from robot.predictors.remote import *
+from robot.tools.timers import *
+from robot.tools.daemon import *
 
 
 class PipelinePredictor:
   def __init__(self):
     self.pipeline = [
       DepthEstimator(),
-      KeyboardSpeedPredictor(),
+      OpenAIPredictor(),
+      # KeyboardPredictor(),
+      # KeyboardSpeedPredictor(),
     ]
 
     self.start()

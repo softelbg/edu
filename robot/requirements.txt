@@ -6,3 +6,7 @@ waitress
 sciveo[all]
 openai
 opencv-python
+torch
+torchvision
+torchaudio
+transformers
