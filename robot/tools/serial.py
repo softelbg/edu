@@ -15,16 +15,18 @@ import serial
 import time
 import datetime
 
+from sciveo.common.tools.logger import *
+
 
 class SerialDummy:
   def __init__(self, address='/dev/ttyACM0', speed=9600):
-    print(type(self).__name__, address, speed)
+    debug(type(self).__name__, address, speed)
 
   def close(self):
-    print(type(self).__name__)
+    debug(type(self).__name__)
 
   def send(self, value):
-    print(datetime.datetime.now(), type(self).__name__, "send", value)
+    debug(datetime.datetime.now(), type(self).__name__, "send", value)
 
 
 class SerialCom:
@@ -32,7 +34,7 @@ class SerialCom:
     self.address = address
     self.speed = speed
     self.com = serial.Serial(self.address, self.speed)
-    print(type(self).__name__, self.address, self.speed, "warming...")
+    debug(type(self).__name__, self.address, self.speed, "warming...")
     time.sleep(2)
 
   def close(self):

@@ -18,9 +18,10 @@ import time
 import sciveo
 
 
-from robot.tools.daemon import *
+from sciveo.common.tools.logger import *
+from sciveo.common.tools.daemon import *
+from sciveo.common.tools.timers import *
 from robot.predictors.common import *
-from robot.tools.timers import *
 
 
 class BaseRobotCommandsDaemon(DaemonBase):
@@ -40,7 +41,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
     self.fps = FPSCounter(period=5, tag="play")
     self.fps_predict = FPSCounter(period=5, tag="predict")
     self.prediction = None
-    print(type(self).__name__, "init", self.url_base)
+    debug(type(self).__name__, "init", self.url_base)
 
   def scan_for_server(self):
     list_ip = []
@@ -58,10 +59,10 @@ class BaseRobotCommandsDaemon(DaemonBase):
       params = {k: self.prediction[k] for k in ["move", "poweroff"] if k in self.prediction}
       response = requests.get(self.url_command, params=params)
       if response.status_code == 200:
-        # print(type(self).__name__, "Command sent successfully", response.content)
+        # debug(type(self).__name__, "Command sent successfully", response.content)
         pass
       else:
-        print(type(self).__name__, "Failed to send command to server")
+        error(type(self).__name__, "Failed to send command to server")
 
   def draw_prediction(self):
     if self.prediction is not None:
@@ -108,13 +109,13 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
         return image
       except Exception as e:
-        print(type(self).__name__, "Error decoding image:", e)
+        error(type(self).__name__, "Error decoding image:", e)
     else:
-      print(type(self).__name__, "Failed to fetch frame from server")
+      error(type(self).__name__, "Failed to fetch frame from server")
 
   def predict(self):
     self.prediction = self.model.predict(self.frame)
-    # print(type(self).__name__, "prediction", self.prediction)
+    # debug(type(self).__name__, "prediction", self.prediction)
     self.command()
     self.fps_predict.update()
 
@@ -122,7 +123,7 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
     try:
       self.frame = self.read_frame()
     except Exception as e:
-      print(type(self).__name__, "Error reading frame", e)
+      error(type(self).__name__, "Error reading frame", e)
       time.sleep(5)
     self.timer.run()
     self.draw_prediction()

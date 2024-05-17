@@ -19,6 +19,7 @@ import datetime
 from flask import Flask, jsonify, render_template, request, url_for, Response
 from waitress import serve
 
+from sciveo.common.tools.logger import *
 from robot.tools.cam import *
 from robot.tools.serial import *
 
@@ -38,7 +39,7 @@ def frame():
 @app.route('/command')
 def command():
   data = request.args.to_dict()
-  print(datetime.datetime.now(), "command", data)
+  debug(datetime.datetime.now(), "command", data)
   if "move" in data:
     com.send(data["move"])
   if "poweroff" in data:

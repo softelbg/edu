@@ -15,17 +15,20 @@ import os
 import cv2
 import numpy as np
 
+from sciveo.common.tools.daemon import *
+from sciveo.common.tools.timers import *
 from robot.predictors.depth import *
 from robot.predictors.remote import *
-from robot.tools.timers import *
-from robot.tools.daemon import *
 
 
 class PipelinePredictor:
   def __init__(self):
     self.pipeline = [
       DepthEstimator(),
+
       OpenAIPredictor(),
+      # LocalClientPredictor(ip="192.168.10.62"),
+
       # KeyboardPredictor(),
       # KeyboardSpeedPredictor(),
     ]

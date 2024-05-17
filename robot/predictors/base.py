@@ -15,8 +15,8 @@ import os
 import cv2
 import numpy as np
 
-from robot.tools.timers import *
-from robot.tools.daemon import *
+from sciveo.common.tools.daemon import *
+from sciveo.common.tools.timers import FPSCounter
 
 
 class BaseDaemonPredictor(DaemonBase):
@@ -60,3 +60,36 @@ class BaseDaemonPredictor(DaemonBase):
       y = text_height + 10
       cv2.putText(self.frame_play, prediction["move"], (x, y), font, font_scale, (0, 255, 0), font_thickness)
     return self.frame_play
+
+
+class BaseRobotPredictor(BaseDaemonPredictor):
+  def __init__(self):
+    super().__init__()
+    self.set_prompt(
+      [
+        "Start searching for a computer backpack.",
+        "If the backpack is not visible, start rotation.",
+        "When backpack is visible start moving toward it.",
+        "When distance to the backpack is less than 15 centimeters then stop.",
+        "When obstacles in front try to avoid collision."
+      ]
+    )
+
+  def set_prompt(self, command_prompt):
+    if isinstance(command_prompt, list):
+      command_prompt = " ".join(command_prompt)
+    self.prompt = " ".join([
+      "You are a robot with 5 possible actions: forward, backward, left, right and stop.",
+      "Every command will move the robot for 0.5 seconds.",
+      "Look at the image from the front facing robot camera for navigation.",
+      command_prompt,
+      "You should respond only with one letter of this list ['F','B','R','L','S']."
+    ])
+    debug(type(self).__name__, "set prompt", self.prompt)
+
+  def predict(self, frame):
+    with self.lock:
+      self.frame = frame
+      current_prediction = self.prediction
+      self.prediction = {"move": 'S'}
+      return current_prediction

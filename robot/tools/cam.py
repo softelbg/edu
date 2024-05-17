@@ -16,8 +16,9 @@ import cv2
 import time
 import threading
 
-from robot.tools.daemon import *
-from robot.tools.timers import FPSCounter
+from sciveo.common.tools.logger import *
+from sciveo.common.tools.daemon import *
+from sciveo.common.tools.timers import FPSCounter
 
 
 class CameraDaemon(DaemonBase):
@@ -26,9 +27,13 @@ class CameraDaemon(DaemonBase):
     self.frame = None
     self.cap = cv2.VideoCapture(cam_id)
     self.lock_frame = threading.Lock()
-    print(type(self).__name__, cam_id, "warming...")
+    debug(type(self).__name__, cam_id, "warming...")
     time.sleep(1)
     self.fps = FPSCounter(period=10, tag="cam")
+
+    self.writers = [
+      # cv2.VideoWriter("rtsp://0.0.0.0:554/s1", fourcc=cv2.VideoWriter_fourcc(*'XVID'), fps=30.0, frameSize=(640, 480))
+    ]
 
   def close(self):
     self.cap.release()
@@ -45,4 +50,7 @@ class CameraDaemon(DaemonBase):
   def loop(self):
     with self.lock_frame:
       ret, self.frame = self.cap.read()
-      self.fps.update()
+
+    self.fps.update()
+    for writer in self.writers:
+      writer.write(self.frame)
