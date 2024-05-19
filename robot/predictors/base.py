@@ -13,6 +13,7 @@
 
 import os
 import cv2
+import base64
 import numpy as np
 
 from sciveo.common.tools.daemon import *
@@ -65,27 +66,45 @@ class BaseDaemonPredictor(DaemonBase):
 class BaseRobotPredictor(BaseDaemonPredictor):
   def __init__(self):
     super().__init__()
-    self.set_prompt(
-      [
-        "Start searching for a computer backpack.",
-        "If the backpack is not visible, start rotation.",
-        "When backpack is visible start moving toward it.",
-        "When distance to the backpack is less than 15 centimeters then stop.",
-        "When obstacles in front try to avoid collision."
-      ]
-    )
+    self.test_search_object()
+
+  def test_search_object(self):
+    search_object = "black dog"
+    command_prompt = " ".join([
+      f"Start searching for a {search_object}.",
+      f"If the {search_object} is not visible, start rotation to the right.",
+      f"When {search_object} is visible start moving toward it.",
+      f"Try to reposition and move so the {search_object} is in the center of the image.",
+      f"When distance to the {search_object} is less than 30 centimeters then stop.",
+      f"When obstacles in front try to avoid collision, making turn around the obstacle object."
+    ])
+    self.set_prompt(command_prompt)
 
   def set_prompt(self, command_prompt):
     if isinstance(command_prompt, list):
       command_prompt = " ".join(command_prompt)
+
+    # response_template = "{ 'move': '<command>', 'move word': <command as word>, 'reason': '<the reason why chose move command>', 'description': '<describe what you see in the image>' }"
+    response_template = "{ 'move': '<command>', 'move free': <any move command>, 'reason': '<the reason why chose move free command>', }"
     self.prompt = " ".join([
-      "You are a robot with 5 possible actions: forward, backward, left, right and stop.",
+      "You are a robot with 5 possible actions: Forward, Backward, Left, Right and Stop.",
       "Every command will move the robot for 0.5 seconds.",
       "Look at the image from the front facing robot camera for navigation.",
       command_prompt,
-      "You should respond only with one letter of this list ['F','B','R','L','S']."
+      # "You should respond with move command and description why you choose this command. Attention to details and carefully chose move command!",
+      "The move commands are only from this list ['F','B','R','L','S'] as these are the first letters of the possible actions: Forward, Backward, Right, Left and Stop.",
+      "Keep attention to the move command and try to be very accurate.",
+      "When not sure what to do start rotation to the right.",
+      # "If choose 'B' Backward move direction, explain int the reason section why not chose rotation to the Left or Right instead!",
+      # "The move command description should explain the reasons why it is choosen.",
+      "The move free command is any type of move related command.",
+      f"Respond with a json dict like {response_template} and be strict of the json validity."
     ])
     debug(type(self).__name__, "set prompt", self.prompt)
+
+  def frame_base64(self, frame):
+    buffer = cv2.imencode('.jpg', frame)[1].tostring()
+    return base64.b64encode(buffer).decode('utf-8')
 
   def predict(self, frame):
     with self.lock:

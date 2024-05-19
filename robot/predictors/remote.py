@@ -14,6 +14,7 @@
 import os
 import base64
 import requests
+import json
 from openai import OpenAI
 import cv2
 import numpy as np
@@ -23,15 +24,25 @@ from robot.predictors.base import BaseRobotPredictor
 
 
 class LocalClientPredictor(BaseRobotPredictor):
-  def __init__(self, ip="localhost", port=8901, proto="http"):
+  def __init__(self, host=None, port=8901, proto="http"):
     super().__init__()
+    if host is None:
+      host = self.scan_network(port)
     self.predictor_name = "TextImageChat"
     self.auth_token = os.environ['SCI_API_AUTH_TOKEN']
-    self.url = f"{proto}://{ip}:{port}/{self.auth_token}/predict"
+    self.url = f"{proto}://{host}:{port}/{self.auth_token}/predict"
+
+    self.history = []
+
+  def scan_network(self, port):
+    list_ip = sciveo.network(timeout=1.0, localhost=False).scan_port(port=port)
+    if len(list_ip) > 0:
+      return list_ip[0]
+    return "127.0.0.1"
 
   def remote_predict(self, params):
     headers = {"Authorization": f"Bearer {self.auth_token}"}
-    response = requests.post(self.url, json=params, headers=headers)
+    response = requests.post(self.url, json=params, headers=headers, verify=False)
 
     if response.status_code == 200:
       data = response.json()
@@ -40,29 +51,64 @@ class LocalClientPredictor(BaseRobotPredictor):
       data = {"error": response.status_code}
     return data
 
-  def predict_frame(self, frame_array):
-    buffer = cv2.imencode('.jpg', frame_array)[1].tostring()
-    image_base64 = base64.b64encode(buffer).decode('utf-8')
+  def predict_frame(self, frame):
+    images = []
+    messages = []
+
+    for i, h in enumerate(self.history[::-1]):
+      images.append(h["image"])
+      messages.append({
+        "role": "user",
+        "content": [
+          {"type": "image"},
+          {"type": "text", "text": f"Previous {len(self.history) - i} image, move {h['prediction']['move']}"},
+        ]
+      })
+      messages.append({
+        "role": "assistant",
+        "content": [
+          {"type": "text", "text": h["prediction"]},
+        ]
+      })
+
+    image_base64 = self.frame_base64(frame)
+    images.append(image_base64)
+    messages.append({
+      "role": "user",
+      "content": [
+        {"type": "image"},
+        {"type": "text", "text": self.prompt},
+      ]
+    })
+
+    debug(type(self).__name__, "messages", messages)
 
     params = {
       "predictor": self.predictor_name,
-      "X": [
-        {
-          "prompt": self.prompt,
-          "image": image_base64
-        }
-      ]
+      "X": {
+        "messages": messages,
+        "images": images
+      }
     }
 
-    result = self.remote_predict(params)
-    debug(type(self).__name__, "predict", result)
+    prediction = self.remote_predict(params)
+    debug(type(self).__name__, "predict", prediction)
+    prediction_str_dict = prediction[self.predictor_name].replace('{', '').replace('}', '').replace('\'', '\"').rstrip(",.")
+    if prediction_str_dict[-1] != '\"':
+      prediction_str_dict += '\"'
+    prediction_str_dict = "{" + prediction_str_dict + "}"
+    debug(type(self).__name__, "prediction_str_dict", prediction_str_dict)
+    prediction = json.loads(prediction_str_dict)
+    debug(type(self).__name__, "predict", prediction)
 
-    result = result[self.predictor_name][0].replace('.', '')
+    self.history.insert(0, {
+      "image": image_base64,
+      "prediction": {"move": prediction["move"]}
+    })
+    self.history = self.history[:1]
 
-    prediction = {"move": result}
     prediction["play"] = self.draw_prediction(prediction)
     return prediction
-
 
 
 class OpenAIPredictor(BaseRobotPredictor):
@@ -70,16 +116,13 @@ class OpenAIPredictor(BaseRobotPredictor):
     super().__init__()
     self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-  def predict_frame(self, frame_array):
-    buffer = cv2.imencode('.jpg', frame_array)[1].tostring()
-    image_base64 = base64.b64encode(buffer).decode('utf-8')
-
+  def predict_frame(self, frame):
     PROMPT_MESSAGES = [
       {
         "role": "user",
         "content": [
           self.prompt,
-          {"image": image_base64, "resize": 768},
+          {"image": self.frame_base64(frame), "resize": 768},
         ],
       },
     ]
@@ -87,12 +130,15 @@ class OpenAIPredictor(BaseRobotPredictor):
     params = {
       "model": "gpt-4o",
       "messages": PROMPT_MESSAGES,
-      "max_tokens": 32
+      "max_tokens": 500
     }
 
     response = self.client.chat.completions.create(**params)
-    result = response.choices[0].message.content.strip()
-    debug(type(self).__name__, "predict", result)
-    prediction = {"move": result}
+    prediction = response.choices[0].message.content.strip()
+    debug(type(self).__name__, "predict", prediction)
+    prediction = prediction.split("{")[1].split("}")[0].replace("\n", "")
+    prediction = "{" + prediction + "}"
+    debug(type(self).__name__, "predict", prediction)
+    prediction = json.loads(prediction)
     prediction["play"] = self.draw_prediction(prediction)
     return prediction

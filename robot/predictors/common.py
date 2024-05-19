@@ -26,8 +26,8 @@ class PipelinePredictor:
     self.pipeline = [
       DepthEstimator(),
 
-      OpenAIPredictor(),
-      # LocalClientPredictor(ip="192.168.10.62"),
+      # OpenAIPredictor(),
+      LocalClientPredictor(host="slatina.softel.bg", port=8901, proto="https"),
 
       # KeyboardPredictor(),
       # KeyboardSpeedPredictor(),

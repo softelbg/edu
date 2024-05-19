@@ -69,8 +69,8 @@ class BaseRobotCommandsDaemon(DaemonBase):
       self.frame_play = self.frame.copy()
 
       font = cv2.FONT_HERSHEY_SIMPLEX
-      font_scale = 4
-      font_thickness = 8
+      font_scale = 3
+      font_thickness = 6
       (text_width, text_height), _ = cv2.getTextSize(self.prediction["move"], font, font_scale, font_thickness)
       w, h = self.frame.shape[1], self.frame.shape[0]
       x = self.frame.shape[1] - text_width - 10
