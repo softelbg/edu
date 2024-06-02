@@ -19,8 +19,30 @@ from openai import OpenAI
 import cv2
 import numpy as np
 
+import sciveo
 from sciveo.common.tools.logger import *
 from robot.predictors.base import BaseRobotPredictor
+
+
+class ClientSimple:
+  def __init__(self, url="http://localhost:8901", verify=True):
+    self.auth_token = os.environ['SCI_API_AUTH_TOKEN']
+    self.api_prefix = os.environ['SCI_API_PREFIX']
+    self.url = f"{url}/{self.api_prefix}/predict"
+    self.verify = verify
+
+  def predict(self, params):
+    headers = {"Authorization": f"Bearer {self.auth_token}"}
+    debug("predicting", self.url, headers)
+    response = requests.post(self.url, json=params, headers=headers, verify=self.verify)
+    debug("predict response", response)
+
+    if response.status_code == 200:
+      data = response.json()
+    else:
+      error(type(self).__name__, f"Request [{self.url}] failed with status code {response.status_code}")
+      data = {"error": response.status_code}
+    return data
 
 
 class LocalClientPredictor(BaseRobotPredictor):
@@ -30,7 +52,7 @@ class LocalClientPredictor(BaseRobotPredictor):
       host = self.scan_network(port)
     self.predictor_name = "TextImageChat"
     self.auth_token = os.environ['SCI_API_AUTH_TOKEN']
-    self.url = f"{proto}://{host}:{port}/{self.auth_token}/predict"
+    self.client = ClientSimple(url=f"{proto}://{host}:{port}", verify=False)
 
     self.history = []
 
@@ -39,17 +61,6 @@ class LocalClientPredictor(BaseRobotPredictor):
     if len(list_ip) > 0:
       return list_ip[0]
     return "127.0.0.1"
-
-  def remote_predict(self, params):
-    headers = {"Authorization": f"Bearer {self.auth_token}"}
-    response = requests.post(self.url, json=params, headers=headers, verify=False)
-
-    if response.status_code == 200:
-      data = response.json()
-    else:
-      error(f"Request failed with status code {response.status_code}")
-      data = {"error": response.status_code}
-    return data
 
   def predict_frame(self, frame):
     images = []
@@ -85,15 +96,15 @@ class LocalClientPredictor(BaseRobotPredictor):
 
     params = {
       "predictor": self.predictor_name,
-      "X": {
+      "X": [{
         "messages": messages,
         "images": images
-      }
+      }]
     }
 
-    prediction = self.remote_predict(params)
+    prediction = self.client.predict(params)
     debug(type(self).__name__, "predict", prediction)
-    prediction_str_dict = prediction[self.predictor_name].replace('{', '').replace('}', '').replace('\'', '\"').rstrip(",.")
+    prediction_str_dict = prediction[self.predictor_name][0].replace('{', '').replace('}', '').replace('\'', '\"').rstrip(",.")
     if prediction_str_dict[-1] != '\"':
       prediction_str_dict += '\"'
     prediction_str_dict = "{" + prediction_str_dict + "}"

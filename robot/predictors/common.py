@@ -27,7 +27,7 @@ class PipelinePredictor:
       DepthEstimator(),
 
       # OpenAIPredictor(),
-      LocalClientPredictor(host="slatina.softel.bg", port=8901, proto="https"),
+      LocalClientPredictor(host="sof-1.softel.bg", port=8901, proto="https"),
 
       # KeyboardPredictor(),
       # KeyboardSpeedPredictor(),
