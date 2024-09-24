@@ -1,2 +1,6 @@
 *.log
 start.sh
+
+.ipynb_checkpoints/
+__pycache__/
+
