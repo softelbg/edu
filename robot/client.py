@@ -18,9 +18,9 @@ import time
 import sciveo
 
 
-from sciveo.common.tools.logger import *
-from sciveo.common.tools.daemon import *
-from sciveo.common.tools.timers import *
+from sciveo.tools.logger import *
+from sciveo.tools.daemon import *
+from sciveo.tools.timers import *
 from robot.predictors.common import *
 
 
@@ -41,7 +41,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
     self.fps = FPSCounter(period=5, tag="play")
     self.fps_predict = FPSCounter(period=5, tag="predict")
     self.prediction = None
-    debug(type(self).__name__, "init", self.url_base)
+    debug("init", self.url_base)
 
   def scan_for_server(self):
     list_ip = []
@@ -59,10 +59,10 @@ class BaseRobotCommandsDaemon(DaemonBase):
       params = {k: self.prediction[k] for k in ["move", "poweroff"] if k in self.prediction}
       response = requests.get(self.url_command, params=params)
       if response.status_code == 200:
-        # debug(type(self).__name__, "Command sent successfully", response.content)
+        # debug("Command sent successfully", response.content)
         pass
       else:
-        error(type(self).__name__, "Failed to send command to server")
+        error("Failed to send command to server")
 
   def draw_prediction(self):
     if self.prediction is not None:
@@ -109,13 +109,13 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
         return image
       except Exception as e:
-        error(type(self).__name__, "Error decoding image:", e)
+        error("Error decoding image:", e)
     else:
-      error(type(self).__name__, "Failed to fetch frame from server")
+      error("Failed to fetch frame from server")
 
   def predict(self):
     self.prediction = self.model.predict(self.frame)
-    # debug(type(self).__name__, "prediction", self.prediction)
+    # debug("prediction", self.prediction)
     self.command()
     self.fps_predict.update()
 
@@ -123,7 +123,7 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
     try:
       self.frame = self.read_frame()
     except Exception as e:
-      error(type(self).__name__, "Error reading frame", e)
+      error("Error reading frame", e)
       time.sleep(5)
     self.timer.run()
     self.draw_prediction()

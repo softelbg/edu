@@ -16,9 +16,9 @@ import cv2
 import time
 import threading
 
-from sciveo.common.tools.logger import *
-from sciveo.common.tools.daemon import *
-from sciveo.common.tools.timers import FPSCounter
+from sciveo.tools.logger import *
+from sciveo.tools.daemon import *
+from sciveo.tools.timers import FPSCounter
 
 
 class CameraDaemon(DaemonBase):
@@ -27,7 +27,7 @@ class CameraDaemon(DaemonBase):
     self.frame = None
     self.cap = cv2.VideoCapture(cam_id)
     self.lock_frame = threading.Lock()
-    debug(type(self).__name__, cam_id, "warming...")
+    debug(cam_id, "warming...")
     time.sleep(1)
     self.fps = FPSCounter(period=10, tag="cam")
 

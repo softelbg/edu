@@ -19,8 +19,8 @@ import numpy as np
 import torch
 from transformers import AutoImageProcessor, AutoModelForDepthEstimation
 
-from sciveo.common.tools.logger import *
-from sciveo.common.tools.timers import *
+from sciveo.tools.logger import *
+from sciveo.tools.timers import *
 from robot.predictors.base import BaseDaemonPredictor
 
 
@@ -35,10 +35,10 @@ class DepthEstimator(BaseDaemonPredictor):
       self.TPU = "cpu"
 
     model_name = "softel/depth-anything-v0.9"
-    debug(type(self).__name__, "loading", model_name)
+    debug("loading", model_name)
     self.image_processor = AutoImageProcessor.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True)
     self.model = AutoModelForDepthEstimation.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True).to(self.TPU)
-    debug(type(self).__name__, model_name, "loaded")
+    debug(model_name, "loaded")
 
   def crop(self, frame, crop_ratio=0.2):
     height, width = frame.shape[:2]
@@ -72,7 +72,7 @@ class DepthEstimator(BaseDaemonPredictor):
   def predict_frame(self, frame):
     t = Timer()
     predicted_depth, image_depth = self.predict_depth(frame)
-    debug(type(self).__name__, "predict elapsed", t.stop(), "depth", [predicted_depth.min(), predicted_depth.max()])
+    debug("predict elapsed", t.stop(), "depth", [predicted_depth.min(), predicted_depth.max()])
     return {
       # "move": "S:0",
       "play": image_depth

@@ -20,7 +20,7 @@ import cv2
 import numpy as np
 
 import sciveo
-from sciveo.common.tools.logger import *
+from sciveo.tools.logger import *
 from robot.predictors.base import BaseRobotPredictor
 
 
@@ -40,7 +40,7 @@ class ClientSimple:
     if response.status_code == 200:
       data = response.json()
     else:
-      error(type(self).__name__, f"Request [{self.url}] failed with status code {response.status_code}")
+      error(f"Request [{self.url}] failed with status code {response.status_code}")
       data = {"error": response.status_code}
     return data
 
@@ -55,6 +55,8 @@ class LocalClientPredictor(BaseRobotPredictor):
     self.client = ClientSimple(url=f"{proto}://{host}:{port}", verify=False)
 
     self.history = []
+
+    self.prompt = "describe what you see in the image, also try to read all text you see"
 
   def scan_network(self, port):
     list_ip = sciveo.network(timeout=1.0, localhost=False).scan_port(port=port)
@@ -92,7 +94,7 @@ class LocalClientPredictor(BaseRobotPredictor):
       ]
     })
 
-    debug(type(self).__name__, "messages", messages)
+    debug("messages", messages)
 
     params = {
       "predictor": self.predictor_name,
@@ -103,14 +105,14 @@ class LocalClientPredictor(BaseRobotPredictor):
     }
 
     prediction = self.client.predict(params)
-    debug(type(self).__name__, "predict", prediction)
+    debug("predict", prediction)
     prediction_str_dict = prediction[self.predictor_name][0].replace('{', '').replace('}', '').replace('\'', '\"').rstrip(",.")
     if prediction_str_dict[-1] != '\"':
       prediction_str_dict += '\"'
     prediction_str_dict = "{" + prediction_str_dict + "}"
-    debug(type(self).__name__, "prediction_str_dict", prediction_str_dict)
+    debug("prediction_str_dict", prediction_str_dict)
     prediction = json.loads(prediction_str_dict)
-    debug(type(self).__name__, "predict", prediction)
+    debug("predict", prediction)
 
     self.history.insert(0, {
       "image": image_base64,
@@ -146,10 +148,10 @@ class OpenAIPredictor(BaseRobotPredictor):
 
     response = self.client.chat.completions.create(**params)
     prediction = response.choices[0].message.content.strip()
-    debug(type(self).__name__, "predict", prediction)
+    debug("predict", prediction)
     prediction = prediction.split("{")[1].split("}")[0].replace("\n", "")
     prediction = "{" + prediction + "}"
-    debug(type(self).__name__, "predict", prediction)
+    debug("predict", prediction)
     prediction = json.loads(prediction)
     prediction["play"] = self.draw_prediction(prediction)
     return prediction

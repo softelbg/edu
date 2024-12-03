@@ -19,7 +19,7 @@ import datetime
 from flask import Flask, jsonify, render_template, request, url_for, Response
 from waitress import serve
 
-from sciveo.common.tools.logger import *
+from sciveo.tools.logger import *
 from robot.tools.cam import *
 from robot.tools.serial import *
 

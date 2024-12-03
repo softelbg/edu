@@ -16,8 +16,8 @@ import cv2
 import base64
 import numpy as np
 
-from sciveo.common.tools.daemon import *
-from sciveo.common.tools.timers import FPSCounter
+from sciveo.tools.daemon import *
+from sciveo.tools.timers import FPSCounter
 
 
 class BaseDaemonPredictor(DaemonBase):
