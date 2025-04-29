@@ -19,8 +19,8 @@ from sciveo.tools.logger import *
 
 
 class SerialDummy:
-  def __init__(self, address='/dev/ttyACM0', speed=9600):
-    debug(address, speed)
+  def __init__(self, address='/dev/ttyACM0', baudrate=9600, timeout=2):
+    debug(address, baudrate)
 
   def close(self):
     debug(type(self).__name__)
@@ -30,11 +30,11 @@ class SerialDummy:
 
 
 class SerialCom:
-  def __init__(self, address='/dev/ttyACM0', speed=9600):
+  def __init__(self, address='/dev/ttyACM0', baudrate=9600, timeout=2):
     self.address = address
-    self.speed = speed
-    self.com = serial.Serial(self.address, self.speed)
-    debug(self.address, self.speed, "warming...")
+    self.baudrate = baudrate
+    self.com = serial.Serial(self.address, baudrate=self.baudrate, timeout=timeout)
+    debug(self.address, self.baudrate, "warming...")
     time.sleep(2)
 
   def close(self):
