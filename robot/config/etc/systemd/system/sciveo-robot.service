@@ -1,0 +1,10 @@
+[Unit]
+Description=Sciveo Robot
+
+[Service]
+User=robot
+ExecStart=/home/robot/start.sh
+WorkingDirectory=/home/robot
+
+[Install]
+WantedBy=multi-user.target

@@ -22,6 +22,7 @@ from sciveo.tools.logger import *
 from sciveo.tools.daemon import *
 from sciveo.tools.timers import *
 from robot.predictors.common import *
+from robot.predictors.arm import *
 
 
 class BaseRobotCommandsDaemon(DaemonBase):
@@ -69,8 +70,8 @@ class BaseRobotCommandsDaemon(DaemonBase):
       self.frame_play = self.frame.copy()
 
       font = cv2.FONT_HERSHEY_SIMPLEX
-      font_scale = 3
-      font_thickness = 6
+      font_scale = 1
+      font_thickness = 3
       (text_width, text_height), _ = cv2.getTextSize(self.prediction["move"], font, font_scale, font_thickness)
       w, h = self.frame.shape[1], self.frame.shape[0]
       x = self.frame.shape[1] - text_width - 10
@@ -83,14 +84,20 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
   def play(self):
     if self.frame_play is not None:
-      cv2.imshow("robot", self.frame_play)
+      cv2.imshow(f"{self.url_frame}::robot", self.frame_play)
       if "play" in self.prediction:
         if isinstance(self.prediction["play"], list):
           for i, frame in enumerate(self.prediction["play"]):
-            cv2.imshow(f"prediction {i}", frame)
+            cv2.imshow(f"{self.url_frame}::prediction {i}", frame)
         else:
-          cv2.imshow("prediction", self.prediction["play"])
+          cv2.imshow(f"{self.url_frame}::prediction", self.prediction["play"])
       cv2.waitKey(1)
+
+  def print_prediction(self):
+    if self.prediction is not None:
+      for k, v in self.prediction.items():
+        if k not in ["play"]:
+          debug("prediction", k, "=>", v)
 
 
 class RobotCommandsDaemon(BaseRobotCommandsDaemon):
@@ -115,7 +122,47 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
   def predict(self):
     self.prediction = self.model.predict(self.frame)
-    # debug("prediction", self.prediction)
+    self.print_prediction()
+    self.command()
+    self.fps_predict.update()
+
+  def loop(self):
+    try:
+      self.frame = self.read_frame()
+    except Exception as e:
+      error("Error reading frame", e)
+      time.sleep(5)
+    self.timer.run()
+    self.draw_prediction()
+    self.fps.update()
+
+
+class RobotArmDaemon(BaseRobotCommandsDaemon):
+  def __init__(self, ip=None, period_cap=0.1, period_predict=1.0):
+    super().__init__(ip, period_cap)
+
+    self.url_frame = f"{self.url_base}/arm/frame"
+    self.url_command = f"{self.url_base}/arm/command"
+
+    self.timer = TimerExec(fn=self.predict, period=period_predict)
+
+    self.model = ArmPipelinePredictor()
+
+  def read_frame(self):
+    response = requests.get(self.url_frame, stream=True)
+    if response.status_code == 200:
+      try:
+        image_array = np.frombuffer(response.content, dtype=np.uint8)
+        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+        return image
+      except Exception as e:
+        error("Error decoding image:", e)
+    else:
+      error("Failed to fetch frame from server")
+
+  def predict(self):
+    self.prediction = self.model.predict(self.frame)
+    self.print_prediction()
     self.command()
     self.fps_predict.update()
 
@@ -131,9 +178,16 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
 
 
 if __name__ == "__main__":
-  cmd = RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=0.1)
-  cmd.start()
+  ip = "10.37.0.22"
+  daemons = [
+    RobotCommandsDaemon(ip=ip, period_cap=0.02, period_predict=0.1),
+    RobotArmDaemon(ip=ip, period_cap=0.02, period_predict=0.1),
+  ]
+
+  for d in daemons:
+    d.start()
 
   while(True):
-    cmd.play()
+    for d in daemons:
+      d.play()
     time.sleep(0.01)

@@ -12,11 +12,8 @@
 #
 
 import os
-import cv2
-import requests
-import time
 import datetime
-from flask import Flask, jsonify, render_template, request, url_for, Response
+from flask import Flask, jsonify, request, Response
 from waitress import serve
 
 from sciveo.tools.logger import *
@@ -24,8 +21,14 @@ from robot.tools.cam import *
 from robot.tools.serial import *
 
 
-cam = CameraDaemon()
-com = SerialDummy()
+cam_car = CameraDaemon(cam_id=0)
+com_car = SerialCom(address="/dev/ttyACM0")
+
+cam_arm = CameraDaemon(cam_id=1)
+com_arm = SerialCom(address="/dev/ttyACM1")
+
+# com_car = SerialDummy()
+# com_arm = SerialDummy()
 # com = SerialCom(address="/dev/ttyACM0")
 # com = SerialCom(address="/dev/ttyUSB0")
 
@@ -33,24 +36,37 @@ app = Flask(__name__)
 
 @app.route('/frame')
 def frame():
-  # return Response(cam.read_buf(), mimetype='multipart/x-mixed-replace; boundary=frame')
-  return Response(cam.read_buf(), mimetype='image/jpeg')
+  return Response(cam_car.read_buf(), mimetype='image/jpeg')
 
 @app.route('/command')
 def command():
   data = request.args.to_dict()
   debug(datetime.datetime.now(), "command", data)
   if "move" in data:
-    com.send(data["move"])
+    com_car.send(data["move"])
   if "poweroff" in data:
     os.system("sudo poweroff")
   return jsonify(data)
 
 
+@app.route('/arm/frame')
+def arm_frame():
+  return Response(cam_arm.read_buf(), mimetype='image/jpeg')
+
+@app.route('/arm/command')
+def arm_command():
+  data = request.args.to_dict()
+  debug(datetime.datetime.now(), "arm", data)
+  if "move" in data:
+    com_arm.send(data["move"])
+  return jsonify(data)
+
+
 if __name__ == '__main__':
-  cam.start()
+  cam_car.start()
+  cam_arm.start()
 
   serve(app, host='0.0.0.0', port=9901)
 
-  cam.close()
-  ser.close()
+  com_car.close()
+  com_arm.close()

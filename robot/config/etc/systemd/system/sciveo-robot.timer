@@ -1,0 +1,9 @@
+[Unit]
+Description=Sciveo Robot
+
+[Timer]
+OnBootSec=0
+Unit=sciveo-robot.service
+
+[Install]
+WantedBy=timers.target
