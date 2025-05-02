@@ -20,19 +20,20 @@ from robot.predictors.remote import *
 class ArmPipelinePredictor:
   def __init__(self):
     self.pipeline = [
-      ArmKeyboardPredictor()
+      # ArmKeyboardPredictor(),
+      ArmDummyPredictor(),
     ]
 
     self.start()
 
   def start(self):
-    for model in self.pipeline:
-      model.start()
+    for predictor in self.pipeline:
+      predictor.start()
 
   def predict(self, frame):
     predictions = {}
-    for model in self.pipeline:
-      prediction = model.predict(frame)
+    for predictor in self.pipeline:
+      prediction = predictor.predict(frame)
       for k, v in prediction.items():
         if k == "play":
           predictions.setdefault("play", [])
@@ -41,6 +42,24 @@ class ArmPipelinePredictor:
         else:
           predictions[k] = v
     return predictions
+
+
+class ArmDummyPredictor:
+  def __init__(self):
+    self.idx = 0
+
+  def start(self):
+    pass
+
+  def predict(self, frame_array):
+    self.idx += 1
+    if self.idx >= 60:
+      self.idx = 0
+    m1 = 30 + self.idx
+    return {
+      "move": f"mv:30,{m1},{m1},{m1},{m1},{m1},{m1}",
+      "play": frame_array
+    }
 
 
 class ArmKeyboardPredictor(DaemonBase):
@@ -72,5 +91,7 @@ class ArmKeyboardPredictor(DaemonBase):
     self.c = self.m
 
   def predict(self, frame_array):
-    result = {"move": self.c}
-    return result
+    return {
+      "move": "mv:90,90,90,90,90,90",
+      "play": frame_array
+    }

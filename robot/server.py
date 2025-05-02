@@ -50,11 +50,11 @@ def command():
 
 
 @app.route('/arm/frame')
-def frame():
+def arm_frame():
   return Response(cam_arm.read_buf(), mimetype='image/jpeg')
 
 @app.route('/arm/command')
-def command():
+def arm_command():
   data = request.args.to_dict()
   debug(datetime.datetime.now(), "arm", data)
   if "move" in data:

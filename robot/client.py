@@ -84,13 +84,13 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
   def play(self):
     if self.frame_play is not None:
-      cv2.imshow("robot", self.frame_play)
+      cv2.imshow(f"{self.url_frame}::robot", self.frame_play)
       if "play" in self.prediction:
         if isinstance(self.prediction["play"], list):
           for i, frame in enumerate(self.prediction["play"]):
-            cv2.imshow(f"prediction {i}", frame)
+            cv2.imshow(f"{self.url_frame}::prediction {i}", frame)
         else:
-          cv2.imshow("prediction", self.prediction["play"])
+          cv2.imshow(f"{self.url_frame}::prediction", self.prediction["play"])
       cv2.waitKey(1)
 
 
@@ -172,9 +172,10 @@ class RobotArmDaemon(BaseRobotCommandsDaemon):
 
 
 if __name__ == "__main__":
+  ip = "192.168.0.211"
   daemons = [
-    RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=0.1),
-    RobotArmDaemon(ip=None, period_cap=0.02, period_predict=0.1),
+    RobotCommandsDaemon(ip=ip, period_cap=0.02, period_predict=0.1),
+    RobotArmDaemon(ip=ip, period_cap=0.02, period_predict=0.1),
   ]
 
   for d in daemons:

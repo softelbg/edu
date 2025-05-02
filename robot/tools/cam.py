@@ -29,7 +29,7 @@ class CameraDaemon(DaemonBase):
     self.lock_frame = threading.Lock()
     debug(cam_id, "warming...")
     time.sleep(1)
-    self.fps = FPSCounter(period=10, tag="cam")
+    self.fps = FPSCounter(period=10, tag=f"cam {cam_id}")
 
     self.writers = [
       # cv2.VideoWriter("rtsp://0.0.0.0:554/s1", fourcc=cv2.VideoWriter_fourcc(*'XVID'), fps=30.0, frameSize=(640, 480))

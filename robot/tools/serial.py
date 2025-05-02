@@ -40,5 +40,10 @@ class SerialCom:
   def close(self):
     self.com.close()
 
+  def receive(self):
+    return self.com.readline().decode('utf-8').strip()
+
   def send(self, value):
-    self.com.write(f"{value}\n".encode())
+    response = self.com.write(f"{value}\n".encode())
+    debug("send response", response)
+    return response
