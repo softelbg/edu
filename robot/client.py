@@ -22,6 +22,7 @@ from sciveo.tools.logger import *
 from sciveo.tools.daemon import *
 from sciveo.tools.timers import *
 from robot.predictors.common import *
+from robot.predictors.arm import *
 
 
 class BaseRobotCommandsDaemon(DaemonBase):
@@ -130,10 +131,56 @@ class RobotCommandsDaemon(BaseRobotCommandsDaemon):
     self.fps.update()
 
 
+class RobotArmDaemon(BaseRobotCommandsDaemon):
+  def __init__(self, ip=None, period_cap=0.1, period_predict=1.0):
+    super().__init__(ip, period_cap)
+
+    self.url_frame = f"{self.url_base}/arm/frame"
+    self.url_command = f"{self.url_base}/arm/command"
+
+    self.timer = TimerExec(fn=self.predict, period=period_predict)
+
+    self.model = ArmPipelinePredictor()
+
+  def read_frame(self):
+    response = requests.get(self.url_frame, stream=True)
+    if response.status_code == 200:
+      try:
+        image_array = np.frombuffer(response.content, dtype=np.uint8)
+        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+        return image
+      except Exception as e:
+        error("Error decoding image:", e)
+    else:
+      error("Failed to fetch frame from server")
+
+  def predict(self):
+    self.prediction = self.model.predict(self.frame)
+    debug("prediction", self.prediction)
+    self.command()
+    self.fps_predict.update()
+
+  def loop(self):
+    try:
+      self.frame = self.read_frame()
+    except Exception as e:
+      error("Error reading frame", e)
+      time.sleep(5)
+    self.timer.run()
+    self.draw_prediction()
+    self.fps.update()
+
+
 if __name__ == "__main__":
-  cmd = RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=0.1)
-  cmd.start()
+  daemons = [
+    RobotCommandsDaemon(ip=None, period_cap=0.02, period_predict=0.1),
+    RobotArmDaemon(ip=None, period_cap=0.02, period_predict=0.1),
+  ]
+
+  for d in daemons:
+    d.start()
 
   while(True):
-    cmd.play()
+    for d in daemons:
+      d.play()
     time.sleep(0.01)
