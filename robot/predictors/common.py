@@ -25,9 +25,9 @@ class PipelinePredictor:
   def __init__(self):
     self.pipeline = [
       DepthEstimator(),
-
       # OpenAIPredictor(),
-      LocalClientPredictor(host="sof-1.softel.bg", port=8901, proto="https"),
+
+      # LocalClientPredictor(host="sof-1.softel.bg", port=8901, proto="https"),
 
       # KeyboardPredictor(),
       # KeyboardSpeedPredictor(),

@@ -69,7 +69,7 @@ class BaseRobotPredictor(BaseDaemonPredictor):
     self.test_search_object()
 
   def test_search_object(self):
-    search_object = "black dog"
+    search_object = "bottle of water"
     command_prompt = " ".join([
       f"Start searching for a {search_object}.",
       f"If the {search_object} is not visible, start rotation to the right.",
