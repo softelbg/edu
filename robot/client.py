@@ -26,6 +26,21 @@ from robot.predictors.common import *
 from robot.predictors.arm import *
 
 
+class PredictionDaemon(DaemonBase):
+  def __init__(self, base, period=1):
+    super().__init__(period=period)
+    self.base = base
+    self.fps = FPSCounter(period=5, tag="predictor")
+
+  def loop(self):
+    try:
+      self.base.predict()
+      self.fps.update()
+    except Exception as e:
+      error("Error prediction", e)
+      time.sleep(5)
+
+
 class BaseRobotCommandsDaemon(DaemonBase):
   def __init__(self, ip=None, period=1, period_predict=1):
     super().__init__(period=period)
@@ -45,11 +60,18 @@ class BaseRobotCommandsDaemon(DaemonBase):
     self.fps_play = FPSCounter(period=5, tag="play")
 
     self.model = None
-    self.timer = TimerExec(fn=self.predict, period=period_predict)
+    self.lock_model = threading.Lock()
 
     self.lock_prediction = threading.Lock()
     self.prediction = None
+
+    self.predict_daemon = PredictionDaemon(self, period_predict)
+
     debug("init", self.url_base)
+
+  def start(self):
+    super().start()
+    self.predict_daemon.start()
 
   def read_frame(self):
     response = requests.get(self.url_frame, stream=True)
@@ -64,10 +86,14 @@ class BaseRobotCommandsDaemon(DaemonBase):
       error("Failed to fetch frame from server")
 
   def predict(self):
-    self.prediction = self.model.predict(self.frame)
+    prediction = None
+    with self.lock_model:
+      if self.model is not None:
+        prediction = self.model.predict(self.frame)
+        self.fps_predict.update()
+    self.set_prediction(prediction)
     self.print_prediction()
     self.command()
-    self.fps_predict.update()
 
   def loop(self):
     try:
@@ -75,7 +101,6 @@ class BaseRobotCommandsDaemon(DaemonBase):
     except Exception as e:
       error("Error reading frame", e)
       time.sleep(5)
-    self.timer.run()
     self.draw_prediction()
     self.fps.update()
 
@@ -104,10 +129,12 @@ class BaseRobotCommandsDaemon(DaemonBase):
       params = {k: current_prediction[k] for k in ["move", "poweroff"] if k in current_prediction}
       response = requests.get(self.url_command, params=params)
       if response.status_code == 200:
-        debug("Command sent successfully", response.content)
-        pass
+        debug("CMD", params, "response", response.content)
+        time.sleep(5)
       else:
         error("Failed to send command to server")
+    else:
+      debug("command current_prediction is NONE")
 
   def draw_prediction(self):
     current_prediction = self.get_prediction()
@@ -117,21 +144,23 @@ class BaseRobotCommandsDaemon(DaemonBase):
       font = cv2.FONT_HERSHEY_SIMPLEX
       font_scale = 1
       font_thickness = 3
-      (text_width, text_height), _ = cv2.getTextSize(current_prediction["move"], font, font_scale, font_thickness)
+      (text_width, text_height), _ = cv2.getTextSize(current_prediction.get("move", ""), font, font_scale, font_thickness)
       w, h = self.frame.shape[1], self.frame.shape[0]
       x = self.frame.shape[1] - text_width - 10
       y = text_height + 10
-      cv2.putText(self.frame_play, current_prediction["move"], (x, y), font, font_scale, (0, 255, 0), font_thickness)
+      cv2.putText(self.frame_play, current_prediction.get("move", ""), (x, y), font, font_scale, (0, 255, 0), font_thickness)
 
       lh = h // 4
       cv2.line(self.frame_play, (w // 2 - lh // 2, h // 2), (w // 2 + lh // 2, h // 2), (0, 255, 0), thickness=2)
       cv2.line(self.frame_play, (w // 2, h // 2 - lh // 2), (w // 2, h // 2 + lh // 2), (0, 255, 0), thickness=2)
+    else:
+      debug("draw_prediction current_prediction is NONE")
 
   def play(self):
     if self.frame_play is not None:
       cv2.imshow(f"{self.url_frame}::robot", self.frame_play)
       current_prediction = self.get_prediction()
-      if "play" in current_prediction:
+      if current_prediction is not None and "play" in current_prediction:
         if isinstance(current_prediction["play"], list):
           for i, frame in enumerate(current_prediction["play"]):
             cv2.imshow(f"{self.url_frame}::prediction {i}", frame)
@@ -146,6 +175,8 @@ class BaseRobotCommandsDaemon(DaemonBase):
       for k, v in current_prediction.items():
         if k not in ["play"]:
           debug("prediction", k, "=>", v)
+    else:
+      debug("print_prediction current_prediction is NONE")
 
 
 class RobotCommandsDaemon(BaseRobotCommandsDaemon):
@@ -171,7 +202,7 @@ if __name__ == "__main__":
   ip = None
   daemons = [
     RobotCommandsDaemon(ip=ip, period_cap=0.02, period_predict=0.1),
-    RobotArmDaemon(ip=ip, period_cap=0.02, period_predict=1.0),
+    RobotArmDaemon(ip=ip, period_cap=0.02, period_predict=5.0),
   ]
 
   for d in daemons:

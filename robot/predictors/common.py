@@ -24,9 +24,8 @@ from robot.predictors.remote import *
 class PipelinePredictor:
   def __init__(self):
     self.pipeline = [
-      DepthEstimator(),
       # OpenAIPredictor(),
-
+      DepthEstimator(),
       # LocalClientPredictor(host="sof-1.softel.bg", port=8901, proto="https"),
 
       # KeyboardPredictor(),

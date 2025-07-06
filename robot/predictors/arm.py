@@ -19,6 +19,40 @@ from robot.predictors.common import PipelinePredictor
 
 
 class ArmOpenAIPredictor(OpenAIPredictor):
+  def __init__(self):
+    super().__init__()
+    self.position = np.array([90, 90, 30, 30, 90, 90])
+    self.position_limits = [[30, 150], [70, 90], [0, 60], [0, 35], [0, 180], [0, 90]]
+    dg = 5
+    dgu = 10
+    self.dp = {
+      'N': np.array([0, 0, 0, 0, 0, 0]),
+      'R': np.array([dg, 0, 0, 0, 0, 0]),
+      'L': np.array([-dg, 0, 0, 0, 0, 0]),
+      'U1': np.array([0,  dgu, 0, 0, 0, 0]),
+      'D1': np.array([0, -dgu, 0, 0, 0, 0]),
+      'U2': np.array([0, 0,  dgu, 0, 0, 0]),
+      'D2': np.array([0, 0, -dgu, 0, 0, 0]),
+      'U3': np.array([0, 0, 0,  dgu, 0, 0]),
+      'D3': np.array([0, 0, 0, -dgu, 0, 0]),
+      'GR': np.array([0, 0, 0, 0,  dg, 0]),
+      'GL': np.array([0, 0, 0, 0, -dg, 0]),
+      'G1': np.array([0, 0, 0, 0, 0, 90]),
+      'G0': np.array([0, 0, 0, 0, 0, -90]),
+    }
+
+  def move(self, cmd):
+    self.position += self.dp.get(cmd, self.dp['N'])
+    for i in range(len(self.position)):
+      if i < len(self.position) - 1:
+        if self.position[i] > self.position_limits[i][1]:
+          self.position[i] = self.position_limits[i][0]
+        if self.position[i] < self.position_limits[i][0]:
+          self.position[i] = self.position_limits[i][1]
+      else:
+        self.position[i] = min(self.position[i], self.position_limits[i][1])
+        self.position[i] = max(self.position[i], self.position_limits[i][0])
+
   def test_search_object(self):
     command_prompt = " ".join([
       "Start searching for a bottle of water and try to pick it.",
@@ -30,31 +64,62 @@ class ArmOpenAIPredictor(OpenAIPredictor):
     if isinstance(command_prompt, list):
       command_prompt = " ".join(command_prompt)
 
-    response_template = "{ 'move': 'mv:200,<arm link 1 degree>,<arm link 2 degree>,<arm link 3 degree>,<arm link 4 degree>,<arm link 5 degree>,<arm link 6 degree>' }"
+    # response_template = "{ 'move': 'mv:200,<arm link 1 degree>,<arm link 2 degree>,<arm link 3 degree>,<arm link 4 degree>,<arm link 5 degree>,<arm link 6 degree>' }"
+    # self.prompt = " ".join([
+    #   "You are a robot arm with 6 links DOF. The last one (number 6 is a gripper).",
+    #   "When the object is in the reach of the gripper (6th motor), grab it!",
+    #   "Every command will move the arm to the specified degrees.",
+    #   "Look at the image from the robot arm camera for navigation.",
+    #   command_prompt,
+    #   "The move command should include 6 DOF degrees with limits as [[45, 135], [50, 90], [0, 60], [0, 35], [0, 180], [0, 90]].",
+    #   "Keep attention to the move command and try to be very accurate.",
+    #   "When not sure what to do and do not see the target object, start rotation to the left or right or up or down.",
+    #   f"Respond with a json dict like {response_template} and be strict of the json validity."
+    # ])
+
+    response_template = "{ 'move': 'S' }"
     self.prompt = " ".join([
-      "You are a robot arm with 6 links DOF. The last one (number 6 is a gripper).",
-      "When the object is in the reach of the gripper (6th motor), grab it!",
-      "Every command will move the arm to the specified degrees.",
-      "Look at the image from the robot arm camera for navigation.",
+      "You are a robot arm with a gripper.",
+      "The possible movement commands are neutral, right, left, up1, down1, up2, down2, up3, down3, rotate gripper left or right and gripper on and gripper off.",
+      "The respective commands, which to return are 'N', 'R', 'L', 'U1', 'D1', 'U2', 'D2', 'U3', 'D3', 'GL', 'GR', 'G1', 'G0'",
+      "When the object is in the reach of the gripper, grab it! Grabbing should be a sequence of open and then close the gripper (0 -> 1).",
+      "When try to grab also could use U3 and D3 for small gripper up and down movements to fine tune the gripper position.",
+      "Every command will move the arm except the neutral command which is just to keep the current position.",
+      "Look at the image from the robot arm camera for navigation. The camera is positioned above the gripper.",
       command_prompt,
-      "The move command should include 6 DOF degrees with limits as [[0, 180], [0, 90], [0, 100], [0, 100], [0, 180], [0, 90]].",
+      "The move command should include .",
       "Keep attention to the move command and try to be very accurate.",
-      "When not sure what to do, just return same degrees as last time.",
+      "When not sure what to do or do not see the target object start some random movement so to try to see it.",
+      "When not moving after actual move command, this means the arm is on the limit and should start moving the opposite direction so change the direction.",
       f"Respond with a json dict like {response_template} and be strict of the json validity."
     ])
+
     debug(type(self).__name__, "set prompt", self.prompt)
+
+  def predict_frame(self, frame):
+    prediction = super().predict_frame(frame)
+    if 'move' in prediction:
+      cmd = prediction['move']
+      self.move(cmd)
+      prediction['move'] = f"mv:200"
+      for p in self.position:
+        prediction['move'] += f",{int(p)}"
+      debug("predict_frame::move", prediction['move'], cmd)
+    return prediction
+
+
 
 
 class ArmPipelinePredictor(PipelinePredictor):
   def __init__(self):
     self.pipeline = [
       # ArmOpenAIPredictor(),
-      DepthEstimator(),
+      # DepthEstimator(),
 
       # LocalClientPredictor(host="sof-1.softel.bg", port=8901, proto="https"),
 
       # ArmKeyboardPredictor(),
-      # ArmSimulationPredictor(),
+      ArmSimulationPredictor(),
       # ArmDummyPredictor(),
     ]
 
@@ -116,29 +181,31 @@ class ArmDummyPredictor:
 class ArmSimulationPredictor:
   def __init__(self):
     self.arms = []
+    self.position_limits = [[30, 150], [70, 90], [0, 60], [0, 35], [0, 180], [0, 90]]
+    self.initial = [90, 60, 45, 30, 90, 0]
     self.bounds = {
       0: [45, 135],
-      1: [45, 90],
-      2: [0, 80],
-      3: [0, 120],
-      4: [0, 120],
-      5: [0, 180],
-      6: [0, 90]
+      1: [60, 90], # high power!
+      2: [10, 90],
+      3: [0, 90],
+      4: [0, 180],
+      5: [0, 90]
     }
 
   def start(self):
     for i in range(6):
-      self.arms.append(45)
+      self.arms.append(self.initial[i])
 
   def predict(self, frame_array):
     step = 5
 
-    cmd = "mv:300"
+    cmd = "mv:200"
     for i in range(len(self.arms)):
-      self.arms[i] += step
       if self.arms[i] > self.bounds[i][1]:
         self.arms[i] = self.bounds[i][0]
       cmd += f",{self.arms[i]}"
+
+    self.arms[3] += step
 
     return {
       "move": cmd,

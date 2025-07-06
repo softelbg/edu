@@ -22,7 +22,7 @@ from sciveo.tools.timers import FPSCounter
 
 class BaseDaemonPredictor(DaemonBase):
   def __init__(self):
-    super().__init__(period=0.1)
+    super().__init__(period=5)
 
     self.fps = FPSCounter(period=5, tag=type(self).__name__)
     self.prediction = None
