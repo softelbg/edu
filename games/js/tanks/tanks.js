@@ -42,65 +42,119 @@ class CannonBall {
 
     this.vx = this.v * Math.cos(this.angle)
     this.vy = this.v * Math.sin(this.angle)
+
+    this.alive = true
+
+    this.explosion = 0
   }
 
   draw() {
-    draw_circle(this.ctx, this.x, this.y, this.r, this.color, true)
+    if (this.alive) {
+      draw_circle(this.ctx, this.x, this.y, this.r, this.color, true)
 
-    this.x += this.vx
-    this.y += this.vy
+      this.x += this.vx
+      this.y += this.vy
 
-    this.vx += this.g[0]
-    this.vy += this.g[1]
+      this.vx += this.g[0]
+      this.vy += this.g[1]
+    }
+
+    if (this.explosion) {
+      this.explosion.draw()
+    }
+  }
+
+  explode() {
+    if (this.alive) {
+      this.explosion = new Explosion(this.ctx, this.x, this.y)
+      this.kill()
+    }
+  }
+
+  collision_circle(x, y, r) {
+    let l = ((this.x - x) ** 2 + (this.y - y) ** 2) **  0.5
+    let is_collision = (l <= r + this.r)
+    if (is_collision) {
+      this.explode()
+    }
+    return is_collision
+  }
+
+  check_bounds(x1, y1, x2, y2) {
+    if (this.x < x1 || this.x > x2 || this.y < y1 || this.y > y2) {
+      this.explode()
+    }
+    return this.alive
+  }
+
+  kill() {
+    this.alive = false
   }
 }
 
 
 class Hill extends SemiCircle {
   constructor(ctx, w, h, x, y, r) {
-    super(ctx, w, h, x, y, r, "red")
+    super(ctx, w, h, x, y, r, "green")
   }
 }
 
+
 class Tank extends SemiCircle {
-  constructor(ctx, w, h, x, y, r, g, color, controls={}, name="") {
+  constructor(ctx, w, h, x, y, r, g, color, angle=190, controls={}, name="") {
     super(ctx, w, h, x, y, r, color)
 
     this.controls = controls
     this.name = name
 
+    this.alive = true
+
     this.g = g
-    this.angle = 270
+    this.angle = angle
     this.turret_len = 2 * this.r
 
     this.cannon_balls = []
+
+    this.explosion = 0
 
     document.addEventListener('keydown', this.on_keydown.bind(this))
     // document.addEventListener('keyup', this.on_keyup.bind(this))
   }
 
+  kill() {
+    if (this.alive) {
+      this.explosion = new Explosion(this.ctx, this.x, this.y, this.color, 100)
+    }
+    this.alive = false
+  }
+
   on_keydown(e) {
-    if ('наляво' in this.controls && e.key == this.controls["наляво"]) {
-      this.angle -= 5
-      if (this.angle < 190) {
-        this.angle = 190
+    if (this.alive) {
+      if ('наляво' in this.controls && e.key == this.controls["наляво"]) {
+        this.angle -= 1
+        if (this.angle < 190) {
+          this.angle = 190
+        }
+        return
       }
-      return
-    }
 
-    if ('надясно' in this.controls && e.key == this.controls["надясно"]) {
-      this.angle += 5
-      if (this.angle > 350) {
-        this.angle = 350
+      if ('надясно' in this.controls && e.key == this.controls["надясно"]) {
+        this.angle += 1
+        if (this.angle > 350) {
+          this.angle = 350
+        }
+        return
       }
-      return
-    }
 
-    if ('изстрел' in this.controls && e.key == this.controls["изстрел"]) {
-      this.cannon_balls.push(
-        new CannonBall(this.ctx, this.W, this.H, this.x, this.y, 1.0, this.angle, 5, this.g, "red")
-      )
-      return
+      if ('изстрел' in this.controls && e.key == this.controls["изстрел"]) {
+        let angle_radians = to_radians(this.angle)
+        let x1 = this.x + this.turret_len * Math.cos(angle_radians)
+        let y1 = this.y + this.turret_len * Math.sin(angle_radians)
+        this.cannon_balls.push(
+          new CannonBall(this.ctx, this.W, this.H, x1, y1, 1.5, this.angle, 5, this.g, "red")
+        )
+        return
+      }
     }
   }
 
@@ -109,14 +163,22 @@ class Tank extends SemiCircle {
   }
 
   draw() {
-    super.draw()
+    if (this.alive) {
+      super.draw()
 
-    let angle_radians = to_radians(this.angle)
+      let angle_radians = to_radians(this.angle)
 
-    let x2 = this.x + this.turret_len * Math.cos(angle_radians)
-    let y2 = this.y + this.turret_len * Math.sin(angle_radians)
+      let x2 = this.x + this.turret_len * Math.cos(angle_radians)
+      let y2 = this.y + this.turret_len * Math.sin(angle_radians)
 
-    draw_line(this.ctx, [this.x, this.y], [x2, y2], this.color, 1)
+      draw_line(this.ctx, [this.x, this.y], [x2, y2], this.color, 1)
+    } else {
+      draw_circle(this.ctx, this.x, this.y, 3 * this.r, "black", true)
+
+      if(this.explosion) {
+        this.explosion.draw()
+      }
+    }
 
     for (let i = 0; i < this.cannon_balls.length; i++) {
       this.cannon_balls[i].draw()
@@ -125,5 +187,29 @@ class Tank extends SemiCircle {
 
   info() {
     return `${this.name}: angle ${this.angle}`;
+  }
+}
+
+
+class Explosion {
+  constructor(ctx, x, y, color="red", size=30, fps_ratio=1) {
+    this.ctx = ctx
+    this.x = x
+    this.y = y
+    this.fps_ratio = fps_ratio
+    this.r = 2
+    this.color = color
+    this.size = size
+    this.alive = true
+  }
+
+  draw() {
+    if (this.alive) {
+      draw_circle(this.ctx, this.x, this.y, this.r, this.color, true)
+      this.r += 0.2 * this.fps_ratio
+      if (this.r > this.size) {
+        this.alive = false
+      }
+    }
   }
 }
