@@ -23,8 +23,9 @@ class Integrals extends Game {
     this.integral_sum = null
 
     this.list_rectangles = []
+    this.list_sums = []
 
-    console.log("Formula", this.formula, this.F)
+    console.log("Formula", this.formula, this.F, "from", this.a, "to", this.b, "dx", this.dx)
   
     this.ratio_move = new RatioRunner(2, this.sum_next.bind(this), 0)
     setTimeout(this.on_fps.bind(this), 1500)
@@ -38,11 +39,13 @@ class Integrals extends Game {
     
     sum_next() {
       this.current_y = this.F(this.current_x)
-      this.S += this.current_y * this.dx
+      let ds = this.current_y * this.dx
+      this.S += ds
       this.current_x += this.dx
       this.list_rectangles.push([50 + (this.current_x - this.a) * 10, 400 - this.current_y * 2, this.dx * 10, this.current_y * 2])
-      console.log("Current x:", this.current_x, "y:", this.current_y, "S:", this.S)
-      console.log(this.list_rectangles)
+      this.list_sums.push(ds)
+      // console.log("Current x:", this.current_x, "y:", this.current_y, "S:", this.S)
+      // console.log(this.list_rectangles)
 
       if (this.current_x >= this.b) {
         console.log("Integral", this.formula, "from", this.a, "to", this.b, "=", this.S)
@@ -51,11 +54,12 @@ class Integrals extends Game {
         this.integral_sum = this.S
         this.S = 0.0
         this.list_rectangles = []
+        this.list_sums = []
       }
     }
 
     draw() {
-      draw_text(this.ctx, "FPS " + Math.round(this.fps_counter.fps) + " formula " + this.formula, 5, 40, 10, "white")
+      draw_text(this.ctx, "FPS " + Math.round(this.fps_counter.fps) + " formula " + this.formula, 5, 40, 10, "orange")
       draw_text(this.ctx, "Integral from " + this.a + " to " + this.b + " dx=" + this.dx + " Current sum: " + this.S.toFixed(4), 5, 60, 12, "white")
       if (this.integral_sum !== null) {
         draw_text(this.ctx, "Last computed integral sum: " + this.integral_sum, 5, 100, 15, "white")
@@ -63,10 +67,13 @@ class Integrals extends Game {
 
       for (let i = 0; i < this.list_rectangles.length; i++) {
         let r = this.list_rectangles[i]
-        if (i >= this.list_rectangles.length - 3) {
-          draw_rect(this.ctx, r[0], r[1], r[2], r[3], "red", true, 1)
+        if (i >= this.list_rectangles.length - 10) {
+          draw_rect(this.ctx, r[0], r[1], r[2], r[3], "orange", true, 1)
         } else {
-          draw_rect(this.ctx, r[0], r[1], r[2], r[3], "green", true, 1)
+          let color = "green"
+          if (this.list_sums[i] < 0)
+            color = "red"
+          draw_rect(this.ctx, r[0], r[1], r[2], r[3], color, true, 1)
         }
       }
   
