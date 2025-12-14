@@ -18,15 +18,14 @@ class Integrals extends Game {
   constructor(canvas, w, h, formula, a, b, dx, round, xb, yb) {
     super(canvas, w, h)
 
-    this.formula = formula
+    this.formula = decodeURIComponent(formula)
     this.a = parseFloat(a)
     this.b = parseFloat(b)
     this.dx = parseFloat(dx)
     this.round = min(parseFloat(round), 100)
 
-    this.formula = this.formula.replaceAll("^", "**")
-
-    this.F = new Function("x", `return ${this.formula};`);
+    // this.F = new Function("x", `return ${this.formula};`);
+    this.F = this.safe_function(this.formula);
 
     this.xa = this.W / 2
     this.ya = this.H / 2
@@ -51,6 +50,71 @@ class Integrals extends Game {
 
     this.ratio_move = new RatioRunner(2, this.sum_next.bind(this), 0)
     setTimeout(this.on_fps.bind(this), 1500)
+  }
+
+  safe_function(formulaStr) {
+    // Allowed functions and constants
+    const allowedMath = {
+      // Trigonometric
+      sin: Math.sin, cos: Math.cos, tan: Math.tan,
+      asin: Math.asin, acos: Math.acos, atan: Math.atan,
+      sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+      asinh: Math.asinh, acosh: Math.acosh, atanh: Math.atanh,
+
+      // Logarithmic & Exponential
+      log: Math.log, log10: Math.log10, log2: Math.log2,
+      exp: Math.exp, expm1: Math.expm1, log1p: Math.log1p,
+
+      // Power & Roots
+      sqrt: Math.sqrt, cbrt: Math.cbrt, pow: Math.pow,
+      abs: Math.abs,
+
+      // Rounding
+      floor: Math.floor, ceil: Math.ceil, round: Math.round,
+      trunc: Math.trunc, sign: Math.sign,
+
+      // Min/Max
+      min: Math.min, max: Math.max,
+
+      // Constants
+      PI: Math.PI, E: Math.E,
+      LN2: Math.LN2, LN10: Math.LN10,
+      SQRT2: Math.SQRT2, SQRT1_2: Math.SQRT1_2
+    };
+
+    // Validate formula contains only safe characters
+    const safePattern = /^[x0-9\+\-\*\/\^\.\(\)\s,]+$/;
+    const functionPattern = /(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|asinh|acosh|atanh|log|log10|log2|exp|sqrt|cbrt|pow|abs|floor|ceil|round|trunc|sign|min|max|PI|E|LN2|LN10|SQRT2|SQRT1_2)\b/g;
+
+    // Replace ^ with **
+    formulaStr = formulaStr.replace(/\^/g, '**');
+
+    // Check if formula contains only allowed functions and operations
+    const cleaned = formulaStr.replace(functionPattern, '');
+    const remaining = cleaned.replace(/[x0-9\+\-\*\/\.\(\)\s,]/g, '');
+
+    if (remaining.length > 0) {
+      console.warn('Unsafe characters in formula:', remaining);
+      throw new Error('Invalid formula: contains unsafe operations');
+    }
+
+    try {
+      // Create function with only allowed scope
+      return (x) => {
+        // Create evaluation context
+        const context = { x, ...allowedMath };
+
+        // Use Function constructor with limited scope
+        const func = new Function(...Object.keys(context),
+          `return ${formulaStr};`
+        );
+
+        return func(...Object.values(context));
+      };
+    } catch (error) {
+      console.error('Error creating function:', error);
+      return (x) => 0;
+    }
   }
 
   get_minmax() {
