@@ -15,7 +15,7 @@ const { min, max } = Math;
 
 
 class Integrals extends Game {
-  constructor(canvas, w, h, formula, a, b, dx, round, xb, yb) {
+  constructor(canvas, w, h, formula, a, b, dx, round) {
     super(canvas, w, h)
 
     this.formula = decodeURIComponent(formula)
@@ -46,7 +46,7 @@ class Integrals extends Game {
     this.list_rectangles = []
     this.list_sums = []
 
-    console.log("Formula", this.formula, this.F, "from", this.a, "to", this.b, "dx", this.dx)
+    console.log("Formula", this.formula, "from", this.a, "to", this.b, "dx", this.dx)
 
     this.ratio_move = new RatioRunner(2, this.sum_next.bind(this), 0)
     setTimeout(this.on_fps.bind(this), 1500)
@@ -118,9 +118,11 @@ class Integrals extends Game {
   }
 
   get_minmax() {
+    let max_sample_points = 1000
+    let step = (this.b - this.a) / max_sample_points
     let min_y = 100e10
     let max_y = -100e10
-    for (let x = this.a; x <= this.b; x += 0.1) {
+    for (let x = this.a; x <= this.b; x += step) {
       let y = this.F(x)
       min_y = min(min_y, y)
       max_y = max(max_y, y)
@@ -187,6 +189,16 @@ class Integrals extends Game {
 
       draw_line(this.ctx, [this.get_x(this.a * 1.2), this.get_y(0)], [this.get_x(this.b * 1.2), this.get_y(0)], "white", 2)
       draw_line(this.ctx, [this.get_x(0), this.get_y(this.min_y * 1.5)], [this.get_x(0), this.get_y(this.max_y * 1.5)], "white", 2)
+
+      // Draw arrows on axes, using 2 lines per arrow
+      draw_line(this.ctx, [this.get_x(this.b * 1.2) - 10, this.get_y(0) - 5], [this.get_x(this.b * 1.2), this.get_y(0)], "white", 2)
+      draw_line(this.ctx, [this.get_x(this.b * 1.2) - 10, this.get_y(0) + 5], [this.get_x(this.b * 1.2), this.get_y(0)], "white", 2)
+      draw_line(this.ctx, [this.get_x(0) - 5, this.get_y(this.max_y * 1.5) + 10], [this.get_x(0), this.get_y(this.max_y * 1.5)], "white", 2)
+      draw_line(this.ctx, [this.get_x(0) + 5, this.get_y(this.max_y * 1.5) + 10], [this.get_x(0), this.get_y(this.max_y * 1.5)], "white", 2)
+      draw_line(this.ctx, [this.get_x(0) - 5, this.get_y(this.min_y * 1.5) - 10], [this.get_x(0), this.get_y(this.min_y * 1.5)], "white", 2)
+      draw_line(this.ctx, [this.get_x(0) + 5, this.get_y(this.min_y * 1.5) - 10], [this.get_x(0), this.get_y(this.min_y * 1.5)], "white", 2)
+      draw_line(this.ctx, [this.get_x(this.a * 1.2) + 10, this.get_y(0) - 5], [this.get_x(this.a * 1.2), this.get_y(0)], "white", 2)
+      draw_line(this.ctx, [this.get_x(this.a * 1.2) + 10, this.get_y(0) + 5], [this.get_x(this.a * 1.2), this.get_y(0)], "white", 2)
 
       this.ratio_move.run()
   }
