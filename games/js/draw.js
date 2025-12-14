@@ -65,6 +65,23 @@ function draw_circle(ctx, x, y, r, color="black", filled=false) {
   draw_filled(ctx, color, filled)
 }
 
+function draw_arrow(ctx, x1, y1, x2, y2, color="black", w=2) {
+  draw_line(ctx, [x1, y1], [x2, y2], color, w)
+
+  let angle = Math.atan2(y2 - y1, x2 - x1)
+  // Arrow length proportional to the line length
+  let arrow_length = 10 + Math.sqrt((x2 - x1)**2 + (y2 - y1)**2) * 0.05
+  let arrow_angle1 = angle + Math.PI / 6
+  let arrow_angle2 = angle - Math.PI / 6
+  let arrow_x1 = x2 - arrow_length * Math.cos(arrow_angle1)
+  let arrow_y1 = y2 - arrow_length * Math.sin(arrow_angle1)
+  let arrow_x2 = x2 - arrow_length * Math.cos(arrow_angle2)
+  let arrow_y2 = y2 - arrow_length * Math.sin(arrow_angle2)
+
+  draw_line(ctx, [x2, y2], [arrow_x1, arrow_y1], color, w)
+  draw_line(ctx, [x2, y2], [arrow_x2, arrow_y2], color, w)
+}
+
 
 class IDraw {
   draw() {}

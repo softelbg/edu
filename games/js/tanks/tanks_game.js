@@ -116,17 +116,8 @@ class TanksGame extends Game {
     let g_y = 10 + g_len
     let g_x2 = g_x + g_len * Math.cos(g_angle)
     let g_y2 = g_y + g_len * Math.sin(g_angle)
-    draw_line(this.ctx, [g_x, g_y], [g_x2, g_y2], "red", 2)
-    // Draw arrowhead
-    let arrow_size = 10
-    let arrow_angle1 = g_angle + Math.PI / 6
-    let arrow_angle2 = g_angle - Math.PI / 6
-    let arrow_x1 = g_x2 - arrow_size * Math.cos(arrow_angle1)
-    let arrow_y1 = g_y2 - arrow_size * Math.sin(arrow_angle1)
-    let arrow_x2 = g_x2 - arrow_size * Math.cos(arrow_angle2)
-    let arrow_y2 = g_y2 - arrow_size * Math.sin(arrow_angle2)
-    draw_line(this.ctx, [g_x2, g_y2], [arrow_x1, arrow_y1], "red", 2)
-    draw_line(this.ctx, [g_x2, g_y2], [arrow_x2, arrow_y2], "red", 2)
+
+    draw_arrow(this.ctx, g_x, g_y, g_x2, g_y2, "red", 2)
   }
 }
 
