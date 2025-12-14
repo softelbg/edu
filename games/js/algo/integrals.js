@@ -6,26 +6,38 @@
 */
 
 
+const { sin, cos, tan } = Math;
+const { asin, acos, atan, atan2 } = Math;
+const { sinh, cosh, tanh } = Math;
+const { asinh, acosh, atanh } = Math;
+const { exp, log, log10, log2, sqrt, pow, abs, floor, ceil, round} = Math;
+const { min, max } = Math;
+
+
 class Integrals extends Game {
-  constructor(canvas, w, h, formula, a, b, dx) {
+  constructor(canvas, w, h, formula, a, b, dx, round, xb, yb) {
     super(canvas, w, h)
 
     this.formula = formula
     this.a = parseFloat(a)
     this.b = parseFloat(b)
     this.dx = parseFloat(dx)
+    this.round = min(parseFloat(round), 100)
 
-    this.F = new Function("x", `return ${formula};`);
+    this.formula = this.formula.replaceAll("^", "**")
 
-    this.fa = this.F(this.a)
-    this.fb = this.F(this.b)
+    this.F = new Function("x", `return ${this.formula};`);
 
-    console.log("F(a)=", this.fa, "F(b)=", this.fb)
-    
-    this.xa = 400
-    this.xb = 10
-    this.ya = 400
-    this.yb = 3
+    this.xa = this.W / 2
+    this.ya = this.H / 2
+    let minmax = this.get_minmax()
+    this.min_y = minmax[0]
+    this.max_y = minmax[1]
+    this.yh = this.max_y - this.min_y
+    this.xw = this.b - this.a
+    this.xb = 0.7 * this.W / this.xw
+    this.yb = 0.5 * this.H / this.yh
+    console.log("Center:", this.xa, this.ya, "min_y:", this.min_y, "max_y:", this.max_y)
 
     this.current_x = this.a
     this.current_y = 0.0
@@ -36,9 +48,20 @@ class Integrals extends Game {
     this.list_sums = []
 
     console.log("Formula", this.formula, this.F, "from", this.a, "to", this.b, "dx", this.dx)
-  
+
     this.ratio_move = new RatioRunner(2, this.sum_next.bind(this), 0)
     setTimeout(this.on_fps.bind(this), 1500)
+  }
+
+  get_minmax() {
+    let min_y = 100e10
+    let max_y = -100e10
+    for (let x = this.a; x <= this.b; x += 0.1) {
+      let y = this.F(x)
+      min_y = min(min_y, y)
+      max_y = max(max_y, y)
+    }
+    return [min_y, max_y]
   }
 
   get_x(x) {
@@ -53,7 +76,7 @@ class Integrals extends Game {
     this.fps_ratio = 120 / fps
     this.ratio_move = new RatioRunner(1 / this.fps_ratio, this.sum_next.bind(this), 1)
   }
-    
+
   sum_next() {
       this.current_y = this.F(this.current_x)
       let ds = this.current_y * this.dx
@@ -70,6 +93,9 @@ class Integrals extends Game {
         this.current_x = this.a
         this.current_y = 0.0
         this.integral_sum = this.S
+        if (this.round >= 0) {
+          this.integral_sum = parseFloat(this.integral_sum.toFixed(this.round))
+        }
         this.S = 0.0
         this.list_rectangles = []
         this.list_sums = []
@@ -96,9 +122,8 @@ class Integrals extends Game {
       }
 
       draw_line(this.ctx, [this.get_x(this.a * 1.2), this.get_y(0)], [this.get_x(this.b * 1.2), this.get_y(0)], "white", 2)
-      draw_line(this.ctx, [this.get_x(0), this.get_y(this.fa * 1.5)], [this.get_x(0), this.get_y(this.fb * 1.5)], "white", 2)
-  
+      draw_line(this.ctx, [this.get_x(0), this.get_y(this.min_y * 1.5)], [this.get_x(0), this.get_y(this.max_y * 1.5)], "white", 2)
+
       this.ratio_move.run()
   }
 }
-  
