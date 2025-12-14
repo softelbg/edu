@@ -116,9 +116,11 @@ class Tank extends SemiCircle {
     this.cannon_balls = []
 
     this.explosion = 0
+    this.last_shot_key_down = 0
+    this.is_shot_key_down = false
 
     document.addEventListener('keydown', this.on_keydown.bind(this))
-    // document.addEventListener('keyup', this.on_keyup.bind(this))
+    document.addEventListener('keyup', this.on_keyup.bind(this))
   }
 
   kill() {
@@ -126,6 +128,23 @@ class Tank extends SemiCircle {
       this.explosion = new Explosion(this.ctx, this.x, this.y, this.color, 100)
     }
     this.alive = false
+  }
+
+  on_keyup(e) {
+    if (this.alive) {
+      if ('изстрел' in this.controls && e.key == this.controls["изстрел"]) {
+        let angle_radians = to_radians(this.angle)
+        let x1 = this.x + this.turret_len * Math.cos(angle_radians)
+        let y1 = this.y + this.turret_len * Math.sin(angle_radians)
+        let v = this.last_shot_key_down ? Math.min(15, (Date.now() - this.last_shot_key_down) / 100) : 5
+        console.log("Firing cannon ball with velocity", v)
+        this.cannon_balls.push(
+          new CannonBall(this.ctx, this.W, this.H, x1, y1, v, this.angle, 5, this.g, "red")
+        )
+        this.is_shot_key_down = false
+        return
+      }
+    }
   }
 
   on_keydown(e) {
@@ -147,19 +166,14 @@ class Tank extends SemiCircle {
       }
 
       if ('изстрел' in this.controls && e.key == this.controls["изстрел"]) {
-        let angle_radians = to_radians(this.angle)
-        let x1 = this.x + this.turret_len * Math.cos(angle_radians)
-        let y1 = this.y + this.turret_len * Math.sin(angle_radians)
-        this.cannon_balls.push(
-          new CannonBall(this.ctx, this.W, this.H, x1, y1, 1.5, this.angle, 5, this.g, "red")
-        )
+        if (this.is_shot_key_down == false) {
+          this.is_shot_key_down = true
+          this.last_shot_key_down = Date.now()
+          console.log("Start charging shot...")
+        }
         return
       }
     }
-  }
-
-  on_keyup(e) {
-
   }
 
   draw() {
