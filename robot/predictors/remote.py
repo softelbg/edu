@@ -128,6 +128,9 @@ class OpenAIPredictor(BaseRobotPredictor):
   def __init__(self):
     super().__init__()
     self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    self.model_name = os.environ.get("ROBOT_OPENAI_MODEL", "gpt-4o")
+    self.max_tokens = int(os.environ.get("ROBOT_OPENAI_MAX_TOKENS", 500))
+    self.image_resize = int(os.environ.get("ROBOT_OPENAI_IMAGE_RESIZE", 768))
 
   def predict_frame(self, frame):
     PROMPT_MESSAGES = [
@@ -135,15 +138,15 @@ class OpenAIPredictor(BaseRobotPredictor):
         "role": "user",
         "content": [
           self.prompt,
-          {"image": self.frame_base64(frame), "resize": 768},
+          {"image": self.frame_base64(frame), "resize": self.image_resize},
         ],
       },
     ]
 
     params = {
-      "model": "gpt-4o",
+      "model": self.model_name,
       "messages": PROMPT_MESSAGES,
-      "max_tokens": 500
+      "max_tokens": self.max_tokens
     }
 
     response = self.client.chat.completions.create(**params)

@@ -11,6 +11,7 @@
 # limitations under the License.
 #
 
+import os
 import cv2
 import requests
 import numpy as np
@@ -127,6 +128,9 @@ class BaseRobotCommandsDaemon(DaemonBase):
     current_prediction = self.get_prediction()
     if current_prediction is not None:
       params = {k: current_prediction[k] for k in ["move", "poweroff"] if k in current_prediction}
+      if len(params) == 0:
+        debug("command current_prediction has no command keys", current_prediction.keys())
+        return
       response = requests.get(self.url_command, params=params)
       if response.status_code == 200:
         debug("CMD", params, "response", response.content)
@@ -200,10 +204,18 @@ class RobotArmDaemon(BaseRobotCommandsDaemon):
 if __name__ == "__main__":
   # ip = "10.37.0.22"
   ip = None
-  daemons = [
-    RobotCommandsDaemon(ip=ip, period_cap=0.02, period_predict=0.1),
-    RobotArmDaemon(ip=ip, period_cap=0.02, period_predict=5.0),
-  ]
+  enable_car = os.environ.get("ROBOT_ENABLE_CAR", "1").lower() not in ["0", "false", "no"]
+  enable_arm = os.environ.get("ROBOT_ENABLE_ARM", "1").lower() not in ["0", "false", "no"]
+  daemons = []
+
+  if enable_car:
+    daemons.append(RobotCommandsDaemon(ip=ip, period_cap=0.02, period_predict=0.1))
+  if enable_arm:
+    daemons.append(RobotArmDaemon(ip=ip, period_cap=0.02, period_predict=5.0))
+
+  if len(daemons) == 0:
+    error("No robot daemons enabled. Set ROBOT_ENABLE_CAR=1 or ROBOT_ENABLE_ARM=1.")
+    raise SystemExit(1)
 
   for d in daemons:
     d.start()

@@ -23,16 +23,34 @@ from robot.predictors.remote import *
 
 class PipelinePredictor:
   def __init__(self):
-    self.pipeline = [
-      # OpenAIPredictor(),
-      DepthEstimator(),
-      # LocalClientPredictor(host="sof-1.softel.bg", port=8901, proto="https"),
-
-      # KeyboardPredictor(),
-      # KeyboardSpeedPredictor(),
-    ]
+    self.pipeline = self.build_pipeline()
 
     self.start()
+
+  def build_pipeline(self):
+    predictor_names = os.environ.get("ROBOT_CAR_PREDICTORS", "depth").split(",")
+    predictor_names = [name.strip().lower() for name in predictor_names if len(name.strip()) > 0]
+
+    predictor_factories = {
+      "openai": OpenAIPredictor,
+      "depth": DepthEstimator,
+      "local": LocalClientPredictor,
+      "keyboard": KeyboardPredictor,
+      "keyboard_speed": KeyboardSpeedPredictor,
+    }
+
+    pipeline = []
+    for name in predictor_names:
+      if name not in predictor_factories:
+        error("Unknown ROBOT_CAR_PREDICTORS entry", name)
+        continue
+      pipeline.append(predictor_factories[name]())
+
+    if len(pipeline) == 0:
+      pipeline.append(DepthEstimator())
+
+    debug(type(self).__name__, "pipeline", [type(model).__name__ for model in pipeline])
+    return pipeline
 
   def start(self):
     for model in self.pipeline:
@@ -42,6 +60,8 @@ class PipelinePredictor:
     predictions = {}
     for model in self.pipeline:
       prediction = model.predict(frame)
+      if prediction is None:
+        continue
       for k, v in prediction.items():
         if k == "play":
           predictions.setdefault("play", [])
