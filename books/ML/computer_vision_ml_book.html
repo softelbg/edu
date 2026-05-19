@@ -1,0 +1,2102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Computer Vision ML: Tasks, Metrics, and Simulators</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f3ed;
+      --ink: #17212a;
+      --muted: #5f6d77;
+      --line: #d8d0c2;
+      --panel: #ffffff;
+      --nav: #fbfaf7;
+      --soft: #eee8dd;
+      --blue: #1f6fb2;
+      --green: #2f7d57;
+      --red: #bd4b43;
+      --amber: #b87924;
+      --violet: #6b55a3;
+      --cyan: #147f87;
+      --shadow: 0 18px 48px rgba(23, 33, 42, .12);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: var(--blue);
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #edf5ff;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    code {
+      border-radius: 4px;
+      background: #ede7dc;
+      padding: 1px 5px;
+      font-size: .92em;
+    }
+
+    pre {
+      overflow: auto;
+      white-space: pre-wrap;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #f8f4ed;
+      color: #203645;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--nav);
+      padding: 28px 22px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .toc-title {
+      margin-bottom: 18px;
+      color: #203645;
+      font-weight: 800;
+    }
+
+    .breadcrumbs {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      font: 800 13px/1.25 var(--sans);
+    }
+
+    .toc .breadcrumbs a {
+      color: var(--blue);
+      text-decoration: none;
+      padding: 0;
+    }
+
+    .toc a {
+      display: block;
+      color: #364650;
+      text-decoration: none;
+      padding: 7px 0;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero,
+    .chapter,
+    .band {
+      padding: 54px 0;
+    }
+
+    .inner {
+      width: min(1140px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 94vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.88), rgba(255,255,255,.56)),
+        repeating-linear-gradient(0deg, rgba(31,111,178,.08), rgba(31,111,178,.08) 1px, transparent 1px, transparent 32px),
+        repeating-linear-gradient(90deg, rgba(47,125,87,.08), rgba(47,125,87,.08) 1px, transparent 1px, transparent 32px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(330px, .74fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--blue);
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 900px;
+      font-size: 64px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 42px;
+    }
+
+    h3 {
+      margin: 34px 0 10px;
+      font-size: 28px;
+    }
+
+    h4 {
+      margin: 24px 0 8px;
+      font-size: 21px;
+    }
+
+    .subtitle {
+      max-width: 790px;
+      margin: 18px 0 26px;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .lead {
+      max-width: 890px;
+      color: #2c3942;
+      font-size: 21px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      font: 14px/1.45 var(--sans);
+    }
+
+    .point {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.76);
+      padding: 12px;
+    }
+
+    .point:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .point:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .hero-visual,
+    .simulation {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.95);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid #e5ded3;
+      background: #fff;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font: 13px/1.35 var(--sans);
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .note {
+      margin: 22px 0;
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+      padding: 16px 18px;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff5e3;
+    }
+
+    .formula {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1ebe0;
+      color: #243643;
+      padding: 14px;
+      font-family: var(--mono);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #ede7dc;
+      color: #203645;
+    }
+
+    .simulation {
+      margin: 24px 0;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sim-header h3 {
+      margin-top: 0;
+    }
+
+    .sim-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font: 14px/1.45 var(--sans);
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(126px, 1fr));
+      gap: 12px;
+      margin: 16px 0 18px;
+      font: 14px/1.3 var(--sans);
+    }
+
+    .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    .control input,
+    .control select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 5px 8px;
+    }
+
+    .control output {
+      color: var(--blue);
+      font-family: var(--mono);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 292px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .canvas-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .viz-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      color: #203645;
+      font: 700 14px/1.2 var(--sans);
+    }
+
+    .shape {
+      color: var(--muted);
+      font: 12px/1.2 var(--mono);
+      font-weight: 500;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .metric {
+      min-height: 78px;
+      border-top: 3px solid var(--cyan);
+      background: #f8f4ed;
+      padding: 10px;
+    }
+
+    .metric:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .metric:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .metric:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .metric b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font: 13px/1.2 var(--mono);
+    }
+
+    .bars {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr) 56px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .bar-track {
+      height: 18px;
+      overflow: hidden;
+      background: #eee7db;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .confusion {
+      display: grid;
+      grid-template-columns: 42px repeat(3, 1fr);
+      gap: 3px;
+      margin-top: 12px;
+      font: 12px/1 var(--mono);
+    }
+
+    .confusion div {
+      display: grid;
+      min-height: 30px;
+      place-items: center;
+      border: 1px solid #e2dbcf;
+      background: #fff;
+    }
+
+    .confusion .head {
+      background: #ede7dc;
+      color: #203645;
+      font-weight: 700;
+    }
+
+    .atlas-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, .45fr) minmax(220px, .34fr) minmax(0, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+      font-family: var(--sans);
+    }
+
+    .atlas-tools input,
+    .atlas-tools select {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 10px;
+    }
+
+    .card-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: minmax(170px, .3fr) minmax(0, 1fr);
+      gap: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 14px;
+    }
+
+    .card-name {
+      margin-bottom: 6px;
+      color: #203645;
+      font: 800 15px/1.25 var(--sans);
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 6px;
+      background: var(--violet);
+      color: #fff;
+      padding: 5px 7px;
+      font: 12px/1 var(--sans);
+    }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--muted);
+      font: 12px/1.35 var(--sans);
+    }
+
+    .card-meta div {
+      border-left: 3px solid var(--blue);
+      background: #f6f1e9;
+      padding: 8px;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 64px;
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    @media (max-width: 1060px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .toc nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .hero-grid,
+      .split,
+      .sim-grid,
+      .atlas-tools,
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1140px);
+      }
+
+      .hero,
+      .chapter,
+      .band {
+        padding: 34px 0;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-points,
+      .sim-controls,
+      .metric-grid,
+      .canvas-pair,
+      .card-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Book breadcrumbs">
+        <a href="index.html">Home</a>
+        <a href="classic_ml_algorithms_book.html">Prev: Basic ML</a>
+        <a href="deep_ml_torch_layers_book.html">Next: Deep ML</a>
+      </nav>
+      <div class="toc-title">Computer Vision ML</div>
+      <nav>
+        <a href="#preface">Preface</a>
+        <a href="#image-contracts">Image contracts</a>
+        <a href="#filters">Filters and features</a>
+        <a href="#tasks">CV tasks</a>
+        <a href="#metrics">Evaluation metrics</a>
+        <a href="#simulators">Interactive simulators</a>
+        <a href="#atlas">Metric atlas</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="preface">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | Section 02</p>
+            <h1>Computer Vision ML: Tasks, Metrics, and Simulators</h1>
+            <p class="subtitle">A practical book for image tensors, filters, classification, object detection, segmentation, augmentation, and evaluation. Every core idea is connected to an interactive visual simulation.</p>
+            <div class="hero-points">
+              <div class="point"><b>Pixels to predictions.</b><br>Track how images become edges, features, boxes, masks, labels, and scores.</div>
+              <div class="point"><b>Metrics by task.</b><br>Compare accuracy, top-k, IoU, mAP, Dice, pixel accuracy, calibration, and failure cases.</div>
+              <div class="point"><b>Live mechanics.</b><br>All demos run locally with canvas and JavaScript, no external runtime.</div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <canvas id="heroCanvas" width="720" height="520" aria-label="Animated computer vision task overview"></canvas>
+            <div class="legend">
+              <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>image evidence</span>
+              <span class="legend-chip"><i class="swatch" style="background:#2f7d57"></i>ground truth</span>
+              <span class="legend-chip"><i class="swatch" style="background:#bd4b43"></i>prediction</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="image-contracts">
+        <div class="inner">
+          <p class="lead">Computer vision models are shape-sensitive systems. The input may be an image, but the model sees a tensor with channels, height, width, dtype, normalization, and a label contract.</p>
+
+          <h2>1. Image Contracts</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Representation</th>
+                <th>Typical shape</th>
+                <th>Meaning</th>
+                <th>Common pitfalls</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Single image</td>
+                <td><code>[C, H, W]</code> or <code>[H, W, C]</code></td>
+                <td>Channels, height, width. PyTorch commonly uses channel-first.</td>
+                <td>Mixing RGB/BGR order, forgetting normalization, inconsistent resize.</td>
+              </tr>
+              <tr>
+                <td>Batch</td>
+                <td><code>[N, C, H, W]</code></td>
+                <td>Mini-batch of images.</td>
+                <td>Variable sizes require padding, cropping, or special collate logic.</td>
+              </tr>
+              <tr>
+                <td>Classification target</td>
+                <td><code>[N]</code> or one-hot <code>[N, K]</code></td>
+                <td>One class id or a multi-label vector.</td>
+                <td>Using softmax for multi-label instead of sigmoid.</td>
+              </tr>
+              <tr>
+                <td>Detection target</td>
+                <td>boxes <code>[M, 4]</code>, labels <code>[M]</code></td>
+                <td>Object rectangles, usually <code>x1, y1, x2, y2</code>.</td>
+                <td>Wrong coordinate format after resize, crop, or flip.</td>
+              </tr>
+              <tr>
+                <td>Segmentation target</td>
+                <td><code>[H, W]</code>, <code>[K, H, W]</code>, or instance masks</td>
+                <td>Pixel-level class or instance assignment.</td>
+                <td>Resizing masks with bilinear interpolation instead of nearest-neighbor.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <b>Rule of thumb:</b> every transform must update every annotation it touches. A crop changes images, boxes, masks, and keypoints. A brightness change usually changes only pixels. A horizontal flip changes pixels and geometry, but not class labels.
+          </div>
+
+          <h3>Preprocessing contract</h3>
+          <p>Most vision models expect a fixed value range and normalization. A common pipeline is decode image, convert channel order, resize or crop, convert to floating point, scale to <code>[0, 1]</code>, then normalize with dataset mean and standard deviation.</p>
+          <pre><code># Typical PyTorch-style image preprocessing contract
+image_uint8:          [H, W, 3], RGB, values 0..255
+to_tensor:            [3, H, W], float32, values 0..1
+normalize(mean, std): [3, H, W], approximately centered channels
+batch:                [N, 3, H, W]</code></pre>
+        </div>
+      </section>
+
+      <section class="band" id="filters">
+        <div class="inner">
+          <h2>2. Filters and Features</h2>
+          <p class="lead">Before deep networks, vision pipelines relied heavily on handcrafted filters. Modern CNNs learn filters, but the same mechanics still explain edges, textures, receptive fields, and feature maps.</p>
+
+          <div class="split">
+            <div>
+              <h3>Filtering as convolution</h3>
+              <p>A filter replaces each pixel with a weighted sum of a local neighborhood. Different kernels emphasize different structures: blur averages noise, sharpen boosts high frequencies, Sobel filters approximate gradients, and Laplacian filters highlight rapid changes.</p>
+              <div class="formula">output[y, x] = sum over ky, kx:
+    kernel[ky, kx] * image[y + ky - pad, x + kx - pad]</div>
+            </div>
+            <div>
+              <h3>From filters to features</h3>
+              <ul>
+                <li><b>Edges:</b> strong local intensity change.</li>
+                <li><b>Corners:</b> intensity changes in multiple directions.</li>
+                <li><b>Texture:</b> repeated local patterns.</li>
+                <li><b>Keypoints:</b> stable local landmarks.</li>
+                <li><b>Feature maps:</b> spatial responses to learned or fixed filters.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="tasks">
+        <div class="inner">
+          <h2>3. Core Computer Vision Tasks</h2>
+          <p class="lead">Different tasks answer different questions about an image. The model output shape and the metric must match the question.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Question</th>
+                <th>Prediction</th>
+                <th>Typical models</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Image classification</td>
+                <td>What is in the image?</td>
+                <td>Class logits or probabilities.</td>
+                <td>ResNet, EfficientNet, ViT, ConvNeXt, linear probes.</td>
+              </tr>
+              <tr>
+                <td>Multi-label classification</td>
+                <td>Which labels are present?</td>
+                <td>Independent sigmoid scores per label.</td>
+                <td>CNN/ViT backbones with binary heads.</td>
+              </tr>
+              <tr>
+                <td>Object detection</td>
+                <td>What objects are present and where?</td>
+                <td>Boxes, class scores, confidence scores.</td>
+                <td>Faster R-CNN, RetinaNet, YOLO, DETR, SSD.</td>
+              </tr>
+              <tr>
+                <td>Semantic segmentation</td>
+                <td>What class is each pixel?</td>
+                <td>Class map or per-class logits per pixel.</td>
+                <td>FCN, U-Net, DeepLab, SegFormer.</td>
+              </tr>
+              <tr>
+                <td>Instance segmentation</td>
+                <td>Which pixels belong to each object instance?</td>
+                <td>Boxes, labels, scores, and instance masks.</td>
+                <td>Mask R-CNN, YOLACT, SOLO, SAM-style mask heads.</td>
+              </tr>
+              <tr>
+                <td>Keypoint detection</td>
+                <td>Where are structured landmarks?</td>
+                <td>Point coordinates or heatmaps.</td>
+                <td>HRNet, OpenPose-style heads, heatmap regressors.</td>
+              </tr>
+              <tr>
+                <td>Depth and flow</td>
+                <td>How far or how does motion change over pixels?</td>
+                <td>Dense scalar or vector fields.</td>
+                <td>Encoder-decoder models, stereo networks, optical-flow networks.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="band" id="metrics">
+        <div class="inner">
+          <h2>4. Evaluation Metrics</h2>
+          <p class="lead">Vision metrics are not interchangeable. A detector with high classification accuracy may localize poorly. A segmenter with high pixel accuracy may miss rare classes.</p>
+
+          <div class="split">
+            <div>
+              <h3>Classification metrics</h3>
+              <ul>
+                <li><b>Accuracy:</b> fraction of images with correct top-1 prediction.</li>
+                <li><b>Top-k accuracy:</b> target appears in the k highest scores.</li>
+                <li><b>Precision:</b> predicted positives that are correct.</li>
+                <li><b>Recall:</b> real positives that were found.</li>
+                <li><b>F1:</b> harmonic mean of precision and recall.</li>
+                <li><b>Calibration:</b> predicted confidence matches empirical correctness.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Detection and mask metrics</h3>
+              <div class="formula">IoU = area(prediction intersect ground_truth) /
+      area(prediction union ground_truth)
+
+Dice = 2 * intersection / (prediction_area + ground_truth_area)
+
+precision = TP / (TP + FP)
+recall    = TP / (TP + FN)</div>
+              <p><code>mAP</code> averages precision-recall quality across classes and IoU thresholds. Segmentation often reports mean IoU, Dice, pixel accuracy, boundary F-score, and per-class recall.</p>
+            </div>
+          </div>
+
+          <div class="warning note">
+            <b>Metric trap:</b> pixel accuracy can look excellent when the background dominates. For medical, industrial, satellite, and safety tasks, report per-class IoU, Dice, recall, and failure examples, not only one aggregate number.
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>5. Interactive Simulators</h2>
+          <p class="lead">The demos compute small versions of CV operations and metrics. They are intentionally compact so the geometry and statistics stay visible.</p>
+
+          <div class="simulation" id="filterSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Filter Lab</h3>
+                <p>Apply classic kernels to a synthetic image. Edge density and contrast update from the output pixels.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Scene
+                <select id="filterScene">
+                  <option value="shapes">shapes</option>
+                  <option value="texture">texture</option>
+                  <option value="road">road</option>
+                </select>
+              </label>
+              <label class="control">Kernel
+                <select id="filterKernel">
+                  <option value="sobelX">Sobel X</option>
+                  <option value="sobelY">Sobel Y</option>
+                  <option value="blur">blur</option>
+                  <option value="sharpen">sharpen</option>
+                  <option value="laplace">Laplacian</option>
+                  <option value="emboss">emboss</option>
+                </select>
+              </label>
+              <label class="control">Edge threshold <output id="filterThresholdOut">0.24</output>
+                <input id="filterThreshold" type="range" min="0" max="80" value="24">
+              </label>
+              <label class="control">Blend <output id="filterMixOut">1.00</output>
+                <input id="filterMix" type="range" min="0" max="100" value="100">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-pair">
+                <div>
+                  <div class="viz-title"><span>Input image</span><span class="shape">grayscale [H, W]</span></div>
+                  <canvas id="filterInputCanvas" width="420" height="320" aria-label="Filter input"></canvas>
+                </div>
+                <div>
+                  <div class="viz-title"><span>Filtered output</span><span class="shape">kernel response</span></div>
+                  <canvas id="filterOutputCanvas" width="420" height="320" aria-label="Filter output"></canvas>
+                </div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Mean</b><span id="filterMean"></span></div>
+                <div class="metric"><b>Std dev</b><span id="filterStd"></span></div>
+                <div class="metric"><b>Edge density</b><span id="filterEdges"></span></div>
+                <div class="metric"><b>Kernel</b><span id="filterKernelText"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="classificationSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Image Classification</h3>
+                <p>A toy classifier predicts circle, square, or triangle. Noise changes confusion and F1; temperature changes confidence calibration.</p>
+              </div>
+              <button type="button" id="clsNewSample">New sample</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Dataset
+                <select id="clsDataset">
+                  <option value="balanced">balanced</option>
+                  <option value="imbalanced">imbalanced</option>
+                </select>
+              </label>
+              <label class="control">Visual noise <output id="clsNoiseOut">0.22</output>
+                <input id="clsNoise" type="range" min="0" max="70" value="22">
+              </label>
+              <label class="control">Temperature <output id="clsTempOut">1.00</output>
+                <input id="clsTemp" type="range" min="45" max="220" value="100">
+              </label>
+              <label class="control">Validation set
+                <button type="button" id="clsEvaluate">Re-evaluate</button>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="clsCanvas" width="760" height="520" aria-label="Classification simulator"></canvas>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Top-1 accuracy</b><span id="clsAcc"></span></div>
+                  <div class="metric"><b>Macro F1</b><span id="clsF1"></span></div>
+                  <div class="metric"><b>Prediction</b><span id="clsPred"></span></div>
+                  <div class="metric"><b>Confidence</b><span id="clsConf"></span></div>
+                </div>
+                <div class="bars" id="clsBars"></div>
+                <div class="confusion" id="clsConfusion"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="detectionSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Object Detection, IoU, and NMS</h3>
+                <p>Predicted boxes are filtered by confidence, then non-maximum suppression removes duplicate boxes. Matching uses IoU against ground truth.</p>
+              </div>
+              <button type="button" id="detRegenerate">Regenerate</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Confidence threshold <output id="detConfOut">0.35</output>
+                <input id="detConf" type="range" min="0" max="95" value="35">
+              </label>
+              <label class="control">NMS IoU <output id="detNmsOut">0.45</output>
+                <input id="detNms" type="range" min="10" max="90" value="45">
+              </label>
+              <label class="control">Localization noise <output id="detNoiseOut">0.18</output>
+                <input id="detNoise" type="range" min="0" max="65" value="18">
+              </label>
+              <label class="control">Duplicates <output id="detDupOut">2</output>
+                <input id="detDup" type="range" min="0" max="4" value="2">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="detCanvas" width="760" height="520" aria-label="Object detection simulator"></canvas>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Precision</b><span id="detPrecision"></span></div>
+                  <div class="metric"><b>Recall</b><span id="detRecall"></span></div>
+                  <div class="metric"><b>AP@0.50</b><span id="detAp"></span></div>
+                  <div class="metric"><b>Counts</b><span id="detCounts"></span></div>
+                </div>
+                <div class="legend">
+                  <span class="legend-chip"><i class="swatch" style="background:#2f7d57"></i>ground truth</span>
+                  <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>true positive</span>
+                  <span class="legend-chip"><i class="swatch" style="background:#bd4b43"></i>false positive</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="segmentationSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Segmentation Masks</h3>
+                <p>Move, dilate, and corrupt a predicted mask. IoU and Dice respond differently to overlap and boundary errors.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Shift X <output id="segShiftOut">6</output>
+                <input id="segShift" type="range" min="-28" max="28" value="6">
+              </label>
+              <label class="control">Dilation <output id="segDilateOut">4</output>
+                <input id="segDilate" type="range" min="-18" max="22" value="4">
+              </label>
+              <label class="control">Mask noise <output id="segNoiseOut">0.04</output>
+                <input id="segNoise" type="range" min="0" max="24" value="4">
+              </label>
+              <label class="control">Threshold <output id="segThresholdOut">0.50</output>
+                <input id="segThreshold" type="range" min="20" max="80" value="50">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="segCanvas" width="760" height="520" aria-label="Segmentation simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>IoU</b><span id="segIou"></span></div>
+                <div class="metric"><b>Dice</b><span id="segDice"></span></div>
+                <div class="metric"><b>Pixel accuracy</b><span id="segAcc"></span></div>
+                <div class="metric"><b>Precision / recall</b><span id="segPr"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="augmentationSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Augmentation and Annotation Geometry</h3>
+                <p>Pixel transforms and geometric transforms have different label contracts. Boxes and masks must follow crops and flips.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Horizontal flip
+                <select id="augFlip">
+                  <option value="off">off</option>
+                  <option value="on">on</option>
+                </select>
+              </label>
+              <label class="control">Center crop <output id="augCropOut">0.82</output>
+                <input id="augCrop" type="range" min="55" max="100" value="82">
+              </label>
+              <label class="control">Brightness <output id="augBrightOut">1.10</output>
+                <input id="augBright" type="range" min="45" max="170" value="110">
+              </label>
+              <label class="control">Blur <output id="augBlurOut">0</output>
+                <input id="augBlur" type="range" min="0" max="5" value="0">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="augCanvas" width="760" height="520" aria-label="Augmentation simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>Image label</b><span id="augLabel"></span></div>
+                <div class="metric"><b>Box area kept</b><span id="augBoxArea"></span></div>
+                <div class="metric"><b>Mask area kept</b><span id="augMaskArea"></span></div>
+                <div class="metric"><b>Contract</b><span id="augContract"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="atlas">
+        <div class="inner">
+          <h2>6. Metric and Task Atlas</h2>
+          <p class="lead">Use this atlas to match the metric to the output contract. A good report usually combines aggregate scores, per-class scores, thresholds, and example failures.</p>
+
+          <div class="atlas-tools">
+            <input id="metricSearch" type="search" placeholder="Search metrics, tasks, or failure modes" aria-label="Search metric atlas">
+            <select id="metricFamily" aria-label="Filter metric family">
+              <option value="all">All families</option>
+            </select>
+            <div class="formula" id="metricCount">0 metrics</div>
+          </div>
+          <div class="card-list" id="metricList"></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="workflow">
+        <div class="inner">
+          <h2>7. CV Workflow</h2>
+          <p class="lead">Vision systems are data systems. Annotation definitions, split design, image quality, deployment constraints, and review tooling matter as much as architecture.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Checklist</th>
+                <th>Failure to avoid</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data definition</td>
+                <td>Define classes, box policy, mask boundaries, ignore regions, occlusion rules.</td>
+                <td>Annotators label the same visual case differently.</td>
+              </tr>
+              <tr>
+                <td>Splitting</td>
+                <td>Split by scene, patient, camera, video, user, or time when needed.</td>
+                <td>Near-duplicate frames leak between train and validation.</td>
+              </tr>
+              <tr>
+                <td>Training</td>
+                <td>Use augmentations that preserve labels; monitor per-class metrics.</td>
+                <td>Augmentation silently breaks boxes or masks.</td>
+              </tr>
+              <tr>
+                <td>Thresholding</td>
+                <td>Choose score thresholds for operational precision/recall targets.</td>
+                <td>Reporting only default threshold performance.</td>
+              </tr>
+              <tr>
+                <td>Deployment</td>
+                <td>Measure latency, memory, input resolution, camera differences, drift.</td>
+                <td>High offline accuracy but unacceptable runtime behavior.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Evaluation report minimum</h3>
+          <ul>
+            <li>Dataset version, split definition, image count, object count, class distribution.</li>
+            <li>Preprocessing and input resolution.</li>
+            <li>Metric definitions, IoU thresholds, confidence thresholds, and ignored labels.</li>
+            <li>Aggregate score plus per-class score.</li>
+            <li>Confusion matrix for classification or detection class confusions.</li>
+            <li>Qualitative panels: true positives, false positives, false negatives, boundary failures.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="band" id="debugging">
+        <div class="inner">
+          <h2>8. Debugging CV Models</h2>
+          <p class="lead">Most CV bugs are visible if you draw the data after every transform. Do not debug box or mask pipelines from arrays alone.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Symptom</th>
+                <th>Likely cause</th>
+                <th>Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Good training score, poor validation</td>
+                <td>Leakage, overfit augmentations, split mismatch, label noise.</td>
+                <td>Inspect near-duplicates and validate by scene/entity/time.</td>
+              </tr>
+              <tr>
+                <td>Boxes are consistently shifted</td>
+                <td>Resize/crop coordinate bug or wrong box format.</td>
+                <td>Draw boxes before and after every transform.</td>
+              </tr>
+              <tr>
+                <td>Masks have jagged or mixed labels</td>
+                <td>Mask resized with bilinear interpolation.</td>
+                <td>Use nearest-neighbor for class masks.</td>
+              </tr>
+              <tr>
+                <td>High pixel accuracy, low IoU</td>
+                <td>Background dominates the image.</td>
+                <td>Report per-class IoU and foreground Dice.</td>
+              </tr>
+              <tr>
+                <td>Detector has many duplicate boxes</td>
+                <td>NMS threshold too high or model emits overlapping anchors.</td>
+                <td>Sweep confidence and NMS IoU; plot precision-recall.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code># Always visualize transformed samples during pipeline development
+sample = dataset[index]
+image, target = sample["image"], sample["target"]
+
+draw_image(image)
+draw_boxes(target["boxes"], labels=target["labels"])
+draw_masks(target.get("masks"))
+
+# Check after resize, crop, flip, normalization, batching, and model decode.</code></pre>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="inner">Standalone HTML/CSS/JS edition. All simulations run locally in the browser.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const COLORS = {
+      blue: "#1f6fb2",
+      blueSoft: "rgba(31,111,178,.18)",
+      green: "#2f7d57",
+      greenSoft: "rgba(47,125,87,.18)",
+      red: "#bd4b43",
+      redSoft: "rgba(189,75,67,.18)",
+      amber: "#b87924",
+      violet: "#6b55a3",
+      cyan: "#147f87",
+      ink: "#17212a",
+      line: "#d8d0c2"
+    };
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const round = (value, places = 2) => Number.parseFloat(value).toFixed(places);
+    const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const std = values => {
+      const m = mean(values);
+      return Math.sqrt(values.reduce((sum, value) => sum + (value - m) ** 2, 0) / values.length);
+    };
+
+    function lcg(seed) {
+      let state = seed >>> 0;
+      return () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 4294967296;
+      };
+    }
+
+    function gaussian(rand) {
+      const u = Math.max(rand(), 1e-9);
+      const v = Math.max(rand(), 1e-9);
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return ctx;
+    }
+
+    function drawGrid(ctx, canvas) {
+      ctx.strokeStyle = "#ece5da";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= canvas.width; x += canvas.width / 8) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += canvas.height / 6) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawGrayImage(canvas, image) {
+      const ctx = clearCanvas(canvas);
+      const cellW = canvas.width / image.w;
+      const cellH = canvas.height / image.h;
+      for (let y = 0; y < image.h; y += 1) {
+        for (let x = 0; x < image.w; x += 1) {
+          const value = clamp(image.data[y * image.w + x], 0, 1);
+          const g = Math.round(value * 255);
+          ctx.fillStyle = `rgb(${g}, ${g}, ${g})`;
+          ctx.fillRect(x * cellW, y * cellH, Math.ceil(cellW), Math.ceil(cellH));
+        }
+      }
+    }
+
+    function generateImage(scene, w = 96, h = 72) {
+      const data = new Array(w * h).fill(0);
+      for (let y = 0; y < h; y += 1) {
+        for (let x = 0; x < w; x += 1) {
+          const nx = x / w;
+          const ny = y / h;
+          let v = .2 + .35 * nx + .12 * Math.sin(y * .22);
+          if (scene === "shapes") {
+            const circle = (x - 34) ** 2 + (y - 32) ** 2 < 17 ** 2;
+            const box = x > 57 && x < 82 && y > 18 && y < 49;
+            const stripe = Math.abs(y - x * .38 - 18) < 2;
+            if (circle) v = .88;
+            if (box) v = .64;
+            if (stripe) v = .08;
+          } else if (scene === "texture") {
+            v = .45 + .18 * Math.sin(x * .45) + .16 * Math.cos(y * .55);
+            if ((Math.floor(x / 8) + Math.floor(y / 8)) % 2 === 0) v += .16;
+            if (Math.abs(x - 55) < 3 || Math.abs(y - 37) < 2) v += .22;
+          } else {
+            v = .25 + .45 * ny;
+            const lane1 = Math.abs(x - (40 + y * .28)) < 2.2;
+            const lane2 = Math.abs(x - (61 - y * .2)) < 2.2;
+            const horizon = Math.abs(y - 26) < 1.5;
+            if (lane1 || lane2) v = .95;
+            if (horizon) v = .12;
+            if (x > 62 && x < 81 && y > 36 && y < 49) v = .52;
+          }
+          data[y * w + x] = clamp(v, 0, 1);
+        }
+      }
+      return { w, h, data };
+    }
+
+    const FILTERS = {
+      sobelX: [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]],
+      sobelY: [[-1, -2, -1], [0, 0, 0], [1, 2, 1]],
+      blur: [[1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9]],
+      sharpen: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]],
+      laplace: [[0, 1, 0], [1, -4, 1], [0, 1, 0]],
+      emboss: [[-2, -1, 0], [-1, 1, 1], [0, 1, 2]]
+    };
+
+    function convolveImage(image, kernel) {
+      const out = new Array(image.w * image.h).fill(0);
+      for (let y = 0; y < image.h; y += 1) {
+        for (let x = 0; x < image.w; x += 1) {
+          let sum = 0;
+          for (let ky = 0; ky < 3; ky += 1) {
+            for (let kx = 0; kx < 3; kx += 1) {
+              const yy = clamp(y + ky - 1, 0, image.h - 1);
+              const xx = clamp(x + kx - 1, 0, image.w - 1);
+              sum += image.data[yy * image.w + xx] * kernel[ky][kx];
+            }
+          }
+          out[y * image.w + x] = sum;
+        }
+      }
+      return { w: image.w, h: image.h, data: out };
+    }
+
+    function normalizeImage(image) {
+      const min = Math.min(...image.data);
+      const max = Math.max(...image.data);
+      const span = Math.max(1e-6, max - min);
+      return { w: image.w, h: image.h, data: image.data.map(value => (value - min) / span) };
+    }
+
+    function bindFilterLab() {
+      function update() {
+        const scene = document.getElementById("filterScene").value;
+        const kernelName = document.getElementById("filterKernel").value;
+        const threshold = Number(document.getElementById("filterThreshold").value) / 100;
+        const mix = Number(document.getElementById("filterMix").value) / 100;
+        const input = generateImage(scene);
+        const response = normalizeImage(convolveImage(input, FILTERS[kernelName]));
+        const edgeData = response.data.map((value, index) => {
+          const edged = Math.abs(value - .5) > threshold ? 1 : 0;
+          const filtered = kernelName === "blur" || kernelName === "sharpen" || kernelName === "emboss" ? value : edged;
+          return input.data[index] * (1 - mix) + filtered * mix;
+        });
+        const output = { w: input.w, h: input.h, data: edgeData };
+        drawGrayImage(document.getElementById("filterInputCanvas"), input);
+        drawGrayImage(document.getElementById("filterOutputCanvas"), output);
+        document.getElementById("filterThresholdOut").textContent = round(threshold, 2);
+        document.getElementById("filterMixOut").textContent = round(mix, 2);
+        document.getElementById("filterMean").textContent = round(mean(output.data), 3);
+        document.getElementById("filterStd").textContent = round(std(output.data), 3);
+        document.getElementById("filterEdges").textContent = `${round(output.data.filter(v => v > .75).length / output.data.length * 100, 1)}%`;
+        document.getElementById("filterKernelText").textContent = FILTERS[kernelName].map(row => `[${row.map(v => round(v, 1)).join(",")}]`).join(" ");
+      }
+      ["filterScene", "filterKernel", "filterThreshold", "filterMix"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      update();
+    }
+
+    const CLASSES = ["circle", "square", "triangle"];
+    const clsState = { seed: 10, sample: null, validation: [] };
+
+    function softmax(logits, temp) {
+      const scaled = logits.map(v => v / temp);
+      const max = Math.max(...scaled);
+      const exp = scaled.map(v => Math.exp(v - max));
+      const total = exp.reduce((sum, v) => sum + v, 0);
+      return exp.map(v => v / total);
+    }
+
+    function makeClassSample(index, rand, imbalanced) {
+      let label;
+      if (imbalanced) {
+        const r = rand();
+        label = r < .62 ? 0 : r < .84 ? 1 : 2;
+      } else {
+        label = index % 3;
+      }
+      return {
+        label,
+        angle: rand() * Math.PI * 2,
+        scale: .75 + rand() * .35,
+        x: .5 + gaussian(rand) * .05,
+        y: .5 + gaussian(rand) * .05
+      };
+    }
+
+    function predictClass(sample, noise, temp, rand) {
+      const logits = [-.4, -.4, -.4];
+      logits[sample.label] = 2.2 - noise * 1.4;
+      const confuser = (sample.label + 1 + Math.floor(rand() * 2)) % 3;
+      logits[confuser] += noise * 1.8 + gaussian(rand) * noise;
+      logits.forEach((_, i) => {
+        logits[i] += gaussian(rand) * noise * .7;
+      });
+      return softmax(logits, temp);
+    }
+
+    function drawShapeSample(ctx, x, y, size, sample, noise) {
+      const rand = lcg(200 + sample.label * 17);
+      ctx.save();
+      ctx.translate(x + size / 2, y + size / 2);
+      ctx.rotate(sample.angle);
+      ctx.scale(sample.scale, sample.scale);
+      ctx.fillStyle = sample.label === 0 ? COLORS.blue : sample.label === 1 ? COLORS.red : COLORS.green;
+      ctx.strokeStyle = COLORS.ink;
+      ctx.lineWidth = 3;
+      if (sample.label === 0) {
+        ctx.beginPath();
+        ctx.arc(0, 0, size * .24, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      } else if (sample.label === 1) {
+        ctx.fillRect(-size * .22, -size * .22, size * .44, size * .44);
+        ctx.strokeRect(-size * .22, -size * .22, size * .44, size * .44);
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(0, -size * .28);
+        ctx.lineTo(size * .28, size * .23);
+        ctx.lineTo(-size * .28, size * .23);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.fillStyle = "rgba(0,0,0,.08)";
+      for (let i = 0; i < noise * 90; i += 1) {
+        ctx.fillRect(x + rand() * size, y + rand() * size, 2, 2);
+      }
+    }
+
+    function renderBars(target, labels, values) {
+      target.innerHTML = "";
+      values.forEach((value, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const label = document.createElement("span");
+        label.textContent = labels[index];
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.width = `${clamp(value, 0, 1) * 100}%`;
+        fill.style.background = index === 0 ? COLORS.blue : index === 1 ? COLORS.red : COLORS.green;
+        track.appendChild(fill);
+        const number = document.createElement("span");
+        number.textContent = round(value, 2);
+        row.append(label, track, number);
+        target.appendChild(row);
+      });
+    }
+
+    function renderConfusion(matrix) {
+      const root = document.getElementById("clsConfusion");
+      root.innerHTML = "";
+      root.appendChild(makeCell("", "head"));
+      CLASSES.forEach(label => root.appendChild(makeCell(label[0], "head")));
+      matrix.forEach((row, i) => {
+        root.appendChild(makeCell(CLASSES[i][0], "head"));
+        row.forEach((value, j) => {
+          const cell = makeCell(String(value), "");
+          cell.style.background = i === j ? "#e8f4ec" : value ? "#fde8e4" : "#fff";
+          root.appendChild(cell);
+        });
+      });
+    }
+
+    function makeCell(text, className) {
+      const cell = document.createElement("div");
+      cell.className = className;
+      cell.textContent = text;
+      return cell;
+    }
+
+    function evaluateClassification() {
+      const rand = lcg(500);
+      const imbalanced = document.getElementById("clsDataset").value === "imbalanced";
+      clsState.validation = Array.from({ length: 90 }, (_, i) => makeClassSample(i, rand, imbalanced));
+      drawClassification();
+    }
+
+    function drawClassification() {
+      const canvas = document.getElementById("clsCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const noise = Number(document.getElementById("clsNoise").value) / 100;
+      const temp = Number(document.getElementById("clsTemp").value) / 100;
+      if (!clsState.sample) {
+        const rand = lcg(clsState.seed);
+        clsState.sample = makeClassSample(0, rand, false);
+      }
+      ctx.fillStyle = "#17212a";
+      ctx.font = "700 24px Georgia";
+      ctx.fillText("Current image", 34, 42);
+      ctx.font = "14px ui-monospace, monospace";
+      ctx.fillStyle = "#5f6d77";
+      ctx.fillText(`true label: ${CLASSES[clsState.sample.label]}`, 36, 70);
+      drawShapeSample(ctx, 62, 108, 250, clsState.sample, noise);
+      const rand = lcg(clsState.seed + 20);
+      const probs = predictClass(clsState.sample, noise, temp, rand);
+      const pred = probs.indexOf(Math.max(...probs));
+      ctx.fillStyle = pred === clsState.sample.label ? COLORS.green : COLORS.red;
+      ctx.font = "700 18px Inter, system-ui, sans-serif";
+      ctx.fillText(`prediction: ${CLASSES[pred]}`, 370, 132);
+      ctx.fillStyle = "#17212a";
+      ctx.font = "14px ui-monospace, monospace";
+      probs.forEach((p, i) => {
+        ctx.fillStyle = i === 0 ? COLORS.blue : i === 1 ? COLORS.red : COLORS.green;
+        ctx.fillRect(372, 168 + i * 48, p * 260, 24);
+        ctx.fillStyle = "#17212a";
+        ctx.fillText(`${CLASSES[i]} ${round(p, 2)}`, 372, 160 + i * 48);
+      });
+      const matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+      const valRand = lcg(800);
+      clsState.validation.forEach(sample => {
+        const predProbs = predictClass(sample, noise, temp, valRand);
+        const p = predProbs.indexOf(Math.max(...predProbs));
+        matrix[sample.label][p] += 1;
+      });
+      const correct = matrix.reduce((sum, row, i) => sum + row[i], 0);
+      const total = matrix.flat().reduce((sum, v) => sum + v, 0);
+      const f1s = matrix.map((row, i) => {
+        const tp = row[i];
+        const fp = matrix.reduce((sum, r, j) => j === i ? sum : sum + r[i], 0);
+        const fn = row.reduce((sum, v, j) => j === i ? sum : sum + v, 0);
+        const precision = tp / Math.max(1, tp + fp);
+        const recall = tp / Math.max(1, tp + fn);
+        return 2 * precision * recall / Math.max(1e-9, precision + recall);
+      });
+      document.getElementById("clsNoiseOut").textContent = round(noise, 2);
+      document.getElementById("clsTempOut").textContent = round(temp, 2);
+      document.getElementById("clsAcc").textContent = `${round(correct / total * 100, 1)}%`;
+      document.getElementById("clsF1").textContent = round(mean(f1s), 3);
+      document.getElementById("clsPred").textContent = CLASSES[pred];
+      document.getElementById("clsConf").textContent = round(Math.max(...probs), 3);
+      renderBars(document.getElementById("clsBars"), CLASSES, probs);
+      renderConfusion(matrix);
+    }
+
+    function bindClassification() {
+      document.getElementById("clsNewSample").addEventListener("click", () => {
+        clsState.seed += 11;
+        const rand = lcg(clsState.seed);
+        clsState.sample = makeClassSample(clsState.seed, rand, false);
+        drawClassification();
+      });
+      ["clsDataset", "clsNoise", "clsTemp"].forEach(id => document.getElementById(id).addEventListener("input", () => {
+        if (id === "clsDataset") evaluateClassification();
+        else drawClassification();
+      }));
+      document.getElementById("clsEvaluate").addEventListener("click", evaluateClassification);
+      evaluateClassification();
+    }
+
+    function boxArea(box) {
+      return Math.max(0, box.x2 - box.x1) * Math.max(0, box.y2 - box.y1);
+    }
+
+    function boxIou(a, b) {
+      const x1 = Math.max(a.x1, b.x1);
+      const y1 = Math.max(a.y1, b.y1);
+      const x2 = Math.min(a.x2, b.x2);
+      const y2 = Math.min(a.y2, b.y2);
+      const inter = boxArea({ x1, y1, x2, y2 });
+      const union = boxArea(a) + boxArea(b) - inter;
+      return union <= 0 ? 0 : inter / union;
+    }
+
+    const detState = { seed: 99, gts: [], rawPreds: [] };
+
+    function baseGroundTruth() {
+      return [
+        { x1: 82, y1: 116, x2: 210, y2: 250, label: "car" },
+        { x1: 430, y1: 112, x2: 548, y2: 315, label: "person" },
+        { x1: 270, y1: 286, x2: 405, y2: 398, label: "sign" }
+      ];
+    }
+
+    function normalizeDetectionBox(box) {
+      const x1 = clamp(Math.min(box.x1, box.x2), 0, 760);
+      const y1 = clamp(Math.min(box.y1, box.y2), 0, 520);
+      const x2 = clamp(Math.max(box.x1, box.x2), 0, 760);
+      const y2 = clamp(Math.max(box.y1, box.y2), 0, 520);
+      return { ...box, x1, y1, x2, y2 };
+    }
+
+    function regenerateDetections() {
+      detState.seed += 19;
+      const rand = lcg(detState.seed);
+      const locNoise = Number(document.getElementById("detNoise").value) / 100;
+      const dup = Number(document.getElementById("detDup").value);
+      detState.gts = baseGroundTruth();
+      detState.rawPreds = [];
+      detState.gts.forEach(gt => {
+        for (let i = 0; i < dup + 1; i += 1) {
+          const shift = 34 * locNoise * (i + 1);
+          detState.rawPreds.push({
+            x1: gt.x1 + gaussian(rand) * shift,
+            y1: gt.y1 + gaussian(rand) * shift,
+            x2: gt.x2 + gaussian(rand) * shift,
+            y2: gt.y2 + gaussian(rand) * shift,
+            label: gt.label,
+            score: clamp(.9 - i * .14 - locNoise * .35 + gaussian(rand) * .05, .05, .99)
+          });
+        }
+      });
+      ["car", "person", "sign"].forEach((label, i) => {
+        const x = 70 + rand() * 520;
+        const y = 60 + rand() * 330;
+        const w = 70 + rand() * 150;
+        const h = 60 + rand() * 150;
+        detState.rawPreds.push({
+          x1: x,
+          y1: y,
+          x2: x + w,
+          y2: y + h,
+          label,
+          score: .25 + rand() * .42
+        });
+      });
+      detState.rawPreds = detState.rawPreds.map(normalizeDetectionBox);
+      drawDetection();
+    }
+
+    function nms(preds, threshold) {
+      const kept = [];
+      const byScore = [...preds].sort((a, b) => b.score - a.score);
+      while (byScore.length) {
+        const best = byScore.shift();
+        kept.push(best);
+        for (let i = byScore.length - 1; i >= 0; i -= 1) {
+          if (byScore[i].label === best.label && boxIou(best, byScore[i]) > threshold) {
+            byScore.splice(i, 1);
+          }
+        }
+      }
+      return kept;
+    }
+
+    function matchDetections(preds, gts, iouThreshold = .5) {
+      const matchedGt = new Set();
+      const results = preds.map(pred => ({ pred, match: null, iou: 0, status: "fp" }));
+      results.forEach(result => {
+        let best = -1;
+        let bestIou = 0;
+        gts.forEach((gt, index) => {
+          const iou = gt.label === result.pred.label ? boxIou(result.pred, gt) : 0;
+          if (!matchedGt.has(index) && iou > bestIou) {
+            bestIou = iou;
+            best = index;
+          }
+        });
+        result.iou = bestIou;
+        if (best >= 0 && bestIou >= iouThreshold) {
+          result.status = "tp";
+          result.match = best;
+          matchedGt.add(best);
+        }
+      });
+      return { results, tp: matchedGt.size, fp: results.filter(r => r.status === "fp").length, fn: gts.length - matchedGt.size };
+    }
+
+    function averagePrecision(preds, gts) {
+      const sorted = [...preds].sort((a, b) => b.score - a.score);
+      const matched = new Set();
+      const points = [];
+      let tp = 0;
+      let fp = 0;
+      sorted.forEach(pred => {
+        let best = -1;
+        let bestIou = 0;
+        gts.forEach((gt, index) => {
+          const iou = gt.label === pred.label ? boxIou(pred, gt) : 0;
+          if (!matched.has(index) && iou > bestIou) {
+            best = index;
+            bestIou = iou;
+          }
+        });
+        if (best >= 0 && bestIou >= .5) {
+          tp += 1;
+          matched.add(best);
+        } else {
+          fp += 1;
+        }
+        points.push({ recall: tp / gts.length, precision: tp / Math.max(1, tp + fp) });
+      });
+      let ap = 0;
+      for (let r = 0; r <= 1.0001; r += .1) {
+        const best = Math.max(0, ...points.filter(p => p.recall >= r).map(p => p.precision));
+        ap += best / 11;
+      }
+      return ap;
+    }
+
+    function drawBox(ctx, box, color, label, dashed = false) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = dashed ? 3 : 4;
+      ctx.setLineDash(dashed ? [8, 6] : []);
+      ctx.strokeRect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
+      ctx.setLineDash([]);
+      ctx.fillStyle = color;
+      ctx.fillRect(box.x1, box.y1 - 22, Math.max(64, label.length * 8 + 12), 22);
+      ctx.fillStyle = "#fff";
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText(label, box.x1 + 6, box.y1 - 7);
+      ctx.restore();
+    }
+
+    function drawDetection() {
+      const canvas = document.getElementById("detCanvas");
+      const ctx = clearCanvas(canvas);
+      drawSceneBackground(ctx, canvas);
+      const conf = Number(document.getElementById("detConf").value) / 100;
+      const nmsThresh = Number(document.getElementById("detNms").value) / 100;
+      const filtered = detState.rawPreds.filter(pred => pred.score >= conf);
+      const kept = nms(filtered, nmsThresh);
+      const matched = matchDetections(kept, detState.gts);
+      detState.gts.forEach(gt => drawBox(ctx, gt, COLORS.green, `gt ${gt.label}`, true));
+      matched.results.forEach(result => {
+        const color = result.status === "tp" ? COLORS.blue : COLORS.red;
+        drawBox(ctx, result.pred, color, `${result.pred.label} ${round(result.pred.score, 2)}`);
+      });
+      const precision = matched.tp / Math.max(1, matched.tp + matched.fp);
+      const recall = matched.tp / Math.max(1, matched.tp + matched.fn);
+      document.getElementById("detConfOut").textContent = round(conf, 2);
+      document.getElementById("detNmsOut").textContent = round(nmsThresh, 2);
+      document.getElementById("detNoiseOut").textContent = round(Number(document.getElementById("detNoise").value) / 100, 2);
+      document.getElementById("detDupOut").textContent = document.getElementById("detDup").value;
+      document.getElementById("detPrecision").textContent = round(precision, 3);
+      document.getElementById("detRecall").textContent = round(recall, 3);
+      document.getElementById("detAp").textContent = round(averagePrecision(nms(detState.rawPreds, nmsThresh), detState.gts), 3);
+      document.getElementById("detCounts").textContent = `TP ${matched.tp}, FP ${matched.fp}, FN ${matched.fn}, kept ${kept.length}`;
+    }
+
+    function drawSceneBackground(ctx, canvas) {
+      ctx.fillStyle = "#eef4f7";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#dfe8dd";
+      ctx.fillRect(0, canvas.height * .62, canvas.width, canvas.height * .38);
+      ctx.strokeStyle = "#c6d1d8";
+      ctx.lineWidth = 2;
+      for (let x = 0; x < canvas.width; x += 70) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x + 90, canvas.height);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(31,111,178,.12)";
+      ctx.fillRect(70, 105, 170, 160);
+      ctx.fillStyle = "rgba(189,75,67,.12)";
+      ctx.fillRect(415, 95, 155, 235);
+      ctx.fillStyle = "rgba(47,125,87,.12)";
+      ctx.fillRect(255, 270, 170, 145);
+    }
+
+    function bindDetection() {
+      ["detConf", "detNms"].forEach(id => document.getElementById(id).addEventListener("input", drawDetection));
+      ["detNoise", "detDup"].forEach(id => document.getElementById(id).addEventListener("input", regenerateDetections));
+      document.getElementById("detRegenerate").addEventListener("click", regenerateDetections);
+      regenerateDetections();
+    }
+
+    function maskValue(x, y, cx, cy, rx, ry) {
+      return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
+    }
+
+    function drawSegmentation() {
+      const canvas = document.getElementById("segCanvas");
+      const ctx = clearCanvas(canvas);
+      const w = 180;
+      const h = 120;
+      const shift = Number(document.getElementById("segShift").value);
+      const dilate = Number(document.getElementById("segDilate").value);
+      const noise = Number(document.getElementById("segNoise").value) / 100;
+      const threshold = Number(document.getElementById("segThreshold").value) / 100;
+      const rand = lcg(33);
+      let tp = 0;
+      let fp = 0;
+      let fn = 0;
+      let tn = 0;
+      const panels = [
+        { x: 28, title: "Ground truth" },
+        { x: 276, title: "Prediction" },
+        { x: 524, title: "Error map" }
+      ];
+      panels.forEach(panel => {
+        ctx.fillStyle = "#17212a";
+        ctx.font = "700 18px Georgia";
+        ctx.fillText(panel.title, panel.x, 36);
+        ctx.fillStyle = "#f7f4ed";
+        ctx.fillRect(panel.x, 58, 208, 360);
+      });
+      const cellW = 208 / w;
+      const cellH = 360 / h;
+      for (let y = 0; y < h; y += 1) {
+        for (let x = 0; x < w; x += 1) {
+          const gt = maskValue(x, y, 86, 60, 44, 32) || (x > 110 && x < 148 && y > 34 && y < 91);
+          let probability = maskValue(x - shift, y, 86, 60, 44 + dilate, 32 + dilate * .6) ? .8 : .12;
+          if (x - shift > 110 - dilate && x - shift < 148 + dilate && y > 34 - dilate && y < 91 + dilate) probability = .82;
+          probability += (rand() - .5) * noise * 2;
+          const pred = probability >= threshold;
+          if (gt && pred) tp += 1;
+          else if (!gt && pred) fp += 1;
+          else if (gt && !pred) fn += 1;
+          else tn += 1;
+          if (gt) {
+            ctx.fillStyle = COLORS.green;
+            ctx.fillRect(panels[0].x + x * cellW, 58 + y * cellH, Math.ceil(cellW), Math.ceil(cellH));
+          }
+          if (pred) {
+            ctx.fillStyle = COLORS.red;
+            ctx.fillRect(panels[1].x + x * cellW, 58 + y * cellH, Math.ceil(cellW), Math.ceil(cellH));
+          }
+          if (gt && pred) ctx.fillStyle = COLORS.blue;
+          else if (gt && !pred) ctx.fillStyle = COLORS.amber;
+          else if (!gt && pred) ctx.fillStyle = COLORS.red;
+          else ctx.fillStyle = "#fff";
+          ctx.fillRect(panels[2].x + x * cellW, 58 + y * cellH, Math.ceil(cellW), Math.ceil(cellH));
+        }
+      }
+      const iou = tp / Math.max(1, tp + fp + fn);
+      const dice = 2 * tp / Math.max(1, 2 * tp + fp + fn);
+      const acc = (tp + tn) / Math.max(1, tp + tn + fp + fn);
+      const precision = tp / Math.max(1, tp + fp);
+      const recall = tp / Math.max(1, tp + fn);
+      document.getElementById("segShiftOut").textContent = String(shift);
+      document.getElementById("segDilateOut").textContent = String(dilate);
+      document.getElementById("segNoiseOut").textContent = round(noise, 2);
+      document.getElementById("segThresholdOut").textContent = round(threshold, 2);
+      document.getElementById("segIou").textContent = round(iou, 3);
+      document.getElementById("segDice").textContent = round(dice, 3);
+      document.getElementById("segAcc").textContent = round(acc, 3);
+      document.getElementById("segPr").textContent = `${round(precision, 2)} / ${round(recall, 2)}`;
+    }
+
+    function bindSegmentation() {
+      ["segShift", "segDilate", "segNoise", "segThreshold"].forEach(id => document.getElementById(id).addEventListener("input", drawSegmentation));
+      drawSegmentation();
+    }
+
+    function transformBox(box, crop, flip, w) {
+      const cropW = w * crop;
+      const left = (w - cropW) / 2;
+      let out = {
+        x1: clamp(box.x1 - left, 0, cropW),
+        y1: box.y1,
+        x2: clamp(box.x2 - left, 0, cropW),
+        y2: box.y2
+      };
+      if (flip) {
+        out = { x1: cropW - out.x2, y1: out.y1, x2: cropW - out.x1, y2: out.y2 };
+      }
+      return out;
+    }
+
+    function drawAugmentation() {
+      const canvas = document.getElementById("augCanvas");
+      const ctx = clearCanvas(canvas);
+      const flip = document.getElementById("augFlip").value === "on";
+      const crop = Number(document.getElementById("augCrop").value) / 100;
+      const bright = Number(document.getElementById("augBright").value) / 100;
+      const blur = Number(document.getElementById("augBlur").value);
+      const base = { x: 42, y: 72, w: 300, h: 360 };
+      const aug = { x: 416, y: 72, w: 300, h: 360 };
+      const box = { x1: 78, y1: 135, x2: 238, y2: 288 };
+      function drawPanel(panel, title, transformed) {
+        ctx.fillStyle = "#17212a";
+        ctx.font = "700 18px Georgia";
+        ctx.fillText(title, panel.x, 42);
+        ctx.fillStyle = `rgb(${Math.round(230 * bright)}, ${Math.round(238 * bright)}, ${Math.round(242 * bright)})`;
+        ctx.fillRect(panel.x, panel.y, panel.w, panel.h);
+        ctx.fillStyle = "rgba(31,111,178,.18)";
+        ctx.fillRect(panel.x + 24, panel.y + 188, panel.w - 48, 92);
+        ctx.fillStyle = "rgba(47,125,87,.3)";
+        ctx.beginPath();
+        ctx.arc(panel.x + panel.w * .5, panel.y + 225, 62, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = COLORS.green;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(panel.x + transformed.x1, panel.y + transformed.y1, transformed.x2 - transformed.x1, transformed.y2 - transformed.y1);
+        if (blur > 0) {
+          ctx.fillStyle = `rgba(255,255,255,${blur * .08})`;
+          for (let i = 0; i < blur; i += 1) ctx.fillRect(panel.x, panel.y, panel.w, panel.h);
+        }
+      }
+      drawPanel(base, "Original", box);
+      const cropW = 300 * crop;
+      const transformed = transformBox(box, crop, flip, 300);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(aug.x, aug.y, aug.w, aug.h);
+      ctx.clip();
+      ctx.translate(aug.x, aug.y);
+      if (flip) {
+        ctx.translate(300, 0);
+        ctx.scale(-1, 1);
+      }
+      const cropLeft = (300 - cropW) / 2;
+      ctx.translate(-cropLeft * 300 / cropW, 0);
+      ctx.scale(300 / cropW, 1);
+      drawPanel({ x: 0, y: 0, w: 300, h: 360 }, "Augmented", box);
+      ctx.restore();
+      ctx.strokeStyle = COLORS.red;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(aug.x + transformed.x1 * 300 / cropW, aug.y + transformed.y1, (transformed.x2 - transformed.x1) * 300 / cropW, transformed.y2 - transformed.y1);
+      ctx.fillStyle = "#17212a";
+      ctx.font = "700 18px Georgia";
+      ctx.fillText("Augmented", aug.x, 42);
+      const originalArea = boxArea(box);
+      const kept = boxArea(transformed) / Math.max(1, originalArea);
+      document.getElementById("augCropOut").textContent = round(crop, 2);
+      document.getElementById("augBrightOut").textContent = round(bright, 2);
+      document.getElementById("augBlurOut").textContent = String(blur);
+      document.getElementById("augLabel").textContent = "classification label unchanged";
+      document.getElementById("augBoxArea").textContent = `${round(kept * 100, 1)}%`;
+      document.getElementById("augMaskArea").textContent = `${round(clamp(kept * (1 - blur * .02), 0, 1) * 100, 1)}%`;
+      document.getElementById("augContract").textContent = flip || crop < 1 ? "geometry annotations changed" : "pixel-only transform";
+    }
+
+    function bindAugmentation() {
+      ["augFlip", "augCrop", "augBright", "augBlur"].forEach(id => document.getElementById(id).addEventListener("input", drawAugmentation));
+      drawAugmentation();
+    }
+
+    const METRICS = [
+      { family: "Classification", name: "Top-1 Accuracy", definition: "Fraction of samples where the highest-scoring class is correct.", use: "Balanced single-label classification.", failure: "Hides class imbalance and confidence quality." },
+      { family: "Classification", name: "Top-k Accuracy", definition: "Target class appears among the k highest scores.", use: "Large label spaces and ambiguous images.", failure: "Can hide poor ranking at position one." },
+      { family: "Classification", name: "Precision / Recall / F1", definition: "Positive prediction quality, positive coverage, and their harmonic mean.", use: "Imbalanced classes, rare defects, medical screening.", failure: "Depends on threshold and positive class definition." },
+      { family: "Classification", name: "Confusion Matrix", definition: "Counts true class versus predicted class.", use: "Finding class pairs that are confused.", failure: "Large class counts need grouping or normalization." },
+      { family: "Calibration", name: "Expected Calibration Error", definition: "Compares predicted confidence bins with empirical correctness.", use: "Risk-aware systems and confidence thresholds.", failure: "Bin choices affect the number." },
+      { family: "Detection", name: "IoU", definition: "Intersection area divided by union area for two boxes or masks.", use: "Matching predictions to ground truth.", failure: "Does not measure class correctness by itself." },
+      { family: "Detection", name: "AP@0.50", definition: "Area under precision-recall curve using IoU >= 0.50 as a match.", use: "Single-threshold detector quality.", failure: "Lenient localization; small objects can be misleading." },
+      { family: "Detection", name: "mAP@[.50:.95]", definition: "Mean AP over classes and multiple IoU thresholds.", use: "General object detection benchmarks.", failure: "One number can hide per-class and size-specific failures." },
+      { family: "Detection", name: "AR", definition: "Average recall over proposal counts or IoU thresholds.", use: "Measuring whether objects are found at all.", failure: "Does not penalize many false positives the same way precision does." },
+      { family: "Segmentation", name: "Mean IoU", definition: "Average class IoU across semantic classes.", use: "Semantic segmentation benchmarks.", failure: "Rare classes can dominate interpretation if not reported separately." },
+      { family: "Segmentation", name: "Dice Score", definition: "Two times overlap divided by total predicted plus ground-truth area.", use: "Medical and foreground mask tasks.", failure: "Boundary quality may still be poor." },
+      { family: "Segmentation", name: "Pixel Accuracy", definition: "Fraction of pixels with correct class.", use: "Quick sanity check.", failure: "Misleading when background dominates." },
+      { family: "Segmentation", name: "Boundary F-score", definition: "Precision/recall of predicted boundaries near true boundaries.", use: "Thin structures and edge-sensitive tasks.", failure: "Requires boundary tolerance choice." },
+      { family: "Instance", name: "Panoptic Quality", definition: "Combines segmentation quality and recognition quality.", use: "Panoptic segmentation with stuff and thing classes.", failure: "More complex to interpret than IoU alone." },
+      { family: "Keypoints", name: "PCK", definition: "Percentage of keypoints within a normalized distance threshold.", use: "Pose and landmark localization.", failure: "Threshold and normalization change conclusions." },
+      { family: "Keypoints", name: "OKS", definition: "Object keypoint similarity with scale and keypoint uncertainty.", use: "COCO-style pose evaluation.", failure: "Depends on keypoint-specific sigmas." }
+    ];
+
+    function bindMetricAtlas() {
+      const familySelect = document.getElementById("metricFamily");
+      [...new Set(METRICS.map(metric => metric.family))].sort().forEach(family => {
+        const option = document.createElement("option");
+        option.value = family;
+        option.textContent = family;
+        familySelect.appendChild(option);
+      });
+      function render() {
+        const search = document.getElementById("metricSearch").value.trim().toLowerCase();
+        const family = familySelect.value;
+        const filtered = METRICS.filter(metric => {
+          const matchesFamily = family === "all" || metric.family === family;
+          const text = `${metric.family} ${metric.name} ${metric.definition} ${metric.use} ${metric.failure}`.toLowerCase();
+          return matchesFamily && (!search || text.includes(search));
+        });
+        document.getElementById("metricCount").textContent = `${filtered.length} of ${METRICS.length} metrics`;
+        const list = document.getElementById("metricList");
+        list.innerHTML = "";
+        filtered.forEach(metric => {
+          const item = document.createElement("article");
+          item.className = "card";
+          const left = document.createElement("div");
+          const title = document.createElement("div");
+          title.className = "card-name";
+          title.textContent = metric.name;
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = metric.family;
+          left.append(title, tag);
+          const right = document.createElement("div");
+          const summary = document.createElement("p");
+          summary.textContent = metric.definition;
+          const meta = document.createElement("div");
+          meta.className = "card-meta";
+          [
+            ["Use", metric.use],
+            ["Failure mode", metric.failure],
+            ["Report with", "thresholds, per-class scores, qualitative examples"]
+          ].forEach(([label, value]) => {
+            const block = document.createElement("div");
+            const b = document.createElement("b");
+            b.textContent = label;
+            const br = document.createElement("br");
+            block.append(b, br, document.createTextNode(value));
+            meta.appendChild(block);
+          });
+          right.append(summary, meta);
+          item.append(left, right);
+          list.appendChild(item);
+        });
+      }
+      document.getElementById("metricSearch").addEventListener("input", render);
+      familySelect.addEventListener("input", render);
+      render();
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#17212a";
+        ctx.font = "700 24px Georgia";
+        ctx.fillText("One image, many prediction contracts", 34, 48);
+        ctx.font = "14px ui-monospace, monospace";
+        ctx.fillStyle = "#5f6d77";
+        ctx.fillText("classification | boxes | masks | filters | metrics", 36, 82);
+        drawSceneBackground(ctx, canvas);
+        const pulse = Math.sin(frame * .05) * 5;
+        drawBox(ctx, { x1: 92, y1: 132, x2: 222 + pulse, y2: 260 }, COLORS.green, "box", true);
+        drawBox(ctx, { x1: 98 + pulse, y1: 140, x2: 218, y2: 254 + pulse }, COLORS.red, "pred");
+        ctx.fillStyle = "rgba(31,111,178,.38)";
+        ctx.beginPath();
+        ctx.arc(340, 350, 62 + pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = COLORS.blue;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.fillStyle = COLORS.ink;
+        ctx.font = "700 15px Inter, system-ui, sans-serif";
+        ctx.fillText("class: road scene 0.91", 420, 455);
+        ctx.fillStyle = COLORS.blue;
+        ctx.fillRect(420, 466, 210, 18);
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      bindFilterLab();
+      bindClassification();
+      bindDetection();
+      bindSegmentation();
+      bindAugmentation();
+      bindMetricAtlas();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

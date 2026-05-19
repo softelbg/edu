@@ -1,0 +1,2147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NLP ML: Vectorizers, Transformers, and LLM Mechanics</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f4ee;
+      --ink: #17212a;
+      --muted: #5f6d77;
+      --line: #d8d0c2;
+      --panel: #ffffff;
+      --soft: #eee8dd;
+      --nav: #fbfaf7;
+      --blue: #1f6fb2;
+      --green: #2f7d57;
+      --red: #bd4b43;
+      --amber: #b87924;
+      --violet: #6b55a3;
+      --cyan: #147f87;
+      --shadow: 0 18px 48px rgba(23, 33, 42, .12);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #edf5ff;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    code {
+      border-radius: 4px;
+      background: #ede7dc;
+      padding: 1px 5px;
+      font-size: .92em;
+    }
+
+    pre {
+      overflow: auto;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #f8f4ed;
+      color: #203645;
+      padding: 16px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--nav);
+      padding: 28px 22px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .toc-title {
+      margin-bottom: 18px;
+      color: #203645;
+      font-weight: 800;
+    }
+
+    .breadcrumbs {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      font: 800 13px/1.25 var(--sans);
+    }
+
+    .toc .breadcrumbs a {
+      color: var(--blue);
+      text-decoration: none;
+      padding: 0;
+    }
+
+    .toc a {
+      display: block;
+      color: #364650;
+      text-decoration: none;
+      padding: 7px 0;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero,
+    .chapter,
+    .band {
+      padding: 54px 0;
+    }
+
+    .inner {
+      width: min(1140px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 94vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.88), rgba(255,255,255,.56)),
+        repeating-linear-gradient(0deg, rgba(31,111,178,.08), rgba(31,111,178,.08) 1px, transparent 1px, transparent 32px),
+        repeating-linear-gradient(90deg, rgba(47,125,87,.08), rgba(47,125,87,.08) 1px, transparent 1px, transparent 32px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(330px, .74fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--blue);
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 900px;
+      font-size: 64px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 42px;
+    }
+
+    h3 {
+      margin: 34px 0 10px;
+      font-size: 28px;
+    }
+
+    h4 {
+      margin: 24px 0 8px;
+      font-size: 21px;
+    }
+
+    .subtitle {
+      max-width: 790px;
+      margin: 18px 0 26px;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .lead {
+      max-width: 900px;
+      color: #2c3942;
+      font-size: 21px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .point {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.76);
+      padding: 12px;
+    }
+
+    .point:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .point:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .hero-visual,
+    .simulation {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.95);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid #e5ded3;
+      background: #fff;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font: 13px/1.35 var(--sans);
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .note {
+      margin: 22px 0;
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+      padding: 16px 18px;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff5e3;
+    }
+
+    .formula {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1ebe0;
+      color: #243643;
+      padding: 14px;
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #ede7dc;
+      color: #203645;
+    }
+
+    .simulation {
+      margin: 24px 0;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sim-header h3 {
+      margin-top: 0;
+    }
+
+    .sim-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font: 14px/1.45 var(--sans);
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(126px, 1fr));
+      gap: 12px;
+      margin: 16px 0 18px;
+      font: 14px/1.3 var(--sans);
+    }
+
+    .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    .control input,
+    .control select,
+    .control textarea {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 9px;
+    }
+
+    .control textarea {
+      min-height: 86px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+
+    .control output {
+      color: var(--blue);
+      font-family: var(--mono);
+    }
+
+    .wide-control {
+      grid-column: span 2;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .viz-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      color: #203645;
+      font: 700 14px/1.2 var(--sans);
+    }
+
+    .shape {
+      color: var(--muted);
+      font: 12px/1.2 var(--mono);
+      font-weight: 500;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .metric {
+      min-height: 78px;
+      border-top: 3px solid var(--cyan);
+      background: #f8f4ed;
+      padding: 10px;
+    }
+
+    .metric:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .metric:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .metric:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .metric b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font: 13px/1.2 var(--mono);
+      overflow-wrap: anywhere;
+    }
+
+    .token-row,
+    .bars,
+    .matrix,
+    .text-box,
+    .rank-list,
+    .sequence {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .token-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 62px;
+      align-content: flex-start;
+    }
+
+    .token {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid #d8d0c2;
+      border-radius: 6px;
+      background: #f6f1e9;
+      padding: 4px 7px;
+      color: #203645;
+      word-break: break-word;
+    }
+
+    .token.special {
+      border-color: rgba(107,85,163,.4);
+      background: rgba(107,85,163,.12);
+      color: var(--violet);
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(80px, .42fr) minmax(0, 1fr) 60px;
+      gap: 8px;
+      align-items: center;
+      margin: 7px 0;
+    }
+
+    .bar-track {
+      height: 18px;
+      overflow: hidden;
+      background: #eee7db;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .bar-row:nth-child(2n) .bar-fill {
+      background: var(--green);
+    }
+
+    .bar-row:nth-child(3n) .bar-fill {
+      background: var(--amber);
+    }
+
+    .matrix {
+      display: grid;
+      gap: 4px;
+      overflow: auto;
+    }
+
+    .matrix-row {
+      display: grid;
+      gap: 4px;
+      align-items: stretch;
+    }
+
+    .cell {
+      min-width: 42px;
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e5ded3;
+      background: #f8f4ed;
+      color: #203645;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .cell.header {
+      background: #ede7dc;
+      font-weight: 800;
+    }
+
+    .text-box {
+      min-height: 180px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .rank-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .rank-item {
+      border-left: 4px solid var(--blue);
+      background: #f8f4ed;
+      padding: 8px;
+    }
+
+    .rank-item b {
+      display: block;
+      margin-bottom: 3px;
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+
+    .sequence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      min-height: 86px;
+      font-size: 14px;
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-family: var(--sans);
+    }
+
+    .atlas-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, .45fr) minmax(220px, .34fr) minmax(0, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+      font-family: var(--sans);
+    }
+
+    .atlas-tools input,
+    .atlas-tools select {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 10px;
+    }
+
+    .card-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: minmax(170px, .3fr) minmax(0, 1fr);
+      gap: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 14px;
+    }
+
+    .card-name {
+      margin-bottom: 6px;
+      color: #203645;
+      font: 800 15px/1.25 var(--sans);
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 6px;
+      background: var(--violet);
+      color: #fff;
+      padding: 5px 7px;
+      font: 12px/1 var(--sans);
+    }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--muted);
+      font: 12px/1.35 var(--sans);
+    }
+
+    .card-meta div {
+      border-left: 3px solid var(--blue);
+      background: #f6f1e9;
+      padding: 8px;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 64px;
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    @media (max-width: 1060px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .toc nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .hero-grid,
+      .split,
+      .sim-grid,
+      .atlas-tools,
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      .wide-control {
+        grid-column: span 1;
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1140px);
+      }
+
+      .hero,
+      .chapter,
+      .band {
+        padding: 34px 0;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-points,
+      .sim-controls,
+      .metric-grid,
+      .card-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Book breadcrumbs">
+        <a href="index.html">Home</a>
+        <a href="deep_ml_torch_layers_book.html">Prev: Deep ML</a>
+      </nav>
+      <div class="toc-title">NLP ML</div>
+      <nav>
+        <a href="#preface">Preface</a>
+        <a href="#contracts">Text contracts</a>
+        <a href="#classic">Classic NLP ML</a>
+        <a href="#neural">Neural representations</a>
+        <a href="#transformers">Transformers and LLMs</a>
+        <a href="#simulators">Interactive demos</a>
+        <a href="#atlas">NLP atlas</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="preface">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | Section 04</p>
+            <h1>NLP ML: From Count Vectorizers to Transformer LLMs</h1>
+            <p class="subtitle">A practical, interactive guide to text machine learning. Start with tokenization, bag-of-words, TF-IDF, and classical classifiers, then move through embeddings, attention, transformers, retrieval, generation, and evaluation.</p>
+            <div class="hero-points">
+              <div class="point"><b>Text becomes tensors.</b><br>Follow the contract from raw strings to tokens, vectors, masks, logits, and generated sequences.</div>
+              <div class="point"><b>Classic to modern.</b><br>Connect scikit-learn style vectorizers to embeddings, attention, transformer blocks, and LLM behavior.</div>
+              <div class="point"><b>Hands-on demos.</b><br>Six browser simulations expose vectorization, classification, attention, decoding, retrieval, and chunking.</div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <canvas id="heroCanvas" width="720" height="520" aria-label="Animated NLP model pipeline"></canvas>
+            <div class="legend">
+              <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>tokens</span>
+              <span class="legend-chip"><i class="swatch" style="background:#2f7d57"></i>vectors</span>
+              <span class="legend-chip"><i class="swatch" style="background:#bd4b43"></i>logits</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="contracts">
+        <div class="inner">
+          <p class="lead">NLP models do not consume language directly. They consume a representation contract: normalized text, token ids, masks, features, vectors, labels, and output schemas.</p>
+
+          <h2>1. Text Contracts</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Representation</th>
+                <th>Typical shape</th>
+                <th>Meaning</th>
+                <th>Common pitfalls</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Raw text</td>
+                <td>string or list of strings</td>
+                <td>Original document, message, question, or transcript.</td>
+                <td>Hidden encoding issues, HTML markup, duplicated templates, leakage in quoted replies.</td>
+              </tr>
+              <tr>
+                <td>Tokens</td>
+                <td><code>[T]</code></td>
+                <td>Words, subwords, characters, or byte-level pieces.</td>
+                <td>Train/test tokenizer mismatch, inconsistent lowercasing, losing punctuation that carries signal.</td>
+              </tr>
+              <tr>
+                <td>Bag-of-words features</td>
+                <td><code>[N, V]</code> sparse matrix</td>
+                <td>Document-term counts or TF-IDF weights.</td>
+                <td>Fitting vocabulary on validation data, exploding vocabulary with rare tokens.</td>
+              </tr>
+              <tr>
+                <td>Embedding sequence</td>
+                <td><code>[N, T, D]</code></td>
+                <td>Dense token vectors used by neural sequence models.</td>
+                <td>Masking padded tokens incorrectly, truncating useful context.</td>
+              </tr>
+              <tr>
+                <td>Transformer input</td>
+                <td><code>input_ids [N, T]</code>, <code>attention_mask [N, T]</code></td>
+                <td>Token ids plus mask saying which positions are real tokens.</td>
+                <td>Wrong special tokens, missing causal mask, prompt text leaking labels.</td>
+              </tr>
+              <tr>
+                <td>LLM output</td>
+                <td>tokens, JSON, tool call, embedding, or ranked documents</td>
+                <td>The output must match the task contract, not just sound fluent.</td>
+                <td>Evaluating style instead of correctness, unparseable JSON, unsupported claims.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <b>Rule of thumb:</b> write the input and output contract before choosing an NLP model. A spam classifier, a semantic search index, a summarizer, and an agentic tool caller may all use language, but they optimize different contracts.
+          </div>
+
+          <h3>Common preprocessing pipeline</h3>
+          <pre><code># Classic NLP
+raw_text -> normalize -> tokenize -> CountVectorizer/TfidfVectorizer -> classifier
+
+# Transformer NLP
+raw_text -> tokenizer -> input_ids + attention_mask -> transformer -> logits/embeddings/text
+
+# Retrieval-augmented generation
+documents -> chunks -> embeddings -> vector index
+question -> embedding -> nearest chunks -> prompt -> generated answer + citations</code></pre>
+
+          <h3>BPE and LLM tokenization</h3>
+          <p>Modern LLM tokenizers usually operate below the word level. Byte Pair Encoding-style tokenizers start from small units, repeatedly merge frequent adjacent pieces, and produce a vocabulary that can represent common words compactly while still handling rare words, names, code, and mixed-language text.</p>
+          <div class="formula">characters or bytes -> learned merges -> subword tokens -> token ids</div>
+        </div>
+      </section>
+
+      <section class="band" id="classic">
+        <div class="inner">
+          <h2>2. Classic NLP ML</h2>
+          <p class="lead">Classical NLP is still useful because it is fast, transparent, cheap to train, and strong on many supervised text classification problems. It also teaches the data contracts that modern systems still depend on.</p>
+
+          <div class="split">
+            <div>
+              <h3>Count vectorization</h3>
+              <p>A count vectorizer builds a vocabulary from training text and turns each document into a sparse vector. Each column is a token or n-gram. The model never sees word order except through n-gram features.</p>
+              <div class="formula">X[d, term] = count(term in document d)</div>
+              <p>Important knobs mirror scikit-learn's <code>CountVectorizer</code>: <code>lowercase</code>, <code>token_pattern</code>, <code>stop_words</code>, <code>ngram_range</code>, <code>min_df</code>, and <code>max_features</code>.</p>
+            </div>
+            <div>
+              <h3>TF-IDF</h3>
+              <p>TF-IDF downweights terms that appear in many documents and upweights terms that distinguish a document from the corpus.</p>
+              <div class="formula">tfidf(term, doc) = tf(term, doc) * log((1 + N) / (1 + df(term))) + 1</div>
+              <p>TF-IDF often pairs well with logistic regression, linear SVMs, ridge classifiers, and Naive Bayes variants.</p>
+            </div>
+          </div>
+
+          <h3>Classic model choices</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Works well for</th>
+                <th>Strength</th>
+                <th>Watch out for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Multinomial Naive Bayes</td>
+                <td>Spam, sentiment, topic labels, quick baselines.</td>
+                <td>Fast, robust with counts, interpretable token evidence.</td>
+                <td>Conditional independence assumption and weak handling of correlated phrases.</td>
+              </tr>
+              <tr>
+                <td>Logistic regression</td>
+                <td>High-dimensional sparse text classification.</td>
+                <td>Strong calibrated linear baseline with feature weights.</td>
+                <td>Needs regularization and class imbalance handling.</td>
+              </tr>
+              <tr>
+                <td>Linear SVM</td>
+                <td>Large-margin text classification.</td>
+                <td>Often excellent with TF-IDF and n-grams.</td>
+                <td>Scores are not probabilities unless calibrated.</td>
+              </tr>
+              <tr>
+                <td>NMF / LDA topic models</td>
+                <td>Exploring unlabeled corpora.</td>
+                <td>Summarizes repeated word co-occurrence patterns.</td>
+                <td>Topics are not guaranteed to be semantic or stable.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="neural">
+        <div class="inner">
+          <h2>3. Neural Text Representations</h2>
+          <p class="lead">Neural NLP replaces sparse vocabulary columns with dense vectors. The model learns that words, subwords, sentences, and documents can be placed in continuous spaces where similarity and composition become trainable.</p>
+
+          <div class="split">
+            <div>
+              <h3>Embeddings</h3>
+              <p>An embedding table maps token ids to dense vectors. Static embeddings such as word2vec and GloVe assign one vector per word type. Contextual embeddings from transformers assign different vectors to the same token depending on surrounding tokens.</p>
+              <div class="formula">input_ids [N, T] -> embedding_table[V, D] -> vectors [N, T, D]</div>
+            </div>
+            <div>
+              <h3>Sequence models before transformers</h3>
+              <ul>
+                <li><b>CNNs:</b> detect local n-gram features with shared filters.</li>
+                <li><b>RNNs:</b> update a hidden state token by token.</li>
+                <li><b>LSTMs/GRUs:</b> improve long-range memory with gates.</li>
+                <li><b>Seq2seq with attention:</b> lets a decoder look back at encoder states.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="warning note">
+            <b>Practical baseline:</b> for many business text classification tasks, a TF-IDF plus logistic regression baseline should be built before fine-tuning a transformer. It exposes label quality, leakage, class imbalance, and hard examples quickly.
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="transformers">
+        <div class="inner">
+          <h2>4. Transformers and LLMs</h2>
+          <p class="lead">Transformers scale because attention lets every token exchange information with other tokens in parallel. LLMs are transformer language models trained to predict text and later adapted for instruction following, tool use, retrieval, or domain tasks.</p>
+
+          <div class="split">
+            <div>
+              <h3>Self-attention</h3>
+              <p>Each token produces a query, key, and value vector. Attention compares a query to all keys, normalizes the scores, and returns a weighted mixture of values.</p>
+              <div class="formula">attention(Q, K, V) = softmax(QK^T / sqrt(d_k) + mask) V</div>
+              <p>In encoder models, tokens can usually attend bidirectionally. In decoder language models, a causal mask prevents each token from seeing future tokens.</p>
+            </div>
+            <div>
+              <h3>Transformer block</h3>
+              <ol>
+                <li>Token and position embeddings enter the block.</li>
+                <li>Multi-head self-attention mixes context.</li>
+                <li>Residual connections and layer normalization stabilize training.</li>
+                <li>A feed-forward network transforms each token independently.</li>
+                <li>Stacking blocks increases abstraction and context use.</li>
+              </ol>
+            </div>
+          </div>
+
+          <h3>Modern NLP task patterns</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Pattern</th>
+                <th>Model contract</th>
+                <th>Typical use</th>
+                <th>Evaluation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Encoder classification</td>
+                <td>Text -> pooled vector -> class logits.</td>
+                <td>Intent, sentiment, moderation, entity classification.</td>
+                <td>Accuracy, F1, calibration, slice metrics.</td>
+              </tr>
+              <tr>
+                <td>Sequence labeling</td>
+                <td>Text -> per-token labels.</td>
+                <td>Named entities, spans, redaction, token tagging.</td>
+                <td>Entity-level precision, recall, F1.</td>
+              </tr>
+              <tr>
+                <td>Embeddings and retrieval</td>
+                <td>Text -> dense vector.</td>
+                <td>Search, clustering, deduplication, RAG.</td>
+                <td>Recall@k, MRR, nDCG, answer support.</td>
+              </tr>
+              <tr>
+                <td>Decoder generation</td>
+                <td>Prompt -> next-token distribution -> generated tokens.</td>
+                <td>Chat, summarization, coding, extraction, reasoning workflows.</td>
+                <td>Task-specific correctness, groundedness, format validity, human review.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>5. Interactive Demos</h2>
+          <p class="lead">These demos are intentionally small and local. They expose the mechanics underneath production NLP systems without requiring external libraries or model downloads.</p>
+
+          <div class="simulation" id="tokenizerSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Tokenizer Lab</h3>
+                <p>Compare whitespace, word/punctuation, character, simple subword, and BPE-style tokenization. Watch vocabulary size, token count, and learned merges change.</p>
+              </div>
+              <button type="button" id="tokenReset">Reset text</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control wide-control">Input text
+                <textarea id="tokenText">Transformers tokenize text into useful tokens. Tokenizers learn token merges for text, code, and rare words.</textarea>
+              </label>
+              <label class="control">Tokenizer
+                <select id="tokenMode">
+                  <option value="word">word + punctuation</option>
+                  <option value="whitespace">whitespace</option>
+                  <option value="char">character</option>
+                  <option value="subword">toy subword</option>
+                  <option value="bpe">toy BPE merges</option>
+                </select>
+              </label>
+              <label class="control">Lowercase
+                <select id="tokenLower">
+                  <option value="yes">yes</option>
+                  <option value="no">no</option>
+                </select>
+              </label>
+              <label class="control">BPE merges <output id="tokenMergeOut">12</output>
+                <input id="tokenMerges" type="range" min="0" max="28" value="12">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Tokens</span><span class="shape" id="tokenShape"></span></div>
+                <div class="token-row" id="tokenOutput"></div>
+                <div class="viz-title" style="margin-top:12px"><span>Learned BPE merges</span><span class="shape" id="tokenMergeShape"></span></div>
+                <div class="rank-list" id="tokenMergeList"></div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Token count</b><span id="tokenCount"></span></div>
+                <div class="metric"><b>Vocabulary</b><span id="tokenVocab"></span></div>
+                <div class="metric"><b>Longest token</b><span id="tokenLongest"></span></div>
+                <div class="metric"><b>Compression / rules</b><span id="tokenCompression"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="vectorizerSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>CountVectorizer and TF-IDF Lab</h3>
+                <p>Build a tiny document-term matrix. Toggle n-grams and weighting to see how feature vectors change.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Corpus
+                <select id="vecCorpus">
+                  <option value="support">support tickets</option>
+                  <option value="reviews">product reviews</option>
+                  <option value="science">science notes</option>
+                </select>
+              </label>
+              <label class="control">Features
+                <select id="vecNgram">
+                  <option value="1">unigrams</option>
+                  <option value="2">unigrams + bigrams</option>
+                </select>
+              </label>
+              <label class="control">Weighting
+                <select id="vecWeight">
+                  <option value="count">counts</option>
+                  <option value="tfidf">TF-IDF</option>
+                </select>
+              </label>
+              <label class="control">Max features <output id="vecMaxOut">8</output>
+                <input id="vecMax" type="range" min="4" max="14" value="8">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Document-term matrix</span><span class="shape" id="vecShape"></span></div>
+                <div class="matrix" id="vecMatrix"></div>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Documents</b><span id="vecDocs"></span></div>
+                  <div class="metric"><b>Vocabulary</b><span id="vecVocab"></span></div>
+                  <div class="metric"><b>Sparsity</b><span id="vecSparsity"></span></div>
+                  <div class="metric"><b>Top feature</b><span id="vecTop"></span></div>
+                </div>
+                <div class="bars" id="vecBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="bayesSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Naive Bayes Text Classifier</h3>
+                <p>Classify a message using token likelihoods learned from a toy corpus. Smoothing controls how unseen words behave.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control wide-control">Message
+                <textarea id="nbText">urgent refund failed account</textarea>
+              </label>
+              <label class="control">Smoothing alpha <output id="nbAlphaOut">1.0</output>
+                <input id="nbAlpha" type="range" min="0" max="40" value="10">
+              </label>
+              <label class="control">Class prior
+                <select id="nbPrior">
+                  <option value="learned">learned from corpus</option>
+                  <option value="balanced">balanced</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Token evidence</span><span class="shape">log likelihood contribution</span></div>
+                <div class="bars" id="nbEvidence"></div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Prediction</b><span id="nbPred"></span></div>
+                <div class="metric"><b>Support score</b><span id="nbSupport"></span></div>
+                <div class="metric"><b>Billing score</b><span id="nbBilling"></span></div>
+                <div class="metric"><b>Security score</b><span id="nbSecurity"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="attentionSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Self-Attention Heatmap</h3>
+                <p>Select a focus token. Attention scores combine token similarity, position bias, and masking.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Sentence
+                <select id="attSentence">
+                  <option value="support">the account can refund the invoice</option>
+                  <option value="code">the model writes code and tests code</option>
+                  <option value="rag">retrieval gives the answer useful context</option>
+                </select>
+              </label>
+              <label class="control">Focus token
+                <select id="attFocus"></select>
+              </label>
+              <label class="control">Mask
+                <select id="attMask">
+                  <option value="bidirectional">bidirectional</option>
+                  <option value="causal">causal</option>
+                </select>
+              </label>
+              <label class="control">Temperature <output id="attTempOut">1.00</output>
+                <input id="attTemp" type="range" min="35" max="220" value="100">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Attention matrix</span><span class="shape" id="attShape"></span></div>
+                <div class="matrix" id="attMatrix"></div>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Focus</b><span id="attFocusMetric"></span></div>
+                  <div class="metric"><b>Entropy</b><span id="attEntropy"></span></div>
+                  <div class="metric"><b>Top attended</b><span id="attTop"></span></div>
+                  <div class="metric"><b>Mask</b><span id="attMaskMetric"></span></div>
+                </div>
+                <div class="bars" id="attBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="decoderSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Next-Token Decoder</h3>
+                <p>A toy language model chooses the next token from logits. Temperature, top-k, and seed show why decoding changes outputs.</p>
+              </div>
+              <button type="button" id="decStep">Generate one token</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Prompt
+                <select id="decPrompt">
+                  <option value="ml">machine learning models</option>
+                  <option value="search">semantic search retrieves</option>
+                  <option value="assistant">the assistant should</option>
+                </select>
+              </label>
+              <label class="control">Temperature <output id="decTempOut">0.90</output>
+                <input id="decTemp" type="range" min="20" max="180" value="90">
+              </label>
+              <label class="control">Top-k <output id="decTopKOut">4</output>
+                <input id="decTopK" type="range" min="1" max="8" value="4">
+              </label>
+              <label class="control">Seed <output id="decSeedOut">3</output>
+                <input id="decSeed" type="range" min="1" max="25" value="3">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Generated sequence</span><span class="shape" id="decShape"></span></div>
+                <div class="sequence" id="decSequence"></div>
+                <div class="bars" id="decBars"></div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Next token</b><span id="decNext"></span></div>
+                <div class="metric"><b>Entropy</b><span id="decEntropy"></span></div>
+                <div class="metric"><b>Candidate mass</b><span id="decMass"></span></div>
+                <div class="metric"><b>Steps</b><span id="decSteps"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="retrievalSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Embedding Retrieval and RAG</h3>
+                <p>Rank document chunks by cosine similarity to the query. Chunk size and overlap change what evidence is retrieved.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control wide-control">Query
+                <textarea id="retQuery">How do transformers use attention for text?</textarea>
+              </label>
+              <label class="control">Chunk size <output id="retChunkOut">12</output>
+                <input id="retChunk" type="range" min="7" max="22" value="12">
+              </label>
+              <label class="control">Overlap <output id="retOverlapOut">3</output>
+                <input id="retOverlap" type="range" min="0" max="8" value="3">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Ranked chunks</span><span class="shape" id="retShape"></span></div>
+                <div class="rank-list" id="retRankList"></div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Chunks</b><span id="retChunks"></span></div>
+                <div class="metric"><b>Top score</b><span id="retTopScore"></span></div>
+                <div class="metric"><b>Coverage</b><span id="retCoverage"></span></div>
+                <div class="metric"><b>RAG risk</b><span id="retRisk"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="atlas">
+        <div class="inner">
+          <h2>6. NLP Method Atlas</h2>
+          <p class="lead">Use this atlas to choose a representation, model, and evaluation plan that match the task contract.</p>
+
+          <div class="atlas-tools">
+            <input id="methodSearch" type="search" placeholder="Search methods, tasks, metrics, pitfalls" aria-label="Search NLP methods">
+            <select id="methodFamily" aria-label="Filter method family">
+              <option value="all">All families</option>
+            </select>
+            <div class="formula" id="methodCount">0 methods</div>
+          </div>
+          <div class="card-list" id="methodList"></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="workflow">
+        <div class="inner">
+          <h2>7. NLP Workflow</h2>
+          <p class="lead">NLP quality is dominated by data definition, split design, evaluation, and clear output contracts. Model choice matters, but it cannot repair a vague label schema or an invalid benchmark.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Checklist</th>
+                <th>Failure to avoid</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Task framing</td>
+                <td>Define the exact output: label, span, ranked docs, JSON, summary, answer, or tool call.</td>
+                <td>Judging fluency when the product needs correctness or parseability.</td>
+              </tr>
+              <tr>
+                <td>Data cleaning</td>
+                <td>Handle HTML, templates, encoding, duplicates, quoted emails, PII, language mix, and boilerplate.</td>
+                <td>Letting templates dominate features or leak labels.</td>
+              </tr>
+              <tr>
+                <td>Splitting</td>
+                <td>Split by user, thread, document family, time, or source when near duplicates exist.</td>
+                <td>Same conversation or article appearing in train and validation.</td>
+              </tr>
+              <tr>
+                <td>Baseline</td>
+                <td>Build TF-IDF plus linear model before larger neural work when labels are available.</td>
+                <td>Fine-tuning first and hiding data issues behind model complexity.</td>
+              </tr>
+              <tr>
+                <td>LLM evaluation</td>
+                <td>Use test cases, rubrics, exact checks, citation checks, format validators, and failure slices.</td>
+                <td>Relying only on manual spot checks or generic preference scores.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Evaluation report minimum</h3>
+          <ul>
+            <li>Dataset version, split definition, text count, label distribution, source distribution, and known leakage controls.</li>
+            <li>Tokenizer/vectorizer settings, vocabulary size, sequence length, truncation rate, and language coverage.</li>
+            <li>Metrics matched to task: macro F1 for imbalanced classification, entity F1 for spans, Recall@k for retrieval, exact schema validity for structured generation.</li>
+            <li>Error examples grouped by cause: ambiguity, missing context, rare wording, prompt injection, unsupported answer, formatting failure.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="band" id="debugging">
+        <div class="inner">
+          <h2>8. Debugging NLP Systems</h2>
+          <p class="lead">Most NLP bugs become obvious when you inspect the text after preprocessing and the examples behind each metric. Always keep raw text, transformed features, and model outputs traceable.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Symptom</th>
+                <th>Likely cause</th>
+                <th>Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Validation score is too good</td>
+                <td>Duplicate text, thread leakage, fitted vectorizer on all data, template leakage.</td>
+                <td>Hash normalized text, split by source entity, fit vectorizer only on training data.</td>
+              </tr>
+              <tr>
+                <td>Classic model misses obvious meaning</td>
+                <td>Bag-of-words lost word order or phrase meaning.</td>
+                <td>Add n-grams, inspect feature weights, compare transformer embeddings.</td>
+              </tr>
+              <tr>
+                <td>Transformer ignores part of text</td>
+                <td>Truncation, bad attention mask, prompt too long, important evidence late in context.</td>
+                <td>Log token counts and truncation rate; place evidence earlier or chunk.</td>
+              </tr>
+              <tr>
+                <td>RAG gives unsupported answers</td>
+                <td>Retriever missed evidence or generator overused prior knowledge.</td>
+                <td>Measure Recall@k, show retrieved chunks, require citations, reject low-support answers.</td>
+              </tr>
+              <tr>
+                <td>LLM output cannot be parsed</td>
+                <td>Weak schema instruction or no validation loop.</td>
+                <td>Use constrained output format, schema validation, retries, and examples.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code># Minimal leakage-safe classic NLP shape
+train_text, valid_text, y_train, y_valid = split_by_user_or_thread(data)
+vectorizer.fit(train_text)
+X_train = vectorizer.transform(train_text)
+X_valid = vectorizer.transform(valid_text)
+model.fit(X_train, y_train)
+report(model.predict(X_valid), y_valid)</code></pre>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="inner">Standalone HTML/CSS/JS edition. All simulations run locally in the browser.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const COLORS = {
+      blue: "#1f6fb2",
+      green: "#2f7d57",
+      red: "#bd4b43",
+      amber: "#b87924",
+      violet: "#6b55a3",
+      cyan: "#147f87",
+      ink: "#17212a",
+      line: "#d8d0c2"
+    };
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const round = (value, places = 2) => Number.parseFloat(value).toFixed(places);
+    const unique = values => Array.from(new Set(values));
+    const sum = values => values.reduce((acc, value) => acc + value, 0);
+
+    function tokenize(text, mode = "word", lower = true) {
+      const source = lower ? text.toLowerCase() : text;
+      if (mode === "char") return Array.from(source).filter(char => char !== "\n" && char !== "\t" && char !== " ");
+      if (mode === "whitespace") return source.trim().split(/\s+/).filter(Boolean);
+      const wordTokens = source.match(/[a-z0-9]+|[^\sa-z0-9]/gi) || [];
+      if (mode === "bpe") return bpeTokenize(source, 12).tokens;
+      if (mode !== "subword") return wordTokens;
+      const suffixes = ["ing", "tion", "ers", "er", "ed", "ly", "s"];
+      const pieces = [];
+      wordTokens.forEach(token => {
+        if (!/^[a-z0-9]+$/i.test(token) || token.length <= 6) {
+          pieces.push(token);
+          return;
+        }
+        const suffix = suffixes.find(item => token.endsWith(item) && token.length > item.length + 3);
+        if (suffix) {
+          pieces.push(token.slice(0, -suffix.length), "##" + suffix);
+        } else {
+          pieces.push(token.slice(0, 4), "##" + token.slice(4));
+        }
+      });
+      return pieces;
+    }
+
+    function bpeTokenize(text, mergeLimit = 12) {
+      const words = tokenize(text, "word", false).filter(token => /^[a-z0-9]+$/i.test(token));
+      const punct = tokenize(text, "word", false).filter(token => !/^[a-z0-9]+$/i.test(token));
+      let sequences = words.map(word => [...word, "</w>"]);
+      const merges = [];
+
+      function pairCounts() {
+        const counts = {};
+        sequences.forEach(sequence => {
+          for (let i = 0; i < sequence.length - 1; i += 1) {
+            const key = `${sequence[i]} ${sequence[i + 1]}`;
+            counts[key] = (counts[key] || 0) + 1;
+          }
+        });
+        return counts;
+      }
+
+      function mergePair(pair) {
+        const [left, right] = pair.split(" ");
+        const merged = left + right;
+        sequences = sequences.map(sequence => {
+          const next = [];
+          for (let i = 0; i < sequence.length; i += 1) {
+            if (sequence[i] === left && sequence[i + 1] === right) {
+              next.push(merged);
+              i += 1;
+            } else {
+              next.push(sequence[i]);
+            }
+          }
+          return next;
+        });
+      }
+
+      for (let step = 0; step < mergeLimit; step += 1) {
+        const counts = pairCounts();
+        const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+        if (!ranked.length || ranked[0][1] < 1) break;
+        merges.push({ pair: ranked[0][0], count: ranked[0][1] });
+        mergePair(ranked[0][0]);
+      }
+
+      const tokens = [];
+      sequences.forEach(sequence => {
+        const cleaned = sequence.map(part => part.replace("</w>", "")).filter(Boolean);
+        cleaned.forEach((part, index) => tokens.push(index === 0 ? part : "##" + part));
+      });
+      return { tokens: [...tokens, ...punct], merges };
+    }
+
+    function softmax(values, temp = 1) {
+      const scaled = values.map(value => value / Math.max(temp, .001));
+      const max = Math.max(...scaled);
+      const exps = scaled.map(value => Math.exp(value - max));
+      const total = sum(exps);
+      return exps.map(value => value / total);
+    }
+
+    function entropy(probs) {
+      return -sum(probs.map(prob => prob > 0 ? prob * Math.log2(prob) : 0));
+    }
+
+    function cosine(a, b) {
+      const keys = unique([...Object.keys(a), ...Object.keys(b)]);
+      const dot = sum(keys.map(key => (a[key] || 0) * (b[key] || 0)));
+      const na = Math.sqrt(sum(Object.values(a).map(value => value * value)));
+      const nb = Math.sqrt(sum(Object.values(b).map(value => value * value)));
+      return na && nb ? dot / (na * nb) : 0;
+    }
+
+    function vectorFromText(text) {
+      const tokens = tokenize(text, "word", true).filter(token => /^[a-z0-9]+$/.test(token));
+      const vector = {};
+      tokens.forEach(token => {
+        vector[token] = (vector[token] || 0) + 1;
+      });
+      return vector;
+    }
+
+    function renderBars(target, labels, values, options = {}) {
+      const root = typeof target === "string" ? document.getElementById(target) : target;
+      const max = Math.max(...values.map(value => Math.abs(value)), .001);
+      root.innerHTML = "";
+      labels.forEach((label, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const name = document.createElement("span");
+        name.textContent = label;
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.width = `${Math.round(Math.abs(values[index]) / max * 100)}%`;
+        if (values[index] < 0) fill.style.background = COLORS.red;
+        const value = document.createElement("span");
+        value.textContent = options.percent ? `${round(values[index] * 100, 1)}%` : round(values[index], options.places ?? 2);
+        track.appendChild(fill);
+        row.append(name, track, value);
+        root.appendChild(row);
+      });
+    }
+
+    function renderTokenRow(target, tokens) {
+      const root = document.getElementById(target);
+      root.innerHTML = "";
+      tokens.forEach(token => {
+        const chip = document.createElement("span");
+        chip.className = token.startsWith("##") || /^[^\w]+$/.test(token) ? "token special" : "token";
+        chip.textContent = token;
+        root.appendChild(chip);
+      });
+    }
+
+    function renderMatrix(target, rows, options = {}) {
+      const root = document.getElementById(target);
+      root.innerHTML = "";
+      rows.forEach((row, rowIndex) => {
+        const line = document.createElement("div");
+        line.className = "matrix-row";
+        line.style.gridTemplateColumns = `repeat(${row.length}, minmax(42px, 1fr))`;
+        row.forEach((value, colIndex) => {
+          const cell = document.createElement("div");
+          cell.className = rowIndex === 0 || colIndex === 0 ? "cell header" : "cell";
+          cell.textContent = value.text ?? value;
+          if (value.bg) cell.style.background = value.bg;
+          if (value.color) cell.style.color = value.color;
+          line.appendChild(cell);
+        });
+        root.appendChild(line);
+      });
+    }
+
+    function bindTokenizer() {
+      const defaultText = "Transformers tokenize text into useful tokens. Tokenizers learn token merges for text, code, and rare words.";
+      function update() {
+        const text = document.getElementById("tokenText").value;
+        const mode = document.getElementById("tokenMode").value;
+        const lower = document.getElementById("tokenLower").value === "yes";
+        const mergeLimit = Number(document.getElementById("tokenMerges").value);
+        const source = lower ? text.toLowerCase() : text;
+        const bpe = mode === "bpe" ? bpeTokenize(source, mergeLimit) : { tokens: tokenize(text, mode, lower), merges: [] };
+        const tokens = bpe.tokens;
+        renderTokenRow("tokenOutput", tokens);
+        document.getElementById("tokenShape").textContent = `[T=${tokens.length}]`;
+        document.getElementById("tokenCount").textContent = String(tokens.length);
+        document.getElementById("tokenVocab").textContent = `${unique(tokens).length} unique`;
+        document.getElementById("tokenLongest").textContent = tokens.reduce((best, token) => token.length > best.length ? token : best, "");
+        document.getElementById("tokenMergeOut").textContent = String(mergeLimit);
+        document.getElementById("tokenCompression").textContent = mode === "bpe" ? `${bpe.merges.length} learned` : `${round(text.length / Math.max(tokens.length, 1), 1)} chars/token`;
+        document.getElementById("tokenMergeShape").textContent = mode === "bpe" ? `${bpe.merges.length} merge rules` : "select BPE";
+        const mergeList = document.getElementById("tokenMergeList");
+        mergeList.innerHTML = "";
+        if (mode === "bpe") {
+          bpe.merges.slice(0, 10).forEach((merge, index) => {
+            const item = document.createElement("div");
+            item.className = "rank-item";
+            const title = document.createElement("b");
+            title.textContent = `#${index + 1} count ${merge.count}`;
+            const detail = document.createTextNode(`${merge.pair} -> ${merge.pair.replace(" ", "")}`);
+            item.append(title, detail);
+            mergeList.appendChild(item);
+          });
+        } else {
+          const item = document.createElement("div");
+          item.className = "rank-item";
+          const title = document.createElement("b");
+          title.textContent = "BPE mode";
+          const detail = document.createTextNode("Choose toy BPE merges to learn frequent adjacent pieces from the current text.");
+          item.append(title, detail);
+          mergeList.appendChild(item);
+        }
+      }
+      ["tokenText", "tokenMode", "tokenLower", "tokenMerges"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      document.getElementById("tokenReset").addEventListener("click", () => {
+        document.getElementById("tokenText").value = defaultText;
+        update();
+      });
+      update();
+    }
+
+    const corpora = {
+      support: [
+        "refund failed for invoice account",
+        "password reset failed for account",
+        "invoice refund request is urgent",
+        "account security alert password"
+      ],
+      reviews: [
+        "battery life is excellent and fast",
+        "screen is bright but battery is weak",
+        "shipping was fast and packaging excellent",
+        "keyboard feels weak but screen is bright"
+      ],
+      science: [
+        "attention maps tokens to context vectors",
+        "vectorizers count tokens in documents",
+        "transformers use attention and embeddings",
+        "documents become sparse vectors or dense embeddings"
+      ]
+    };
+
+    function buildFeatures(docs, ngramMax, maxFeatures) {
+      const docTokens = docs.map(doc => tokenize(doc, "word", true).filter(token => /^[a-z0-9]+$/.test(token)));
+      const features = {};
+      docTokens.forEach(tokens => {
+        for (let n = 1; n <= ngramMax; n += 1) {
+          for (let i = 0; i <= tokens.length - n; i += 1) {
+            const term = tokens.slice(i, i + n).join(" ");
+            features[term] = (features[term] || 0) + 1;
+          }
+        }
+      });
+      return Object.entries(features).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, maxFeatures).map(([term]) => term);
+    }
+
+    function termCounts(tokens, features) {
+      return features.map(feature => {
+        const parts = feature.split(" ");
+        let count = 0;
+        for (let i = 0; i <= tokens.length - parts.length; i += 1) {
+          if (tokens.slice(i, i + parts.length).join(" ") === feature) count += 1;
+        }
+        return count;
+      });
+    }
+
+    function bindVectorizer() {
+      function update() {
+        const docs = corpora[document.getElementById("vecCorpus").value];
+        const ngram = Number(document.getElementById("vecNgram").value);
+        const maxFeatures = Number(document.getElementById("vecMax").value);
+        const weighting = document.getElementById("vecWeight").value;
+        const features = buildFeatures(docs, ngram, maxFeatures);
+        const tokenized = docs.map(doc => tokenize(doc, "word", true).filter(token => /^[a-z0-9]+$/.test(token)));
+        const counts = tokenized.map(tokens => termCounts(tokens, features));
+        const dfs = features.map((_, j) => counts.filter(row => row[j] > 0).length);
+        const values = counts.map(row => row.map((count, j) => {
+          if (weighting === "count") return count;
+          return count === 0 ? 0 : count * (Math.log((1 + docs.length) / (1 + dfs[j])) + 1);
+        }));
+        const rows = [["doc", ...features.map(term => term.length > 11 ? term.slice(0, 10) + "." : term)]];
+        values.forEach((row, i) => rows.push([`d${i + 1}`, ...row.map(value => value ? round(value, weighting === "count" ? 0 : 2) : "0")]));
+        renderMatrix("vecMatrix", rows);
+        document.getElementById("vecMaxOut").textContent = String(maxFeatures);
+        document.getElementById("vecShape").textContent = `[${docs.length}, ${features.length}]`;
+        document.getElementById("vecDocs").textContent = String(docs.length);
+        document.getElementById("vecVocab").textContent = `${features.length} features`;
+        const nonzero = values.flat().filter(Boolean).length;
+        document.getElementById("vecSparsity").textContent = `${round((1 - nonzero / (docs.length * features.length)) * 100, 1)}% zero`;
+        document.getElementById("vecTop").textContent = features[0] || "";
+        const totals = features.map((_, j) => sum(values.map(row => row[j])));
+        renderBars("vecBars", features.slice(0, 8), totals.slice(0, 8), { places: weighting === "count" ? 0 : 2 });
+      }
+      ["vecCorpus", "vecNgram", "vecWeight", "vecMax"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      update();
+    }
+
+    const nbDocs = [
+      { label: "support", text: "ticket failed error reset help issue" },
+      { label: "support", text: "support help account reset failed" },
+      { label: "billing", text: "invoice refund payment charge billing" },
+      { label: "billing", text: "refund charge invoice payment failed" },
+      { label: "security", text: "password account alert login security" },
+      { label: "security", text: "urgent alert password login account" }
+    ];
+
+    function bindBayes() {
+      function update() {
+        const labels = ["support", "billing", "security"];
+        const alpha = Number(document.getElementById("nbAlpha").value) / 10;
+        const priorMode = document.getElementById("nbPrior").value;
+        const docsByLabel = Object.fromEntries(labels.map(label => [label, nbDocs.filter(doc => doc.label === label)]));
+        const vocab = unique(nbDocs.flatMap(doc => tokenize(doc.text, "word", true)));
+        const tokens = tokenize(document.getElementById("nbText").value, "word", true).filter(token => /^[a-z0-9]+$/.test(token));
+        const scores = {};
+        const evidence = {};
+        labels.forEach(label => {
+          const labelTokens = docsByLabel[label].flatMap(doc => tokenize(doc.text, "word", true));
+          const counts = {};
+          labelTokens.forEach(token => counts[token] = (counts[token] || 0) + 1);
+          const prior = priorMode === "balanced" ? 1 / labels.length : docsByLabel[label].length / nbDocs.length;
+          let score = Math.log(prior);
+          evidence[label] = 0;
+          tokens.forEach(token => {
+            const prob = ((counts[token] || 0) + alpha) / (labelTokens.length + alpha * vocab.length);
+            score += Math.log(prob);
+            evidence[label] += Math.log(prob);
+          });
+          scores[label] = score;
+        });
+        const probs = softmax(labels.map(label => scores[label]), 1);
+        const best = labels[probs.indexOf(Math.max(...probs))];
+        document.getElementById("nbAlphaOut").textContent = round(alpha, 1);
+        document.getElementById("nbPred").textContent = `${best} (${round(Math.max(...probs) * 100, 1)}%)`;
+        document.getElementById("nbSupport").textContent = round(scores.support, 2);
+        document.getElementById("nbBilling").textContent = round(scores.billing, 2);
+        document.getElementById("nbSecurity").textContent = round(scores.security, 2);
+        renderBars("nbEvidence", labels, labels.map(label => evidence[label]), { places: 2 });
+      }
+      ["nbText", "nbAlpha", "nbPrior"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      update();
+    }
+
+    const attSentences = {
+      support: "the account can refund the invoice",
+      code: "the model writes code and tests code",
+      rag: "retrieval gives the answer useful context"
+    };
+
+    function tokenVector(token) {
+      const base = [0, 0, 0, 0];
+      Array.from(token).forEach((char, index) => {
+        base[index % base.length] += (char.charCodeAt(0) % 31) / 31;
+      });
+      return base;
+    }
+
+    function dot(a, b) {
+      return sum(a.map((value, index) => value * b[index]));
+    }
+
+    function bindAttention() {
+      function refreshFocus() {
+        const tokens = attSentences[document.getElementById("attSentence").value].split(" ");
+        const focus = document.getElementById("attFocus");
+        focus.innerHTML = "";
+        tokens.forEach((token, index) => {
+          const option = document.createElement("option");
+          option.value = String(index);
+          option.textContent = `${index}: ${token}`;
+          focus.appendChild(option);
+        });
+      }
+      function update() {
+        const tokens = attSentences[document.getElementById("attSentence").value].split(" ");
+        const focusIndex = Number(document.getElementById("attFocus").value || 0);
+        const mask = document.getElementById("attMask").value;
+        const temp = Number(document.getElementById("attTemp").value) / 100;
+        const vectors = tokens.map(tokenVector);
+        const allRows = tokens.map((token, i) => {
+          const scores = tokens.map((_, j) => {
+            if (mask === "causal" && j > i) return -999;
+            return dot(vectors[i], vectors[j]) / 2 - Math.abs(i - j) * .12;
+          });
+          return softmax(scores, temp);
+        });
+        const rows = [["", ...tokens.map(token => token.slice(0, 6))]];
+        allRows.forEach((row, i) => rows.push([tokens[i].slice(0, 6), ...row.map(value => ({
+          text: round(value, 2),
+          bg: `rgba(31,111,178,${0.08 + value * 0.72})`,
+          color: value > .55 ? "#fff" : "#203645"
+        }))]));
+        renderMatrix("attMatrix", rows);
+        const focusRow = allRows[focusIndex];
+        const topIndex = focusRow.indexOf(Math.max(...focusRow));
+        document.getElementById("attTempOut").textContent = round(temp, 2);
+        document.getElementById("attShape").textContent = `[${tokens.length}, ${tokens.length}]`;
+        document.getElementById("attFocusMetric").textContent = tokens[focusIndex];
+        document.getElementById("attEntropy").textContent = `${round(entropy(focusRow), 2)} bits`;
+        document.getElementById("attTop").textContent = tokens[topIndex];
+        document.getElementById("attMaskMetric").textContent = mask;
+        renderBars("attBars", tokens, focusRow, { percent: true });
+      }
+      document.getElementById("attSentence").addEventListener("input", () => {
+        refreshFocus();
+        update();
+      });
+      ["attFocus", "attMask", "attTemp"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      refreshFocus();
+      update();
+    }
+
+    const decData = {
+      ml: {
+        start: ["machine", "learning", "models"],
+        candidates: ["learn", "patterns", "from", "data", "and", "generalize", "carefully", "."]
+      },
+      search: {
+        start: ["semantic", "search", "retrieves"],
+        candidates: ["relevant", "chunks", "before", "generation", "with", "citations", "quickly", "."]
+      },
+      assistant: {
+        start: ["the", "assistant", "should"],
+        candidates: ["answer", "with", "grounded", "steps", "and", "valid", "format", "."]
+      }
+    };
+
+    const decoderState = { key: "ml", tokens: [], step: 0 };
+
+    function randFrom(seed) {
+      let state = seed >>> 0;
+      return () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 4294967296;
+      };
+    }
+
+    function decoderDistribution() {
+      const key = document.getElementById("decPrompt").value;
+      const candidates = decData[key].candidates;
+      const step = decoderState.step;
+      const logits = candidates.map((token, index) => {
+        const punctuationBoost = token === "." ? step * .23 : 0;
+        return 2.4 - Math.abs(index - (step % candidates.length)) * .42 + Math.sin((step + 1) * (index + 2)) * .38 + punctuationBoost;
+      });
+      const temp = Number(document.getElementById("decTemp").value) / 100;
+      let probs = softmax(logits, temp);
+      const topK = Number(document.getElementById("decTopK").value);
+      const ranked = probs.map((prob, index) => ({ prob, index })).sort((a, b) => b.prob - a.prob);
+      const allowed = new Set(ranked.slice(0, topK).map(item => item.index));
+      probs = probs.map((prob, index) => allowed.has(index) ? prob : 0);
+      const total = sum(probs);
+      return {
+        candidates,
+        probs: probs.map(prob => prob / total),
+        mass: sum(ranked.slice(0, topK).map(item => item.prob))
+      };
+    }
+
+    function resetDecoder() {
+      const key = document.getElementById("decPrompt").value;
+      decoderState.key = key;
+      decoderState.tokens = [...decData[key].start];
+      decoderState.step = 0;
+      updateDecoder();
+    }
+
+    function updateDecoder() {
+      const { candidates, probs, mass } = decoderDistribution();
+      const root = document.getElementById("decSequence");
+      root.innerHTML = "";
+      decoderState.tokens.forEach((token, index) => {
+        const chip = document.createElement("span");
+        chip.className = "token";
+        chip.textContent = token;
+        root.appendChild(chip);
+        if (index < decoderState.tokens.length - 1) {
+          const arrow = document.createElement("span");
+          arrow.className = "arrow";
+          arrow.textContent = ">";
+          root.appendChild(arrow);
+        }
+      });
+      const topIndex = probs.indexOf(Math.max(...probs));
+      document.getElementById("decTempOut").textContent = round(Number(document.getElementById("decTemp").value) / 100, 2);
+      document.getElementById("decTopKOut").textContent = document.getElementById("decTopK").value;
+      document.getElementById("decSeedOut").textContent = document.getElementById("decSeed").value;
+      document.getElementById("decShape").textContent = `[T=${decoderState.tokens.length}]`;
+      document.getElementById("decNext").textContent = candidates[topIndex];
+      document.getElementById("decEntropy").textContent = `${round(entropy(probs), 2)} bits`;
+      document.getElementById("decMass").textContent = `${round(mass * 100, 1)}%`;
+      document.getElementById("decSteps").textContent = String(decoderState.step);
+      renderBars("decBars", candidates, probs, { percent: true });
+    }
+
+    function bindDecoder() {
+      document.getElementById("decPrompt").addEventListener("input", resetDecoder);
+      ["decTemp", "decTopK", "decSeed"].forEach(id => document.getElementById(id).addEventListener("input", updateDecoder));
+      document.getElementById("decStep").addEventListener("click", () => {
+        const { candidates, probs } = decoderDistribution();
+        const rand = randFrom(Number(document.getElementById("decSeed").value) * 97 + decoderState.step * 13);
+        let draw = rand();
+        let chosen = candidates[0];
+        for (let i = 0; i < candidates.length; i += 1) {
+          draw -= probs[i];
+          if (draw <= 0) {
+            chosen = candidates[i];
+            break;
+          }
+        }
+        decoderState.tokens.push(chosen);
+        decoderState.step += 1;
+        if (decoderState.tokens.length > 18 || chosen === ".") {
+          decoderState.tokens = [...decData[document.getElementById("decPrompt").value].start, chosen === "." ? "." : chosen];
+          decoderState.step = 1;
+        }
+        updateDecoder();
+      });
+      resetDecoder();
+    }
+
+    const retrievalDoc = `Classic NLP uses count vectorizers and TF-IDF to convert documents into sparse feature vectors. Logistic regression and linear SVMs are strong baselines for labeled text classification.
+Transformers use token embeddings, position information, and self-attention to mix context across a sequence. Decoder language models predict the next token with a causal mask.
+Retrieval augmented generation splits source documents into chunks, embeds each chunk, retrieves relevant evidence, and asks a language model to answer from that evidence.
+Evaluation must match the task. Classification needs precision, recall, F1, and calibration. Retrieval needs Recall at k and ranked relevance. Generation needs groundedness, format validity, and task-specific correctness.`;
+
+    function makeChunks(words, size, overlap) {
+      const chunks = [];
+      const step = Math.max(1, size - overlap);
+      for (let i = 0; i < words.length; i += step) {
+        chunks.push(words.slice(i, i + size).join(" "));
+        if (i + size >= words.length) break;
+      }
+      return chunks;
+    }
+
+    function bindRetrieval() {
+      function update() {
+        const query = document.getElementById("retQuery").value;
+        const size = Number(document.getElementById("retChunk").value);
+        const overlap = Math.min(Number(document.getElementById("retOverlap").value), size - 1);
+        const words = tokenize(retrievalDoc, "word", true).filter(token => /^[a-z0-9]+$/.test(token));
+        const chunks = makeChunks(words, size, overlap);
+        const queryVector = vectorFromText(query);
+        const ranked = chunks.map((chunk, index) => ({ chunk, index, score: cosine(queryVector, vectorFromText(chunk)) }))
+          .sort((a, b) => b.score - a.score);
+        const root = document.getElementById("retRankList");
+        root.innerHTML = "";
+        ranked.slice(0, 5).forEach((item, rank) => {
+          const row = document.createElement("div");
+          row.className = "rank-item";
+          row.style.borderLeftColor = rank === 0 ? COLORS.green : COLORS.blue;
+          row.innerHTML = `<b>#${rank + 1} cosine ${round(item.score, 3)}</b>${item.chunk}`;
+          root.appendChild(row);
+        });
+        document.getElementById("retChunkOut").textContent = String(size);
+        document.getElementById("retOverlapOut").textContent = String(overlap);
+        document.getElementById("retShape").textContent = `${chunks.length} chunks ranked`;
+        document.getElementById("retChunks").textContent = String(chunks.length);
+        document.getElementById("retTopScore").textContent = round(ranked[0]?.score || 0, 3);
+        const topWords = unique(ranked.slice(0, 3).flatMap(item => tokenize(item.chunk, "word", true)));
+        const queryWords = unique(tokenize(query, "word", true).filter(token => /^[a-z0-9]+$/.test(token)));
+        const covered = queryWords.filter(word => topWords.includes(word)).length;
+        document.getElementById("retCoverage").textContent = `${covered}/${queryWords.length} query terms`;
+        document.getElementById("retRisk").textContent = ranked[0]?.score > .25 ? "usable evidence" : "low support";
+      }
+      ["retQuery", "retChunk", "retOverlap"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      update();
+    }
+
+    const methods = [
+      { family: "Tokenization", name: "BPE / Subword Tokenizer", task: "Text to token ids", metric: "Token count, coverage, truncation rate", pitfall: "Token boundaries are not word boundaries, so spans and costs must be measured in tokens.", use: "LLM-style tokenization for common words, rare words, code, names, and mixed-language text." },
+      { family: "Classic", name: "CountVectorizer", task: "Sparse features", metric: "Vocabulary coverage", pitfall: "Vocabulary leakage if fit before splitting.", use: "Fast baseline for classification and inspection." },
+      { family: "Classic", name: "TF-IDF + Logistic Regression", task: "Text classification", metric: "Macro F1, calibration", pitfall: "Loses long-range order and semantics.", use: "Strong baseline for labeled documents." },
+      { family: "Classic", name: "Linear SVM", task: "High-dimensional classification", metric: "F1, margin errors", pitfall: "Scores are not calibrated probabilities.", use: "Large-margin sparse text classifier." },
+      { family: "Exploration", name: "Topic Models", task: "Corpus exploration", metric: "Topic coherence, human review", pitfall: "Topics can be unstable or misleading.", use: "Discover repeated themes in unlabeled text." },
+      { family: "Neural", name: "Static Embeddings", task: "Similarity and features", metric: "Nearest-neighbor quality", pitfall: "One vector per word ignores context.", use: "Lightweight semantic representation." },
+      { family: "Neural", name: "BiLSTM / CNN Text Models", task: "Sequence classification", metric: "F1, latency", pitfall: "Harder to scale to broad instruction behavior.", use: "Compact neural classifiers." },
+      { family: "Transformer", name: "Encoder Fine-tuning", task: "Classification and tagging", metric: "F1, entity F1", pitfall: "Truncation and train/test distribution mismatch.", use: "High-quality supervised NLP." },
+      { family: "Transformer", name: "Embeddings Retrieval", task: "Semantic search", metric: "Recall@k, MRR, nDCG", pitfall: "Nearest vector may not contain answer evidence.", use: "RAG, dedupe, clustering, recommendations." },
+      { family: "LLM", name: "Prompted Generation", task: "Answers, summaries, extraction", metric: "Correctness, groundedness, schema validity", pitfall: "Fluent unsupported claims.", use: "Flexible natural-language output." },
+      { family: "LLM", name: "Tool Calling", task: "Structured actions", metric: "Tool accuracy, argument validity", pitfall: "Bad schemas or missing validation.", use: "Agents and workflow automation." }
+    ];
+
+    function bindMethodAtlas() {
+      const select = document.getElementById("methodFamily");
+      unique(methods.map(item => item.family)).forEach(family => {
+        const option = document.createElement("option");
+        option.value = family;
+        option.textContent = family;
+        select.appendChild(option);
+      });
+      function render() {
+        const search = document.getElementById("methodSearch").value.trim().toLowerCase();
+        const family = select.value;
+        const filtered = methods.filter(item => {
+          const text = `${item.family} ${item.name} ${item.task} ${item.metric} ${item.pitfall} ${item.use}`.toLowerCase();
+          return (family === "all" || item.family === family) && (!search || text.includes(search));
+        });
+        document.getElementById("methodCount").textContent = `${filtered.length} of ${methods.length} methods`;
+        const root = document.getElementById("methodList");
+        root.innerHTML = "";
+        filtered.forEach(item => {
+          const card = document.createElement("article");
+          card.className = "card";
+          const left = document.createElement("div");
+          left.innerHTML = `<div class="card-name">${item.name}</div><span class="tag">${item.family}</span>`;
+          const right = document.createElement("div");
+          const p = document.createElement("p");
+          p.textContent = item.use;
+          const meta = document.createElement("div");
+          meta.className = "card-meta";
+          meta.innerHTML = `<div><b>Task</b><br>${item.task}</div><div><b>Metric</b><br>${item.metric}</div><div><b>Pitfall</b><br>${item.pitfall}</div>`;
+          right.append(p, meta);
+          card.append(left, right);
+          root.appendChild(card);
+        });
+      }
+      document.getElementById("methodSearch").addEventListener("input", render);
+      select.addEventListener("input", render);
+      render();
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      const words = ["text", "tokens", "ids", "vectors", "attention", "logits", "answer"];
+
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#17212a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255,255,255,.08)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= canvas.width; x += 48) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= canvas.height; y += 48) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+
+        words.forEach((word, index) => {
+          const x = 54 + index * 96;
+          const y = 86 + Math.sin(frame * .025 + index) * 18;
+          ctx.fillStyle = index < 3 ? COLORS.blue : index < 5 ? COLORS.green : COLORS.red;
+          ctx.fillRect(x, y, 78, 34);
+          ctx.fillStyle = "#fff";
+          ctx.font = "700 13px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(word, x + 39, y + 22);
+          if (index < words.length - 1) {
+            ctx.strokeStyle = "rgba(255,255,255,.55)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + 82, y + 17);
+            ctx.lineTo(x + 94, y + 17);
+            ctx.stroke();
+          }
+        });
+
+        const originX = 110;
+        const originY = 210;
+        for (let row = 0; row < 6; row += 1) {
+          for (let col = 0; col < 6; col += 1) {
+            const value = .12 + .74 * (Math.sin(frame * .03 + row * 1.7 + col * 1.1) + 1) / 2;
+            ctx.fillStyle = `rgba(31,111,178,${value})`;
+            ctx.fillRect(originX + col * 38, originY + row * 38, 31, 31);
+          }
+        }
+        ctx.fillStyle = "#faf7ef";
+        ctx.font = "700 14px system-ui";
+        ctx.textAlign = "left";
+        ctx.fillText("attention", originX, originY - 14);
+
+        for (let i = 0; i < 28; i += 1) {
+          const x = 430 + Math.cos(i * .9 + frame * .025) * (60 + i * 2.1);
+          const y = 330 + Math.sin(i * 1.2 + frame * .02) * (42 + i * 1.5);
+          ctx.fillStyle = i % 3 === 0 ? COLORS.amber : i % 3 === 1 ? COLORS.green : COLORS.violet;
+          ctx.beginPath();
+          ctx.arc(x, y, 4 + (i % 4), 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.strokeStyle = COLORS.red;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        for (let i = 0; i < 120; i += 1) {
+          const x = 400 + i * 2.1;
+          const y = 150 + Math.sin(i * .1 + frame * .035) * 32 + Math.cos(i * .04) * 18;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      bindTokenizer();
+      bindVectorizer();
+      bindBayes();
+      bindAttention();
+      bindDecoder();
+      bindRetrieval();
+      bindMethodAtlas();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

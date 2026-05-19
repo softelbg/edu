@@ -1,0 +1,1607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Human Biochemistry Compound Formula Index</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #5d6874;
+      --line: #d8dde3;
+      --paper: #fbfbf8;
+      --panel: #ffffff;
+      --blue: #0b5cad;
+      --green: #24714a;
+      --red: #a1372c;
+      --amber: #9a6200;
+      --shade: #eef3f8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 16px/1.55 Georgia, "Times New Roman", serif;
+    }
+
+    .page {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    header {
+      padding: 54px 0 34px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 28px;
+    }
+
+    .kicker {
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font: 700 13px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, h3 {
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      line-height: 1.14;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(40px, 7vw, 76px);
+      max-width: 940px;
+      margin: 0 0 14px;
+    }
+
+    h2 {
+      font-size: clamp(30px, 5vw, 44px);
+      margin: 42px 0 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    h3 {
+      font-size: 23px;
+      margin: 24px 0 8px;
+    }
+
+    p {
+      max-width: 880px;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .subtitle {
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 22px;
+      margin: 0 0 24px;
+    }
+
+    .navline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 18px 0 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--blue);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .note {
+      border-left: 5px solid var(--amber);
+      background: #fff6e5;
+      padding: 15px 18px;
+      margin: 20px 0;
+      max-width: 960px;
+    }
+
+    .key {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+      margin: 18px 0 28px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .card strong {
+      display: block;
+      color: var(--blue);
+      margin-bottom: 6px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .az {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 24px 0 30px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .az a {
+      min-width: 32px;
+      text-align: center;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    table.compounds {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 28px;
+      background: var(--panel);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    .compounds th,
+    .compounds td {
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    .compounds th {
+      background: #e7edf4;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .compounds td:nth-child(1) {
+      width: 18%;
+      font-weight: 800;
+      color: #243446;
+    }
+
+    .compounds td:nth-child(2) {
+      width: 14%;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    .compounds td:nth-child(3) {
+      width: 24%;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .compounds td:nth-child(4) {
+      width: 18%;
+    }
+
+    .compounds td:nth-child(5) {
+      width: 26%;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .rxn {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      background: var(--shade);
+      border-radius: 6px;
+      padding: 2px 5px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    footer {
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      margin-top: 48px;
+      padding-top: 24px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    @media (max-width: 760px) {
+      table.compounds,
+      table.compounds thead,
+      table.compounds tbody,
+      table.compounds tr,
+      table.compounds th,
+      table.compounds td {
+        display: block;
+      }
+
+      table.compounds thead {
+        display: none;
+      }
+
+      table.compounds tr {
+        border: 1px solid var(--line);
+        margin-bottom: 12px;
+      }
+
+      table.compounds td {
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        width: 100% !important;
+      }
+
+      table.compounds td::before {
+        display: block;
+        color: var(--muted);
+        font: 700 12px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 3px;
+      }
+
+      table.compounds td:nth-child(1)::before { content: "Compound"; }
+      table.compounds td:nth-child(2)::before { content: "Formula"; }
+      table.compounds td:nth-child(3)::before { content: "Condensed structure"; }
+      table.compounds td:nth-child(4)::before { content: "Main biochemical role"; }
+      table.compounds td:nth-child(5)::before { content: "Representative reaction"; }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+        font-size: 10.5pt;
+      }
+
+      .page {
+        width: auto;
+        padding: 0;
+      }
+
+      header {
+        page-break-after: always;
+      }
+
+      .az,
+      .button {
+        display: none;
+      }
+
+      a {
+        color: black;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="kicker">Companion to Human Biochemistry: A Reaction Atlas</div>
+      <h1>Alphabetical Compound Formula Index</h1>
+      <p class="subtitle">Condensed structural formulas, molecular formulas, biochemical roles, and representative human reactions for the compounds used throughout the atlas.</p>
+      <div class="navline">
+        <a class="button" href="index.html">Book Home</a>
+        <a class="button" href="human_biochemistry_reaction_atlas.html">Back to Reaction Atlas</a>
+        <a class="button" href="human_biochemistry_3d_models.html">Interactive 3D Models</a>
+        <a class="button" href="#az">A-Z index</a>
+        <a class="button" href="#references">References</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>How To Read This Index</h2>
+      <div class="note">
+        Human metabolites often exist as mixtures of protonation, salt, stereochemical, and enzyme-bound states. The formulas below use common neutral or dominant physiological shorthand. Complex cofactors and polymers are shown with biochemical structural shorthand, such as <span class="rxn">CH<sub>3</sub>-C(=O)-S-CoA</span>, because expanding every atom in CoA, NAD, glycogen, or a protein would make the page less useful.
+      </div>
+      <div class="key">
+        <div class="card">
+          <strong>Molecular formula</strong>
+          <span>Element counts for the molecule or its common biochemical ion. Charges are shown when central to the reaction.</span>
+        </div>
+        <div class="card">
+          <strong>Condensed structure</strong>
+          <span>Readable linear structural formula, ring shorthand, or cofactor shorthand.</span>
+        </div>
+        <div class="card">
+          <strong>Representative reaction</strong>
+          <span>A reaction from the atlas showing how the compound is made, consumed, or interconverted.</span>
+        </div>
+      </div>
+    </section>
+
+    <nav id="az" class="az" aria-label="Alphabetical index">
+      <a href="#A">A</a>
+      <a href="#B">B</a>
+      <a href="#C">C</a>
+      <a href="#D">D</a>
+      <a href="#E">E</a>
+      <a href="#F">F</a>
+      <a href="#G">G</a>
+      <a href="#H">H</a>
+      <a href="#I">I</a>
+      <a href="#L">L</a>
+      <a href="#M">M</a>
+      <a href="#N">N</a>
+      <a href="#O">O</a>
+      <a href="#P">P</a>
+      <a href="#Q">Q</a>
+      <a href="#R">R</a>
+      <a href="#S">S</a>
+      <a href="#T">T</a>
+      <a href="#U">U</a>
+      <a href="#X">X</a>
+    </nav>
+
+    <main>
+      <section id="A">
+        <h2>A</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Acetaldehyde</td>
+              <td>C<sub>2</sub>H<sub>4</sub>O</td>
+              <td>CH<sub>3</sub>-CHO</td>
+              <td>Reactive ethanol oxidation intermediate.</td>
+              <td>Ethanol + NAD<sup>+</sup> &rarr; acetaldehyde + NADH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Acetate</td>
+              <td>C<sub>2</sub>H<sub>3</sub>O<sub>2</sub><sup>&minus;</sup></td>
+              <td>CH<sub>3</sub>-COO<sup>&minus;</sup></td>
+              <td>Product of aldehyde oxidation; precursor to acetyl-CoA.</td>
+              <td>Acetaldehyde + NAD<sup>+</sup> + H<sub>2</sub>O &rarr; acetate + NADH + 2 H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Acetoacetate</td>
+              <td>C<sub>4</sub>H<sub>5</sub>O<sub>3</sub><sup>&minus;</sup></td>
+              <td>CH<sub>3</sub>-CO-CH<sub>2</sub>-COO<sup>&minus;</sup></td>
+              <td>Ketone body made by liver and used by extrahepatic tissues.</td>
+              <td>HMG-CoA &rarr; acetoacetate + acetyl-CoA</td>
+            </tr>
+            <tr>
+              <td>Acetoacetyl-CoA</td>
+              <td>CoA thioester</td>
+              <td>CH<sub>3</sub>-CO-CH<sub>2</sub>-C(=O)-S-CoA</td>
+              <td>Ketogenesis, ketolysis, cholesterol synthesis intermediate.</td>
+              <td>2 acetyl-CoA &harr; acetoacetyl-CoA + CoA-SH</td>
+            </tr>
+            <tr>
+              <td>Acetone</td>
+              <td>C<sub>3</sub>H<sub>6</sub>O</td>
+              <td>CH<sub>3</sub>-CO-CH<sub>3</sub></td>
+              <td>Volatile ketone-body breakdown product.</td>
+              <td>Acetoacetate &rarr; acetone + CO<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Acetyl-CoA</td>
+              <td>C<sub>23</sub>H<sub>38</sub>N<sub>7</sub>O<sub>17</sub>P<sub>3</sub>S</td>
+              <td>CH<sub>3</sub>-C(=O)-S-CoA</td>
+              <td>Central two-carbon donor for TCA cycle, lipids, ketones, and acetylation.</td>
+              <td>Pyruvate + CoA-SH + NAD<sup>+</sup> &rarr; acetyl-CoA + CO<sub>2</sub> + NADH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Adenosine</td>
+              <td>C<sub>10</sub>H<sub>13</sub>N<sub>5</sub>O<sub>4</sub></td>
+              <td>adenine-&beta;-D-ribofuranose</td>
+              <td>Purine nucleoside and signaling molecule.</td>
+              <td>Adenosine + H<sub>2</sub>O &rarr; inosine + NH<sub>4</sub><sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>ADP</td>
+              <td>C<sub>10</sub>H<sub>15</sub>N<sub>5</sub>O<sub>10</sub>P<sub>2</sub></td>
+              <td>adenosine-5'-O-P(O)<sub>2</sub>-O-P(O)<sub>3</sub></td>
+              <td>ATP product and ATP synthase substrate.</td>
+              <td>ADP + P<sub>i</sub> + proton motive force &rarr; ATP + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Alanine</td>
+              <td>C<sub>3</sub>H<sub>7</sub>NO<sub>2</sub></td>
+              <td>CH<sub>3</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Amino acid; muscle-to-liver nitrogen and carbon carrier.</td>
+              <td>Alanine + &alpha;-ketoglutarate &harr; pyruvate + glutamate</td>
+            </tr>
+            <tr>
+              <td>&alpha;-Ketoglutarate</td>
+              <td>C<sub>5</sub>H<sub>6</sub>O<sub>5</sub></td>
+              <td><sup>&minus;</sup>OOC-CH<sub>2</sub>-CH<sub>2</sub>-CO-COO<sup>&minus;</sup></td>
+              <td>TCA intermediate and amino-group acceptor.</td>
+              <td>Amino acid + &alpha;-ketoglutarate &harr; &alpha;-keto acid + glutamate</td>
+            </tr>
+            <tr>
+              <td>AMP</td>
+              <td>C<sub>10</sub>H<sub>14</sub>N<sub>5</sub>O<sub>7</sub>P</td>
+              <td>adenosine-5'-monophosphate</td>
+              <td>Energy-state signal and purine nucleotide.</td>
+              <td>AMP + H<sub>2</sub>O &rarr; IMP + NH<sub>4</sub><sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Arginine</td>
+              <td>C<sub>6</sub>H<sub>14</sub>N<sub>4</sub>O<sub>2</sub></td>
+              <td>H<sub>2</sub>N-C(=NH)-NH-(CH<sub>2</sub>)<sub>3</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Urea-cycle amino acid and nitric oxide precursor.</td>
+              <td>Arginine + H<sub>2</sub>O &rarr; ornithine + urea</td>
+            </tr>
+            <tr>
+              <td>Argininosuccinate</td>
+              <td>C<sub>10</sub>H<sub>18</sub>N<sub>4</sub>O<sub>6</sub></td>
+              <td>arginine-succinate adduct</td>
+              <td>Urea-cycle intermediate.</td>
+              <td>Citrulline + aspartate + ATP &rarr; argininosuccinate + AMP + PP<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Ascorbate</td>
+              <td>C<sub>6</sub>H<sub>7</sub>O<sub>6</sub><sup>&minus;</sup></td>
+              <td>vitamin C enediol lactone</td>
+              <td>Reducing cofactor for hydroxylases and antioxidant chemistry.</td>
+              <td>Dopamine + ascorbate + O<sub>2</sub> &rarr; norepinephrine + dehydroascorbate + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Aspartate</td>
+              <td>C<sub>4</sub>H<sub>7</sub>NO<sub>4</sub></td>
+              <td>HOOC-CH(NH<sub>2</sub>)-CH<sub>2</sub>-COOH</td>
+              <td>Amino acid; nitrogen donor to urea cycle and nucleotides.</td>
+              <td>Aspartate + &alpha;-ketoglutarate &harr; oxaloacetate + glutamate</td>
+            </tr>
+            <tr>
+              <td>ATP</td>
+              <td>C<sub>10</sub>H<sub>16</sub>N<sub>5</sub>O<sub>13</sub>P<sub>3</sub></td>
+              <td>adenosine-5'-triphosphate</td>
+              <td>Main phosphoryl-transfer and energy-coupling molecule.</td>
+              <td>ATP + H<sub>2</sub>O &rarr; ADP + P<sub>i</sub> + H<sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="B">
+        <h2>B</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>&beta;-Hydroxybutyrate</td>
+              <td>C<sub>4</sub>H<sub>7</sub>O<sub>3</sub><sup>&minus;</sup></td>
+              <td>CH<sub>3</sub>-CH(OH)-CH<sub>2</sub>-COO<sup>&minus;</sup></td>
+              <td>Reduced ketone body and fasting fuel.</td>
+              <td>Acetoacetate + NADH + H<sup>+</sup> &harr; &beta;-hydroxybutyrate + NAD<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>BH<sub>2</sub></td>
+              <td>C<sub>9</sub>H<sub>13</sub>N<sub>5</sub>O<sub>3</sub></td>
+              <td>dihydrobiopterin</td>
+              <td>Oxidized pterin cofactor regenerated to BH<sub>4</sub>.</td>
+              <td>Phenylalanine + BH<sub>4</sub> + O<sub>2</sub> &rarr; tyrosine + BH<sub>2</sub> + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>BH<sub>4</sub></td>
+              <td>C<sub>9</sub>H<sub>15</sub>N<sub>5</sub>O<sub>3</sub></td>
+              <td>tetrahydrobiopterin</td>
+              <td>Cofactor for aromatic amino acid hydroxylases and nitric oxide synthase.</td>
+              <td>Tyrosine + BH<sub>4</sub> + O<sub>2</sub> &rarr; L-DOPA + BH<sub>2</sub> + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Bicarbonate</td>
+              <td>HCO<sub>3</sub><sup>&minus;</sup></td>
+              <td>HO-C(=O)-O<sup>&minus;</sup></td>
+              <td>Blood buffer and carboxylation substrate.</td>
+              <td>CO<sub>2</sub> + H<sub>2</sub>O &harr; HCO<sub>3</sub><sup>&minus;</sup> + H<sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="C">
+        <h2>C</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>cAMP</td>
+              <td>C<sub>10</sub>H<sub>12</sub>N<sub>5</sub>O<sub>6</sub>P</td>
+              <td>adenosine-3',5'-cyclic monophosphate</td>
+              <td>Second messenger for protein kinase A and other targets.</td>
+              <td>ATP &rarr; cAMP + PP<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Carbamoyl phosphate</td>
+              <td>CH<sub>4</sub>NO<sub>5</sub>P</td>
+              <td>H<sub>2</sub>N-C(=O)-O-PO<sub>3</sub><sup>2&minus;</sup></td>
+              <td>Activated carbamoyl donor for urea and pyrimidine synthesis.</td>
+              <td>NH<sub>4</sub><sup>+</sup> + HCO<sub>3</sub><sup>&minus;</sup> + 2 ATP &rarr; carbamoyl phosphate + 2 ADP + P<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Carnitine</td>
+              <td>C<sub>7</sub>H<sub>15</sub>NO<sub>3</sub></td>
+              <td>(CH<sub>3</sub>)<sub>3</sub>N<sup>+</sup>-CH<sub>2</sub>-CH(OH)-CH<sub>2</sub>-COO<sup>&minus;</sup></td>
+              <td>Carrier for mitochondrial import of long-chain acyl groups.</td>
+              <td>Acyl-CoA + carnitine &harr; acyl-carnitine + CoA-SH</td>
+            </tr>
+            <tr>
+              <td>cGMP</td>
+              <td>C<sub>10</sub>H<sub>12</sub>N<sub>5</sub>O<sub>7</sub>P</td>
+              <td>guanosine-3',5'-cyclic monophosphate</td>
+              <td>NO-linked second messenger.</td>
+              <td>GTP &rarr; cGMP + PP<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Cholesterol</td>
+              <td>C<sub>27</sub>H<sub>46</sub>O</td>
+              <td>cyclopentanoperhydrophenanthrene-OH sterol</td>
+              <td>Membrane lipid, bile acid precursor, steroid precursor.</td>
+              <td>Lanosterol &rarr; cholesterol</td>
+            </tr>
+            <tr>
+              <td>Citrate</td>
+              <td>C<sub>6</sub>H<sub>5</sub>O<sub>7</sub><sup>3&minus;</sup></td>
+              <td><sup>&minus;</sup>OOC-CH<sub>2</sub>-C(OH)(COO<sup>&minus;</sup>)-CH<sub>2</sub>-COO<sup>&minus;</sup></td>
+              <td>TCA intermediate and cytosolic acetyl-CoA source.</td>
+              <td>Oxaloacetate + acetyl-CoA + H<sub>2</sub>O &rarr; citrate + CoA-SH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Citrulline</td>
+              <td>C<sub>6</sub>H<sub>13</sub>N<sub>3</sub>O<sub>3</sub></td>
+              <td>H<sub>2</sub>N-C(=O)-NH-(CH<sub>2</sub>)<sub>3</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Urea-cycle and nitric oxide cycle intermediate.</td>
+              <td>Ornithine + carbamoyl phosphate &rarr; citrulline + P<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>CoA-SH</td>
+              <td>C<sub>21</sub>H<sub>36</sub>N<sub>7</sub>O<sub>16</sub>P<sub>3</sub>S</td>
+              <td>CoA-SH</td>
+              <td>Activated acyl-group carrier.</td>
+              <td>Fatty acid + CoA-SH + ATP &rarr; acyl-CoA + AMP + PP<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Carbon dioxide</td>
+              <td>CO<sub>2</sub></td>
+              <td>O=C=O</td>
+              <td>Oxidation product, respiratory gas, bicarbonate source.</td>
+              <td>CO<sub>2</sub> + H<sub>2</sub>O &harr; H<sub>2</sub>CO<sub>3</sub> &harr; HCO<sub>3</sub><sup>&minus;</sup> + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Creatine</td>
+              <td>C<sub>4</sub>H<sub>9</sub>N<sub>3</sub>O<sub>2</sub></td>
+              <td>H<sub>2</sub>N-C(=NH)-N(CH<sub>3</sub>)-CH<sub>2</sub>-COOH</td>
+              <td>Energy buffer precursor.</td>
+              <td>Phosphocreatine + ADP + H<sup>+</sup> &harr; creatine + ATP</td>
+            </tr>
+            <tr>
+              <td>CTP</td>
+              <td>C<sub>9</sub>H<sub>16</sub>N<sub>3</sub>O<sub>14</sub>P<sub>3</sub></td>
+              <td>cytidine-5'-triphosphate</td>
+              <td>Pyrimidine nucleotide and lipid head-group activator.</td>
+              <td>UTP + glutamine + ATP + H<sub>2</sub>O &rarr; CTP + glutamate + ADP + P<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Cysteine</td>
+              <td>C<sub>3</sub>H<sub>7</sub>NO<sub>2</sub>S</td>
+              <td>HS-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Sulfur amino acid; glutathione and protein disulfide chemistry.</td>
+              <td>Glutamate + cysteine + ATP &rarr; &gamma;-glutamylcysteine + ADP + P<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Cystathionine</td>
+              <td>C<sub>7</sub>H<sub>14</sub>N<sub>2</sub>O<sub>4</sub>S</td>
+              <td>HOOC-CH(NH<sub>2</sub>)-CH<sub>2</sub>-S-CH<sub>2</sub>-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Transsulfuration intermediate from homocysteine and serine.</td>
+              <td>Homocysteine + serine &rarr; cystathionine &rarr; cysteine + &alpha;-ketobutyrate + NH<sub>4</sub><sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="D">
+        <h2>D</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Dehydroascorbate</td>
+              <td>C<sub>6</sub>H<sub>6</sub>O<sub>6</sub></td>
+              <td>oxidized ascorbate lactone</td>
+              <td>Oxidized vitamin C form.</td>
+              <td>Dopamine + ascorbate + O<sub>2</sub> &rarr; norepinephrine + dehydroascorbate + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>DHF</td>
+              <td>C<sub>19</sub>H<sub>21</sub>N<sub>7</sub>O<sub>6</sub></td>
+              <td>dihydrofolate</td>
+              <td>Oxidized folate product of thymidylate synthesis.</td>
+              <td>dUMP + N<sup>5</sup>,N<sup>10</sup>-methylene-THF &rarr; dTMP + DHF</td>
+            </tr>
+            <tr>
+              <td>Dihydroorotate</td>
+              <td>C<sub>5</sub>H<sub>6</sub>N<sub>2</sub>O<sub>4</sub></td>
+              <td>dihydropyrimidine dicarboxylate ring</td>
+              <td>Pyrimidine synthesis intermediate.</td>
+              <td>Dihydroorotate + Q &rarr; orotate + QH<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Dihydroxyacetone phosphate</td>
+              <td>C<sub>3</sub>H<sub>7</sub>O<sub>6</sub>P</td>
+              <td>HOCH<sub>2</sub>-C(=O)-CH<sub>2</sub>-O-PO<sub>3</sub><sup>2&minus;</sup></td>
+              <td>Glycolytic triose and glycerolipid precursor.</td>
+              <td>Dihydroxyacetone phosphate &harr; glyceraldehyde-3-phosphate</td>
+            </tr>
+            <tr>
+              <td>Dopamine</td>
+              <td>C<sub>8</sub>H<sub>11</sub>NO<sub>2</sub></td>
+              <td>HO-C<sub>6</sub>H<sub>3</sub>(OH)-CH<sub>2</sub>-CH<sub>2</sub>-NH<sub>2</sub></td>
+              <td>Catecholamine neurotransmitter and norepinephrine precursor.</td>
+              <td>L-DOPA + H<sup>+</sup> &rarr; dopamine + CO<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>dTMP</td>
+              <td>C<sub>10</sub>H<sub>15</sub>N<sub>2</sub>O<sub>8</sub>P</td>
+              <td>deoxythymidine-5'-monophosphate</td>
+              <td>DNA thymine nucleotide precursor.</td>
+              <td>dUMP + N<sup>5</sup>,N<sup>10</sup>-methylene-THF &rarr; dTMP + DHF</td>
+            </tr>
+            <tr>
+              <td>dUMP</td>
+              <td>C<sub>9</sub>H<sub>13</sub>N<sub>2</sub>O<sub>8</sub>P</td>
+              <td>deoxyuridine-5'-monophosphate</td>
+              <td>Substrate for thymidylate synthesis.</td>
+              <td>dUMP + N<sup>5</sup>,N<sup>10</sup>-methylene-THF &rarr; dTMP + DHF</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="E">
+        <h2>E</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Epinephrine</td>
+              <td>C<sub>9</sub>H<sub>13</sub>NO<sub>3</sub></td>
+              <td>HO-C<sub>6</sub>H<sub>3</sub>(OH)-CH(OH)-CH<sub>2</sub>-NHCH<sub>3</sub></td>
+              <td>Adrenal catecholamine hormone.</td>
+              <td>Norepinephrine + SAM &rarr; epinephrine + SAH</td>
+            </tr>
+            <tr>
+              <td>Ethanol</td>
+              <td>C<sub>2</sub>H<sub>6</sub>O</td>
+              <td>CH<sub>3</sub>-CH<sub>2</sub>-OH</td>
+              <td>Dietary alcohol and redox-active substrate.</td>
+              <td>Ethanol + NAD<sup>+</sup> &rarr; acetaldehyde + NADH + H<sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="F">
+        <h2>F</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FAD</td>
+              <td>C<sub>27</sub>H<sub>33</sub>N<sub>9</sub>O<sub>15</sub>P<sub>2</sub></td>
+              <td>flavin-adenine dinucleotide</td>
+              <td>Protein-bound two-electron redox cofactor.</td>
+              <td>Succinate + FAD &rarr; fumarate + FADH<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>FADH<sub>2</sub></td>
+              <td>C<sub>27</sub>H<sub>35</sub>N<sub>9</sub>O<sub>15</sub>P<sub>2</sub></td>
+              <td>reduced flavin-adenine dinucleotide</td>
+              <td>Reduced electron carrier feeding the respiratory chain.</td>
+              <td>Acyl-CoA + FAD &rarr; trans-&Delta;<sup>2</sup>-enoyl-CoA + FADH<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Fatty acid</td>
+              <td>R-COOH</td>
+              <td>CH<sub>3</sub>-(CH<sub>2</sub>)<sub>n</sub>-COOH</td>
+              <td>Fuel, membrane building block, signaling precursor.</td>
+              <td>Fatty acid + CoA-SH + ATP &rarr; acyl-CoA + AMP + PP<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Fructose</td>
+              <td>C<sub>6</sub>H<sub>12</sub>O<sub>6</sub></td>
+              <td>HOCH<sub>2</sub>-C(=O)-(CHOH)<sub>3</sub>-CH<sub>2</sub>OH</td>
+              <td>Dietary ketose sugar.</td>
+              <td>Sucrose + H<sub>2</sub>O &rarr; glucose + fructose</td>
+            </tr>
+            <tr>
+              <td>Fructose-1,6-bisphosphate</td>
+              <td>C<sub>6</sub>H<sub>14</sub>O<sub>12</sub>P<sub>2</sub></td>
+              <td>fructose-1,6-di-O-phosphate</td>
+              <td>Committed glycolytic intermediate.</td>
+              <td>Fructose-1,6-bisphosphate &harr; glyceraldehyde-3-phosphate + dihydroxyacetone phosphate</td>
+            </tr>
+            <tr>
+              <td>Fructose-6-phosphate</td>
+              <td>C<sub>6</sub>H<sub>13</sub>O<sub>9</sub>P</td>
+              <td>fructose-6-O-phosphate</td>
+              <td>Glycolysis, gluconeogenesis, pentose phosphate connection.</td>
+              <td>Glucose-6-phosphate &harr; fructose-6-phosphate</td>
+            </tr>
+            <tr>
+              <td>Fumarate</td>
+              <td>C<sub>4</sub>H<sub>2</sub>O<sub>4</sub><sup>2&minus;</sup></td>
+              <td><sup>&minus;</sup>OOC-CH=CH-COO<sup>&minus;</sup></td>
+              <td>TCA and urea-cycle connecting metabolite.</td>
+              <td>Succinate + FAD &rarr; fumarate + FADH<sub>2</sub></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="G">
+        <h2>G</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Galactose</td>
+              <td>C<sub>6</sub>H<sub>12</sub>O<sub>6</sub></td>
+              <td>aldohexose epimer of glucose</td>
+              <td>Dietary sugar and glycosylation precursor.</td>
+              <td>Lactose + H<sub>2</sub>O &rarr; glucose + galactose</td>
+            </tr>
+            <tr>
+              <td>GDP</td>
+              <td>C<sub>10</sub>H<sub>15</sub>N<sub>5</sub>O<sub>11</sub>P<sub>2</sub></td>
+              <td>guanosine-5'-diphosphate</td>
+              <td>GTP product; G protein switch state.</td>
+              <td>Succinyl-CoA + GDP + P<sub>i</sub> &harr; succinate + GTP + CoA-SH</td>
+            </tr>
+            <tr>
+              <td>Glucose</td>
+              <td>C<sub>6</sub>H<sub>12</sub>O<sub>6</sub></td>
+              <td>HOCH<sub>2</sub>-(CHOH)<sub>4</sub>-CHO</td>
+              <td>Central blood sugar and fuel.</td>
+              <td>Glucose + ATP &rarr; glucose-6-phosphate + ADP + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Glucose-1-phosphate</td>
+              <td>C<sub>6</sub>H<sub>13</sub>O<sub>9</sub>P</td>
+              <td>glucose-1-O-phosphate</td>
+              <td>Glycogen synthesis and breakdown intermediate.</td>
+              <td>Glycogen<sub>n</sub> + P<sub>i</sub> &rarr; glycogen<sub>n-1</sub> + glucose-1-phosphate</td>
+            </tr>
+            <tr>
+              <td>Glucose-6-phosphate</td>
+              <td>C<sub>6</sub>H<sub>13</sub>O<sub>9</sub>P</td>
+              <td>glucose-6-O-phosphate</td>
+              <td>Branch point for glycolysis, glycogen, PPP, and glucose release.</td>
+              <td>Glucose-6-phosphate + NADP<sup>+</sup> &rarr; 6-phosphoglucono-&delta;-lactone + NADPH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Glutamate</td>
+              <td>C<sub>5</sub>H<sub>9</sub>NO<sub>4</sub></td>
+              <td>HOOC-CH(NH<sub>2</sub>)-CH<sub>2</sub>-CH<sub>2</sub>-COOH</td>
+              <td>Amino nitrogen hub and neurotransmitter.</td>
+              <td>Glutamate + NAD(P)<sup>+</sup> + H<sub>2</sub>O &harr; &alpha;-ketoglutarate + NH<sub>4</sub><sup>+</sup> + NAD(P)H + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Glutamine</td>
+              <td>C<sub>5</sub>H<sub>10</sub>N<sub>2</sub>O<sub>3</sub></td>
+              <td>HOOC-CH(NH<sub>2</sub>)-CH<sub>2</sub>-CH<sub>2</sub>-CONH<sub>2</sub></td>
+              <td>Safe nitrogen carrier and biosynthetic nitrogen donor.</td>
+              <td>Glutamate + NH<sub>4</sub><sup>+</sup> + ATP &rarr; glutamine + ADP + P<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Glutathione, reduced</td>
+              <td>C<sub>10</sub>H<sub>17</sub>N<sub>3</sub>O<sub>6</sub>S</td>
+              <td>&gamma;-Glu-Cys-Gly-SH</td>
+              <td>Main intracellular thiol antioxidant.</td>
+              <td>2 GSH + ROOH &rarr; GSSG + ROH + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Glutathione, oxidized</td>
+              <td>C<sub>20</sub>H<sub>32</sub>N<sub>6</sub>O<sub>12</sub>S<sub>2</sub></td>
+              <td>&gamma;-Glu-Cys-S-S-Cys-Glu-&gamma; + 2 Gly</td>
+              <td>Disulfide form recycled by NADPH.</td>
+              <td>GSSG + NADPH + H<sup>+</sup> &rarr; 2 GSH + NADP<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Glyceraldehyde-3-phosphate</td>
+              <td>C<sub>3</sub>H<sub>7</sub>O<sub>6</sub>P</td>
+              <td>OHC-CH(OH)-CH<sub>2</sub>-O-PO<sub>3</sub><sup>2&minus;</sup></td>
+              <td>Oxidation-ready glycolytic triose.</td>
+              <td>Glyceraldehyde-3-phosphate + P<sub>i</sub> + NAD<sup>+</sup> &harr; 1,3-bisphosphoglycerate + NADH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Glycerol</td>
+              <td>C<sub>3</sub>H<sub>8</sub>O<sub>3</sub></td>
+              <td>HO-CH<sub>2</sub>-CH(OH)-CH<sub>2</sub>-OH</td>
+              <td>Triacylglycerol backbone.</td>
+              <td>Triacylglycerol + 3 H<sub>2</sub>O &rarr; glycerol + 3 fatty acids</td>
+            </tr>
+            <tr>
+              <td>Glycerol-3-phosphate</td>
+              <td>C<sub>3</sub>H<sub>9</sub>O<sub>6</sub>P</td>
+              <td>HO-CH<sub>2</sub>-CH(OH)-CH<sub>2</sub>-O-PO<sub>3</sub><sup>2&minus;</sup></td>
+              <td>Glycerolipid precursor and redox shuttle component.</td>
+              <td>Glycerol + ATP &rarr; glycerol-3-phosphate + ADP + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Glycine</td>
+              <td>C<sub>2</sub>H<sub>5</sub>NO<sub>2</sub></td>
+              <td>NH<sub>2</sub>-CH<sub>2</sub>-COOH</td>
+              <td>Amino acid; purine, heme, creatine, and glutathione precursor.</td>
+              <td>Glycine + succinyl-CoA &rarr; &delta;-aminolevulinate + CO<sub>2</sub> + CoA-SH</td>
+            </tr>
+            <tr>
+              <td>Glycogen</td>
+              <td>(C<sub>6</sub>H<sub>10</sub>O<sub>5</sub>)<sub>n</sub></td>
+              <td>branched &alpha;-1,4/&alpha;-1,6 glucose polymer</td>
+              <td>Rapidly mobilized glucose storage polymer.</td>
+              <td>UDP-glucose + glycogen<sub>n</sub> &rarr; UDP + glycogen<sub>n+1</sub></td>
+            </tr>
+            <tr>
+              <td>GTP</td>
+              <td>C<sub>10</sub>H<sub>16</sub>N<sub>5</sub>O<sub>14</sub>P<sub>3</sub></td>
+              <td>guanosine-5'-triphosphate</td>
+              <td>Energy donor for signaling, translation, and PEPCK.</td>
+              <td>Oxaloacetate + GTP &rarr; phosphoenolpyruvate + GDP + CO<sub>2</sub></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="H">
+        <h2>H</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Heme b</td>
+              <td>C<sub>34</sub>H<sub>32</sub>FeN<sub>4</sub>O<sub>4</sub></td>
+              <td>Fe-protoporphyrin IX</td>
+              <td>Oxygen binding, electron transfer, P450 catalysis.</td>
+              <td>Protoporphyrin IX + Fe<sup>2+</sup> &rarr; heme + 2 H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>HMG-CoA</td>
+              <td>CoA thioester</td>
+              <td><sup>&minus;</sup>OOC-CH<sub>2</sub>-C(OH)(CH<sub>3</sub>)-CH<sub>2</sub>-C(=O)-S-CoA</td>
+              <td>Branch point for ketone and cholesterol synthesis.</td>
+              <td>HMG-CoA + 2 NADPH + 2 H<sup>+</sup> &rarr; mevalonate + CoA-SH + 2 NADP<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Homocysteine</td>
+              <td>C<sub>4</sub>H<sub>9</sub>NO<sub>2</sub>S</td>
+              <td>HS-CH<sub>2</sub>-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Methionine-cycle intermediate.</td>
+              <td>Homocysteine + N<sup>5</sup>-methyl-THF &rarr; methionine + THF</td>
+            </tr>
+            <tr>
+              <td>Hydrogen peroxide</td>
+              <td>H<sub>2</sub>O<sub>2</sub></td>
+              <td>H-O-O-H</td>
+              <td>Reactive oxygen species and signaling oxidant.</td>
+              <td>2 H<sub>2</sub>O<sub>2</sub> &rarr; 2 H<sub>2</sub>O + O<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Hypoxanthine</td>
+              <td>C<sub>5</sub>H<sub>4</sub>N<sub>4</sub>O</td>
+              <td>6-hydroxypurine</td>
+              <td>Purine base salvage and degradation intermediate.</td>
+              <td>Hypoxanthine + PRPP &rarr; IMP + PP<sub>i</sub></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="I">
+        <h2>I</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>IMP</td>
+              <td>C<sub>10</sub>H<sub>13</sub>N<sub>4</sub>O<sub>8</sub>P</td>
+              <td>inosine-5'-monophosphate</td>
+              <td>Purine branch point to AMP and GMP.</td>
+              <td>PRPP + glycine + glutamine + aspartate + CO<sub>2</sub> + 10-formyl-THF + ATP &rarr; IMP + byproducts</td>
+            </tr>
+            <tr>
+              <td>Inosine</td>
+              <td>C<sub>10</sub>H<sub>12</sub>N<sub>4</sub>O<sub>5</sub></td>
+              <td>hypoxanthine-&beta;-D-ribofuranose</td>
+              <td>Purine nucleoside degradation intermediate.</td>
+              <td>Adenosine + H<sub>2</sub>O &rarr; inosine + NH<sub>4</sub><sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Isocitrate</td>
+              <td>C<sub>6</sub>H<sub>5</sub>O<sub>7</sub><sup>3&minus;</sup></td>
+              <td><sup>&minus;</sup>OOC-CH(OH)-CH(COO<sup>&minus;</sup>)-CH<sub>2</sub>-COO<sup>&minus;</sup></td>
+              <td>TCA cycle oxidative decarboxylation substrate.</td>
+              <td>Isocitrate + NAD<sup>+</sup> &rarr; &alpha;-ketoglutarate + CO<sub>2</sub> + NADH + H<sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="L">
+        <h2>L</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Lactate</td>
+              <td>C<sub>3</sub>H<sub>5</sub>O<sub>3</sub><sup>&minus;</sup></td>
+              <td>CH<sub>3</sub>-CH(OH)-COO<sup>&minus;</sup></td>
+              <td>Anaerobic glycolytic product and circulating fuel.</td>
+              <td>Pyruvate + NADH + H<sup>+</sup> &harr; lactate + NAD<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Lactose</td>
+              <td>C<sub>12</sub>H<sub>22</sub>O<sub>11</sub></td>
+              <td>&beta;-D-galactose-(1&rarr;4)-D-glucose</td>
+              <td>Milk disaccharide.</td>
+              <td>Lactose + H<sub>2</sub>O &rarr; glucose + galactose</td>
+            </tr>
+            <tr>
+              <td>L-DOPA</td>
+              <td>C<sub>9</sub>H<sub>11</sub>NO<sub>4</sub></td>
+              <td>HO-C<sub>6</sub>H<sub>3</sub>(OH)-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Catecholamine synthesis intermediate.</td>
+              <td>Tyrosine + BH<sub>4</sub> + O<sub>2</sub> &rarr; L-DOPA + BH<sub>2</sub> + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>L-Methylmalonyl-CoA</td>
+              <td>CoA thioester</td>
+              <td><sup>&minus;</sup>OOC-CH(CH<sub>3</sub>)-C(=O)-S-CoA</td>
+              <td>Odd-chain fatty acid and amino acid catabolism intermediate.</td>
+              <td>L-methylmalonyl-CoA &rarr; succinyl-CoA</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="M">
+        <h2>M</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Malate</td>
+              <td>C<sub>4</sub>H<sub>4</sub>O<sub>5</sub><sup>2&minus;</sup></td>
+              <td><sup>&minus;</sup>OOC-CH<sub>2</sub>-CH(OH)-COO<sup>&minus;</sup></td>
+              <td>TCA intermediate and shuttle metabolite.</td>
+              <td>Malate + NAD<sup>+</sup> &harr; oxaloacetate + NADH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Malonyl-CoA</td>
+              <td>CoA thioester</td>
+              <td><sup>&minus;</sup>OOC-CH<sub>2</sub>-C(=O)-S-CoA</td>
+              <td>Two-carbon donor for fatty acid synthesis; CPT1 inhibitor.</td>
+              <td>Acetyl-CoA + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; malonyl-CoA + ADP + P<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Mevalonate</td>
+              <td>C<sub>6</sub>H<sub>12</sub>O<sub>4</sub></td>
+              <td>HOOC-CH<sub>2</sub>-C(OH)(CH<sub>3</sub>)-CH<sub>2</sub>-CH<sub>2</sub>OH</td>
+              <td>Cholesterol and isoprenoid synthesis intermediate.</td>
+              <td>HMG-CoA + 2 NADPH + 2 H<sup>+</sup> &rarr; mevalonate + CoA-SH + 2 NADP<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Methionine</td>
+              <td>C<sub>5</sub>H<sub>11</sub>NO<sub>2</sub>S</td>
+              <td>CH<sub>3</sub>-S-CH<sub>2</sub>-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Essential amino acid and SAM precursor.</td>
+              <td>Methionine + ATP &rarr; S-adenosylmethionine + P<sub>i</sub> + PP<sub>i</sub></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="N">
+        <h2>N</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>NAD<sup>+</sup></td>
+              <td>C<sub>21</sub>H<sub>27</sub>N<sub>7</sub>O<sub>14</sub>P<sub>2</sub><sup>+</sup></td>
+              <td>nicotinamide-ribose-P-P-ribose-adenine</td>
+              <td>Oxidized hydride acceptor in catabolism.</td>
+              <td>Lactate + NAD<sup>+</sup> &harr; pyruvate + NADH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>NADH</td>
+              <td>C<sub>21</sub>H<sub>29</sub>N<sub>7</sub>O<sub>14</sub>P<sub>2</sub></td>
+              <td>reduced NAD</td>
+              <td>Electron donor to respiratory chain and reductive reactions.</td>
+              <td>NADH + H<sup>+</sup> + Q &rarr; NAD<sup>+</sup> + QH<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>NADP<sup>+</sup></td>
+              <td>C<sub>21</sub>H<sub>28</sub>N<sub>7</sub>O<sub>17</sub>P<sub>3</sub><sup>+</sup></td>
+              <td>NAD with 2'-phosphate</td>
+              <td>Oxidized form of NADPH pool.</td>
+              <td>Glucose-6-phosphate + NADP<sup>+</sup> &rarr; 6-phosphoglucono-&delta;-lactone + NADPH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>NADPH</td>
+              <td>C<sub>21</sub>H<sub>30</sub>N<sub>7</sub>O<sub>17</sub>P<sub>3</sub></td>
+              <td>reduced NADP</td>
+              <td>Reductive biosynthesis and antioxidant defense.</td>
+              <td>GSSG + NADPH + H<sup>+</sup> &rarr; 2 GSH + NADP<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Nitric oxide</td>
+              <td>NO</td>
+              <td>N=O radical</td>
+              <td>Gasotransmitter for vascular, neural, and immune signaling.</td>
+              <td>Arginine + O<sub>2</sub> + NADPH &rarr; citrulline + nitric oxide + NADP<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Norepinephrine</td>
+              <td>C<sub>8</sub>H<sub>11</sub>NO<sub>3</sub></td>
+              <td>HO-C<sub>6</sub>H<sub>3</sub>(OH)-CH(OH)-CH<sub>2</sub>-NH<sub>2</sub></td>
+              <td>Catecholamine neurotransmitter and hormone.</td>
+              <td>Dopamine + ascorbate + O<sub>2</sub> &rarr; norepinephrine + dehydroascorbate + H<sub>2</sub>O</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="O">
+        <h2>O</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>O<sub>2</sub></td>
+              <td>O<sub>2</sub></td>
+              <td>O=O</td>
+              <td>Terminal electron acceptor and oxygenation substrate.</td>
+              <td>4 cytochrome c(Fe<sup>2+</sup>) + O<sub>2</sub> + 8 H<sup>+</sup> &rarr; 2 H<sub>2</sub>O + 4 cytochrome c(Fe<sup>3+</sup>)</td>
+            </tr>
+            <tr>
+              <td>OMP</td>
+              <td>C<sub>10</sub>H<sub>13</sub>N<sub>2</sub>O<sub>11</sub>P</td>
+              <td>orotidine-5'-monophosphate</td>
+              <td>Pyrimidine synthesis intermediate.</td>
+              <td>OMP &rarr; UMP + CO<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Ornithine</td>
+              <td>C<sub>5</sub>H<sub>12</sub>N<sub>2</sub>O<sub>2</sub></td>
+              <td>H<sub>2</sub>N-(CH<sub>2</sub>)<sub>3</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Urea-cycle carrier regenerated by arginase.</td>
+              <td>Arginine + H<sub>2</sub>O &rarr; ornithine + urea</td>
+            </tr>
+            <tr>
+              <td>Orotate</td>
+              <td>C<sub>5</sub>H<sub>4</sub>N<sub>2</sub>O<sub>4</sub></td>
+              <td>uracil-6-carboxylate</td>
+              <td>Pyrimidine ring intermediate.</td>
+              <td>Orotate + PRPP &rarr; OMP + PP<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Oxaloacetate</td>
+              <td>C<sub>4</sub>H<sub>2</sub>O<sub>5</sub><sup>2&minus;</sup></td>
+              <td><sup>&minus;</sup>OOC-CO-CH<sub>2</sub>-COO<sup>&minus;</sup></td>
+              <td>TCA, gluconeogenesis, amino acid metabolism intermediate.</td>
+              <td>Pyruvate + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; oxaloacetate + ADP + P<sub>i</sub></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="P">
+        <h2>P</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Palmitate</td>
+              <td>C<sub>16</sub>H<sub>31</sub>O<sub>2</sub><sup>&minus;</sup></td>
+              <td>CH<sub>3</sub>-(CH<sub>2</sub>)<sub>14</sub>-COO<sup>&minus;</sup></td>
+              <td>Major saturated fatty acid product of fatty acid synthase.</td>
+              <td>Acetyl-CoA + 7 malonyl-CoA + 14 NADPH + 14 H<sup>+</sup> &rarr; palmitate + 7 CO<sub>2</sub> + 8 CoA-SH + 14 NADP<sup>+</sup> + 6 H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Palmitoyl-CoA</td>
+              <td>CoA thioester</td>
+              <td>CH<sub>3</sub>-(CH<sub>2</sub>)<sub>14</sub>-C(=O)-S-CoA</td>
+              <td>Activated C16 fatty acyl-CoA.</td>
+              <td>Palmitoyl-CoA + 7 FAD + 7 NAD<sup>+</sup> + 7 CoA-SH + 7 H<sub>2</sub>O &rarr; 8 acetyl-CoA + 7 FADH<sub>2</sub> + 7 NADH + 7 H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>PAPS</td>
+              <td>C<sub>10</sub>H<sub>15</sub>N<sub>5</sub>O<sub>10</sub>PS</td>
+              <td>3'-phosphoadenosine-5'-phosphosulfate</td>
+              <td>Activated sulfate donor.</td>
+              <td>ROH + PAPS &rarr; R-OSO<sub>3</sub><sup>&minus;</sup> + PAP</td>
+            </tr>
+            <tr>
+              <td>Phenylalanine</td>
+              <td>C<sub>9</sub>H<sub>11</sub>NO<sub>2</sub></td>
+              <td>C<sub>6</sub>H<sub>5</sub>-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Essential aromatic amino acid.</td>
+              <td>Phenylalanine + BH<sub>4</sub> + O<sub>2</sub> &rarr; tyrosine + BH<sub>2</sub> + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Phosphocreatine</td>
+              <td>C<sub>4</sub>H<sub>10</sub>N<sub>3</sub>O<sub>5</sub>P</td>
+              <td>creatine-N-phosphate</td>
+              <td>Fast ATP buffer in muscle and brain.</td>
+              <td>Phosphocreatine + ADP + H<sup>+</sup> &harr; creatine + ATP</td>
+            </tr>
+            <tr>
+              <td>Phosphoenolpyruvate</td>
+              <td>C<sub>3</sub>H<sub>5</sub>O<sub>6</sub>P</td>
+              <td>CH<sub>2</sub>=C(O-PO<sub>3</sub><sup>2&minus;</sup>)-COO<sup>&minus;</sup></td>
+              <td>High-energy glycolytic and gluconeogenic intermediate.</td>
+              <td>Phosphoenolpyruvate + ADP + H<sup>+</sup> &rarr; pyruvate + ATP</td>
+            </tr>
+            <tr>
+              <td>Phosphoglycerate, 2-</td>
+              <td>C<sub>3</sub>H<sub>7</sub>O<sub>7</sub>P</td>
+              <td>HO-CH<sub>2</sub>-CH(O-PO<sub>3</sub><sup>2&minus;</sup>)-COO<sup>&minus;</sup></td>
+              <td>Late glycolytic intermediate.</td>
+              <td>2-phosphoglycerate &harr; phosphoenolpyruvate + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Phosphoglycerate, 3-</td>
+              <td>C<sub>3</sub>H<sub>7</sub>O<sub>7</sub>P</td>
+              <td><sup>&minus;</sup>OOC-CH(OH)-CH<sub>2</sub>-O-PO<sub>3</sub><sup>2&minus;</sup></td>
+              <td>Glycolytic intermediate and serine precursor.</td>
+              <td>1,3-bisphosphoglycerate + ADP &harr; 3-phosphoglycerate + ATP</td>
+            </tr>
+            <tr>
+              <td>Pregnenolone</td>
+              <td>C<sub>21</sub>H<sub>32</sub>O<sub>2</sub></td>
+              <td>steroid nucleus-3&beta;-ol-20-one</td>
+              <td>First common steroid hormone precursor.</td>
+              <td>Cholesterol + O<sub>2</sub> + NADPH &rarr; pregnenolone + isocaproaldehyde + H<sub>2</sub>O + NADP<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>PRPP</td>
+              <td>C<sub>5</sub>H<sub>13</sub>O<sub>14</sub>P<sub>3</sub></td>
+              <td>5-phosphoribose-1-pyrophosphate</td>
+              <td>Activated ribose donor for nucleotide synthesis and salvage.</td>
+              <td>Ribose-5-phosphate + ATP &rarr; PRPP + AMP</td>
+            </tr>
+            <tr>
+              <td>Proline</td>
+              <td>C<sub>5</sub>H<sub>9</sub>NO<sub>2</sub></td>
+              <td>pyrrolidine-2-carboxylic acid</td>
+              <td>Protein amino acid; collagen hydroxylation substrate.</td>
+              <td>Proline residue + &alpha;-ketoglutarate + O<sub>2</sub> &rarr; hydroxyproline residue + succinate + CO<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Pyruvate</td>
+              <td>C<sub>3</sub>H<sub>3</sub>O<sub>3</sub><sup>&minus;</sup></td>
+              <td>CH<sub>3</sub>-CO-COO<sup>&minus;</sup></td>
+              <td>Glycolytic endpoint and hub for lactate, alanine, acetyl-CoA, oxaloacetate.</td>
+              <td>Pyruvate + CoA-SH + NAD<sup>+</sup> &rarr; acetyl-CoA + CO<sub>2</sub> + NADH + H<sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="Q">
+        <h2>Q</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Q, ubiquinone-10</td>
+              <td>C<sub>59</sub>H<sub>90</sub>O<sub>4</sub></td>
+              <td>benzoquinone-(isoprenoid)<sub>10</sub></td>
+              <td>Mobile inner mitochondrial membrane electron carrier.</td>
+              <td>NADH + H<sup>+</sup> + Q &rarr; NAD<sup>+</sup> + QH<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>QH<sub>2</sub>, ubiquinol-10</td>
+              <td>C<sub>59</sub>H<sub>92</sub>O<sub>4</sub></td>
+              <td>hydroquinone-(isoprenoid)<sub>10</sub></td>
+              <td>Reduced ubiquinone carrying electrons to Complex III.</td>
+              <td>QH<sub>2</sub> + 2 cytochrome c(Fe<sup>3+</sup>) &rarr; Q + 2 cytochrome c(Fe<sup>2+</sup>) + 2 H<sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="R">
+        <h2>R</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ribose-5-phosphate</td>
+              <td>C<sub>5</sub>H<sub>11</sub>O<sub>8</sub>P</td>
+              <td>ribose-5-O-phosphate</td>
+              <td>Nucleotide ribose precursor.</td>
+              <td>Ribose-5-phosphate + ATP &rarr; PRPP + AMP</td>
+            </tr>
+            <tr>
+              <td>Ribulose-5-phosphate</td>
+              <td>C<sub>5</sub>H<sub>11</sub>O<sub>8</sub>P</td>
+              <td>ketopentose-5-O-phosphate</td>
+              <td>Pentose phosphate pathway product.</td>
+              <td>6-phosphogluconate + NADP<sup>+</sup> &rarr; ribulose-5-phosphate + CO<sub>2</sub> + NADPH</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="S">
+        <h2>S</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>S-adenosylhomocysteine</td>
+              <td>C<sub>14</sub>H<sub>20</sub>N<sub>6</sub>O<sub>5</sub>S</td>
+              <td>adenosyl-S-homocysteine</td>
+              <td>Product of SAM-dependent methyl transfer.</td>
+              <td>SAM + acceptor &rarr; SAH + methyl-acceptor</td>
+            </tr>
+            <tr>
+              <td>S-adenosylmethionine</td>
+              <td>C<sub>15</sub>H<sub>22</sub>N<sub>6</sub>O<sub>5</sub>S<sup>+</sup></td>
+              <td>adenosyl-S<sup>+</sup>(CH<sub>3</sub>)-methionine</td>
+              <td>Major biological methyl donor.</td>
+              <td>Methionine + ATP &rarr; S-adenosylmethionine + P<sub>i</sub> + PP<sub>i</sub></td>
+            </tr>
+            <tr>
+              <td>Serine</td>
+              <td>C<sub>3</sub>H<sub>7</sub>NO<sub>3</sub></td>
+              <td>HO-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Amino acid; one-carbon, phospholipid, and cysteine metabolism.</td>
+              <td>Serine + THF &harr; glycine + N<sup>5</sup>,N<sup>10</sup>-methylene-THF + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Serotonin</td>
+              <td>C<sub>10</sub>H<sub>12</sub>N<sub>2</sub>O</td>
+              <td>5-hydroxyindole-CH<sub>2</sub>-CH<sub>2</sub>-NH<sub>2</sub></td>
+              <td>Monoamine neurotransmitter and peripheral signal.</td>
+              <td>5-hydroxytryptophan &rarr; serotonin + CO<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Succinate</td>
+              <td>C<sub>4</sub>H<sub>4</sub>O<sub>4</sub><sup>2&minus;</sup></td>
+              <td><sup>&minus;</sup>OOC-CH<sub>2</sub>-CH<sub>2</sub>-COO<sup>&minus;</sup></td>
+              <td>TCA intermediate and Complex II substrate.</td>
+              <td>Succinyl-CoA + GDP + P<sub>i</sub> &harr; succinate + GTP + CoA-SH</td>
+            </tr>
+            <tr>
+              <td>Succinyl-CoA</td>
+              <td>CoA thioester</td>
+              <td><sup>&minus;</sup>OOC-CH<sub>2</sub>-CH<sub>2</sub>-C(=O)-S-CoA</td>
+              <td>TCA intermediate, heme precursor, ketone activation donor.</td>
+              <td>&alpha;-Ketoglutarate + CoA-SH + NAD<sup>+</sup> &rarr; succinyl-CoA + CO<sub>2</sub> + NADH + H<sup>+</sup></td>
+            </tr>
+            <tr>
+              <td>Sucrose</td>
+              <td>C<sub>12</sub>H<sub>22</sub>O<sub>11</sub></td>
+              <td>&alpha;-D-glucose-(1&rarr;2)-&beta;-D-fructose</td>
+              <td>Dietary disaccharide.</td>
+              <td>Sucrose + H<sub>2</sub>O &rarr; glucose + fructose</td>
+            </tr>
+            <tr>
+              <td>Superoxide</td>
+              <td>O<sub>2</sub><sup>&bull;&minus;</sup></td>
+              <td>O-O<sup>&bull;&minus;</sup></td>
+              <td>Reactive oxygen species.</td>
+              <td>2 O<sub>2</sub><sup>&bull;&minus;</sup> + 2 H<sup>+</sup> &rarr; H<sub>2</sub>O<sub>2</sub> + O<sub>2</sub></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="T">
+        <h2>T</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tetrahydrofolate</td>
+              <td>C<sub>19</sub>H<sub>23</sub>N<sub>7</sub>O<sub>6</sub></td>
+              <td>pteridine-PABA-glutamate carrier</td>
+              <td>One-carbon unit carrier.</td>
+              <td>Serine + THF &harr; glycine + N<sup>5</sup>,N<sup>10</sup>-methylene-THF + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Triacylglycerol</td>
+              <td>glycerol + 3 acyl chains</td>
+              <td>CH<sub>2</sub>-O-C(=O)-R / CH-O-C(=O)-R' / CH<sub>2</sub>-O-C(=O)-R''</td>
+              <td>Dense energy storage lipid.</td>
+              <td>Triacylglycerol + 3 H<sub>2</sub>O &rarr; glycerol + 3 fatty acids</td>
+            </tr>
+            <tr>
+              <td>Tryptophan</td>
+              <td>C<sub>11</sub>H<sub>12</sub>N<sub>2</sub>O<sub>2</sub></td>
+              <td>indole-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Essential amino acid; serotonin and niacin precursor.</td>
+              <td>Tryptophan + BH<sub>4</sub> + O<sub>2</sub> &rarr; 5-hydroxytryptophan + BH<sub>2</sub> + H<sub>2</sub>O</td>
+            </tr>
+            <tr>
+              <td>Tyrosine</td>
+              <td>C<sub>9</sub>H<sub>11</sub>NO<sub>3</sub></td>
+              <td>HO-C<sub>6</sub>H<sub>4</sub>-CH<sub>2</sub>-CH(NH<sub>2</sub>)-COOH</td>
+              <td>Aromatic amino acid; catecholamine and thyroid hormone precursor.</td>
+              <td>Tyrosine + BH<sub>4</sub> + O<sub>2</sub> &rarr; L-DOPA + BH<sub>2</sub> + H<sub>2</sub>O</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="U">
+        <h2>U</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>UDP-glucose</td>
+              <td>C<sub>15</sub>H<sub>24</sub>N<sub>2</sub>O<sub>17</sub>P<sub>2</sub></td>
+              <td>uridine-diphosphate-glucose</td>
+              <td>Activated glucose donor for glycogen and glycosylation.</td>
+              <td>UDP-glucose + glycogen<sub>n</sub> &rarr; UDP + glycogen<sub>n+1</sub></td>
+            </tr>
+            <tr>
+              <td>UMP</td>
+              <td>C<sub>9</sub>H<sub>13</sub>N<sub>2</sub>O<sub>9</sub>P</td>
+              <td>uridine-5'-monophosphate</td>
+              <td>First common pyrimidine nucleotide product.</td>
+              <td>OMP &rarr; UMP + CO<sub>2</sub></td>
+            </tr>
+            <tr>
+              <td>Urea</td>
+              <td>CH<sub>4</sub>N<sub>2</sub>O</td>
+              <td>H<sub>2</sub>N-C(=O)-NH<sub>2</sub></td>
+              <td>Major nitrogen excretion product.</td>
+              <td>Arginine + H<sub>2</sub>O &rarr; ornithine + urea</td>
+            </tr>
+            <tr>
+              <td>Uric acid</td>
+              <td>C<sub>5</sub>H<sub>4</sub>N<sub>4</sub>O<sub>3</sub></td>
+              <td>trioxopurine</td>
+              <td>Final human purine oxidation product.</td>
+              <td>Hypoxanthine &rarr; xanthine &rarr; uric acid</td>
+            </tr>
+            <tr>
+              <td>UTP</td>
+              <td>C<sub>9</sub>H<sub>15</sub>N<sub>2</sub>O<sub>15</sub>P<sub>3</sub></td>
+              <td>uridine-5'-triphosphate</td>
+              <td>Pyrimidine nucleotide and glucose activation partner.</td>
+              <td>Glucose-1-phosphate + UTP &rarr; UDP-glucose + PP<sub>i</sub></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="X">
+        <h2>X</h2>
+        <table class="compounds">
+          <thead>
+            <tr>
+              <th>Compound</th>
+              <th>Formula</th>
+              <th>Condensed structural formula</th>
+              <th>Main biochemical role</th>
+              <th>Representative reaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Xanthine</td>
+              <td>C<sub>5</sub>H<sub>4</sub>N<sub>4</sub>O<sub>2</sub></td>
+              <td>2,6-dioxopurine</td>
+              <td>Purine degradation intermediate.</td>
+              <td>Hypoxanthine &rarr; xanthine &rarr; uric acid</td>
+            </tr>
+            <tr>
+              <td>XMP</td>
+              <td>C<sub>10</sub>H<sub>13</sub>N<sub>4</sub>O<sub>9</sub>P</td>
+              <td>xanthosine-5'-monophosphate</td>
+              <td>GMP synthesis intermediate.</td>
+              <td>IMP + NAD<sup>+</sup> + H<sub>2</sub>O &rarr; XMP + NADH + H<sup>+</sup></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="references">
+        <h2>References</h2>
+        <p>This index is designed as a companion to the reaction atlas. For exhaustive chemical identifiers, stereochemistry, charges, masses, cross-references, and database exports, use curated metabolite and pathway databases.</p>
+        <ol>
+          <li><a href="https://reactome.org/">Reactome Pathway Database</a></li>
+          <li><a href="https://hmdb.ca/">Human Metabolome Database</a></li>
+          <li><a href="https://biocyc.org/HUMAN/organism-summary">HumanCyc / BioCyc</a></li>
+          <li><a href="https://www.vmh.life/">Virtual Metabolic Human</a></li>
+          <li><a href="https://metabolicatlas.org/">Metabolic Atlas / Human-GEM</a></li>
+          <li><a href="https://www.ncbi.nlm.nih.gov/books/">NCBI Bookshelf</a></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer>
+      <p>Alphabetical Compound Formula Index. Educational companion to <a href="human_biochemistry_reaction_atlas.html">Human Biochemistry: A Reaction Atlas</a> and the <a href="human_biochemistry_3d_models.html">Interactive 3D Molecular Models</a>.</p>
+    </footer>
+  </div>
+</body>
+</html>

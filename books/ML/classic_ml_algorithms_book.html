@@ -1,0 +1,2159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Classic ML: Algorithms, Geometry, and Simulators</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f3ec;
+      --ink: #16212a;
+      --muted: #60707b;
+      --line: #d9d1c4;
+      --panel: #ffffff;
+      --soft: #eee8dc;
+      --nav: #fbfaf7;
+      --blue: #1f6fb2;
+      --green: #2f7d57;
+      --red: #bd4b43;
+      --amber: #bc7a20;
+      --violet: #6a56a5;
+      --cyan: #157f86;
+      --shadow: 0 18px 48px rgba(22, 33, 42, .12);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: var(--blue);
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      min-height: 38px;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #edf5ff;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    code {
+      background: #ede7dc;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: .92em;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow: auto;
+      border: 1px solid var(--line);
+      background: #f8f4ed;
+      color: #203645;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: var(--nav);
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .toc-title {
+      font-weight: 800;
+      margin-bottom: 18px;
+      color: #203645;
+    }
+
+    .breadcrumbs {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      font: 800 13px/1.25 var(--sans);
+    }
+
+    .toc .breadcrumbs a {
+      color: var(--blue);
+      text-decoration: none;
+      padding: 0;
+    }
+
+    .toc a {
+      display: block;
+      color: #364650;
+      text-decoration: none;
+      padding: 7px 0;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero,
+    .chapter,
+    .band {
+      padding: 54px 0;
+    }
+
+    .inner {
+      width: min(1140px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 94vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.88), rgba(255,255,255,.56)),
+        repeating-linear-gradient(0deg, rgba(31,111,178,.08), rgba(31,111,178,.08) 1px, transparent 1px, transparent 32px),
+        repeating-linear-gradient(90deg, rgba(47,125,87,.08), rgba(47,125,87,.08) 1px, transparent 1px, transparent 32px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(330px, .74fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--blue);
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 900px;
+      font-size: 64px;
+    }
+
+    h2 {
+      font-size: 42px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 28px;
+      margin: 34px 0 10px;
+    }
+
+    h4 {
+      font-size: 21px;
+      margin: 24px 0 8px;
+    }
+
+    .subtitle {
+      max-width: 790px;
+      margin: 18px 0 26px;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .lead {
+      max-width: 880px;
+      color: #2c3942;
+      font-size: 21px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .point {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.76);
+      padding: 12px;
+    }
+
+    .point:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .point:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .hero-visual,
+    .simulation {
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+      border: 1px solid #e5ded3;
+    }
+
+    .hero-legend,
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font: 13px/1.35 var(--sans);
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    .band {
+      background: #fff;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .note {
+      margin: 22px 0;
+      padding: 16px 18px;
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff5e3;
+    }
+
+    .formula {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1ebe0;
+      color: #243643;
+      padding: 14px;
+      font-family: var(--mono);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #ede7dc;
+      color: #203645;
+    }
+
+    .simulation {
+      margin: 24px 0;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sim-header h3 {
+      margin-top: 0;
+    }
+
+    .sim-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font: 14px/1.45 var(--sans);
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(126px, 1fr));
+      gap: 12px;
+      margin: 16px 0 18px;
+      font: 14px/1.3 var(--sans);
+    }
+
+    .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    .control input,
+    .control select {
+      min-height: 36px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 5px 8px;
+    }
+
+    .control output {
+      color: var(--blue);
+      font-family: var(--mono);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 290px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .metric {
+      min-height: 78px;
+      padding: 10px;
+      background: #f8f4ed;
+      border-top: 3px solid var(--cyan);
+    }
+
+    .metric:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .metric:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .metric:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .metric b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font: 13px/1.2 var(--mono);
+    }
+
+    .atlas-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, .45fr) minmax(220px, .34fr) minmax(0, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+      font-family: var(--sans);
+    }
+
+    .atlas-tools input,
+    .atlas-tools select {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .algo-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .algo-item {
+      display: grid;
+      grid-template-columns: minmax(165px, .3fr) minmax(0, 1fr);
+      gap: 16px;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .algo-name {
+      margin-bottom: 6px;
+      color: #203645;
+      font: 800 15px/1.25 var(--sans);
+    }
+
+    .algo-family {
+      display: inline-block;
+      border-radius: 6px;
+      background: var(--violet);
+      color: #fff;
+      padding: 5px 7px;
+      font: 12px/1 var(--sans);
+    }
+
+    .algo-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--muted);
+      font: 12px/1.35 var(--sans);
+    }
+
+    .algo-meta div {
+      background: #f6f1e9;
+      border-left: 3px solid var(--blue);
+      padding: 8px;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      min-height: 158px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
+      background: #fff;
+      padding: 12px;
+    }
+
+    .step:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .step:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .step:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .step:nth-child(5) {
+      border-top-color: var(--violet);
+    }
+
+    .step b {
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .step small {
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .mini-bars {
+      display: grid;
+      gap: 6px;
+      align-self: center;
+    }
+
+    .mini-bar {
+      height: 17px;
+      background: #eee7db;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-bar span {
+      display: block;
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .footer {
+      padding: 36px 0 64px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    @media (max-width: 1060px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .toc nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .hero-grid,
+      .split,
+      .sim-grid,
+      .atlas-tools,
+      .algo-item {
+        grid-template-columns: 1fr;
+      }
+
+      .workflow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1140px);
+      }
+
+      .hero,
+      .chapter,
+      .band {
+        padding: 34px 0;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-points,
+      .sim-controls,
+      .metric-grid,
+      .algo-meta,
+      .workflow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Book breadcrumbs">
+        <a href="index.html">Home</a>
+        <a href="index.html">Prev: Index</a>
+        <a href="computer_vision_ml_book.html">Next: CV</a>
+      </nav>
+      <div class="toc-title">Classic ML Book</div>
+      <nav>
+        <a href="#preface">Preface</a>
+        <a href="#map">Algorithm map</a>
+        <a href="#supervised">Supervised learning</a>
+        <a href="#unsupervised">Unsupervised learning</a>
+        <a href="#ensembles">Trees and ensembles</a>
+        <a href="#simulators">Interactive simulators</a>
+        <a href="#atlas">Algorithm atlas</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="preface">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | Section 01</p>
+            <h1>Classic ML: Algorithms, Geometry, and Simulators</h1>
+            <p class="subtitle">A practical book for support vector machines, k-means, kNN, random forests, regression, PCA, Naive Bayes, boosting, and model selection. Every major idea is tied to a visible decision surface, loss curve, or data transformation.</p>
+            <div class="hero-points">
+              <div class="point"><b>Geometry first.</b><br>See margins, neighbors, centroids, projections, and tree partitions directly.</div>
+              <div class="point"><b>Contracts matter.</b><br>Classic ML is built from feature matrices, targets, distances, impurities, and losses.</div>
+              <div class="point"><b>Interactive models.</b><br>The page trains small models in JavaScript and redraws outputs instantly.</div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <canvas id="heroCanvas" width="720" height="520" aria-label="Animated classic ML decision surfaces"></canvas>
+            <div class="hero-legend">
+              <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>class A</span>
+              <span class="legend-chip"><i class="swatch" style="background:#bd4b43"></i>class B</span>
+              <span class="legend-chip"><i class="swatch" style="background:#2f7d57"></i>model boundary</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="map">
+        <div class="inner">
+          <p class="lead">Classic machine learning is a collection of strong inductive biases. Each algorithm makes a bet about what structure matters: distance, margin, density, linearity, probability, axis-aligned rules, or low-dimensional variance.</p>
+
+          <h2>1. Algorithm Map</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Family</th>
+                <th>Core idea</th>
+                <th>Best when</th>
+                <th>Watch out for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Linear models</td>
+                <td>Prediction is a weighted sum of features.</td>
+                <td>Signals are additive, data is high-dimensional, interpretability matters.</td>
+                <td>Underfitting nonlinear patterns unless features are engineered.</td>
+              </tr>
+              <tr>
+                <td>Kernel and margin methods</td>
+                <td>Choose a separating surface with a large margin.</td>
+                <td>Medium-size datasets with clean geometry and strong class separation.</td>
+                <td>Scaling to huge datasets and tuning kernels.</td>
+              </tr>
+              <tr>
+                <td>Neighbor methods</td>
+                <td>Predict from nearby labeled examples.</td>
+                <td>Local similarity is meaningful and feature scaling is controlled.</td>
+                <td>Slow inference and high-dimensional distance collapse.</td>
+              </tr>
+              <tr>
+                <td>Trees and ensembles</td>
+                <td>Partition feature space with rules, then average or vote many learners.</td>
+                <td>Tabular data, nonlinear interactions, mixed feature types.</td>
+                <td>Extrapolation, leakage, and careless validation.</td>
+              </tr>
+              <tr>
+                <td>Clustering</td>
+                <td>Find unlabeled groups by distance, density, or probability.</td>
+                <td>Exploration, segmentation, compression, anomaly discovery.</td>
+                <td>Clusters may be artifacts of scale or assumptions.</td>
+              </tr>
+              <tr>
+                <td>Dimensionality reduction</td>
+                <td>Represent data with fewer coordinates while preserving structure.</td>
+                <td>Visualization, compression, denoising, feature preprocessing.</td>
+                <td>Losing supervised signal while preserving unsupervised variance.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <b>Feature matrix contract:</b> most classic ML estimators consume <code>X</code> with shape <code>[n_samples, n_features]</code>. Supervised estimators also consume <code>y</code>, usually <code>[n_samples]</code>. Every transformation should preserve sample order.
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="supervised">
+        <div class="inner">
+          <h2>2. Supervised Learning</h2>
+          <p class="lead">Supervised algorithms learn a mapping from features to labels or targets. Classification predicts categories; regression predicts numeric values.</p>
+
+          <div class="split">
+            <div>
+              <h3>Regression</h3>
+              <p>Linear regression chooses coefficients that minimize squared error. Ridge regression adds an L2 penalty that shrinks coefficients. Lasso adds an L1 penalty that can set some coefficients to exactly zero.</p>
+              <div class="formula">linear:       y_hat = w0 + w1*x1 + ... + wp*xp
+least squares: min_w sum_i (y_i - y_hat_i)^2
+ridge:         min_w loss + alpha * ||w||_2^2
+lasso:         min_w loss + alpha * ||w||_1</div>
+            </div>
+            <div>
+              <h3>Classification</h3>
+              <p>Logistic regression turns a linear score into a probability. SVMs use hinge loss and focus on margin violations. Naive Bayes models class-conditional feature likelihoods. kNN delays learning until prediction time and votes among neighbors.</p>
+              <div class="formula">logistic: P(y=1|x) = sigmoid(w dot x + b)
+hinge:    max(0, 1 - y * score)
+kNN:      vote(labels of k nearest training samples)</div>
+            </div>
+          </div>
+
+          <h3>Scaling is part of the model</h3>
+          <p>Distance-based, margin-based, and regularized linear models are sensitive to feature scale. A feature measured in thousands can dominate a feature measured in fractions. Tree models are much less sensitive to monotonic scaling because they split by thresholds.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="unsupervised">
+        <div class="inner">
+          <h2>3. Unsupervised Learning</h2>
+          <p class="lead">Unsupervised learning has no target column. It asks the model to expose structure already present in <code>X</code>.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Assumption</th>
+                <th>Output</th>
+                <th>Main knobs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>K-means</td>
+                <td>Clusters are compact and roughly spherical.</td>
+                <td>Centroids and cluster assignments.</td>
+                <td><code>k</code>, initialization, distance scaling.</td>
+              </tr>
+              <tr>
+                <td>Gaussian mixture</td>
+                <td>Data is a mixture of Gaussian components.</td>
+                <td>Soft cluster probabilities and component parameters.</td>
+                <td>Number of components, covariance type, regularization.</td>
+              </tr>
+              <tr>
+                <td>DBSCAN</td>
+                <td>Clusters are dense regions separated by sparse regions.</td>
+                <td>Cluster labels plus noise points.</td>
+                <td><code>eps</code>, <code>min_samples</code>.</td>
+              </tr>
+              <tr>
+                <td>Hierarchical clustering</td>
+                <td>Nested group structure is meaningful.</td>
+                <td>Dendrogram or flat clustering at a chosen cut.</td>
+                <td>Linkage and distance metric.</td>
+              </tr>
+              <tr>
+                <td>PCA</td>
+                <td>High-variance linear directions capture useful structure.</td>
+                <td>Principal axes, projections, explained variance.</td>
+                <td>Number of components, scaling, whitening.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="warning note">
+            <b>Unsupervised warning:</b> clusters are not automatically real-world categories. They are model outputs under a distance, scale, and objective. Validate them with domain knowledge or downstream usefulness.
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="ensembles">
+        <div class="inner">
+          <h2>4. Trees and Ensembles</h2>
+          <p class="lead">Decision trees split feature space into rectangles. Random forests reduce variance by averaging many noisy trees. Boosting reduces bias by adding small trees that fix previous errors.</p>
+
+          <div class="split">
+            <div>
+              <h3>Decision tree split</h3>
+              <p>A classification tree searches for a feature and threshold that create purer child nodes. Gini impurity is common:</p>
+              <div class="formula">Gini(node) = 1 - sum_c p(c)^2
+gain = impurity(parent) - weighted_impurity(children)</div>
+              <p>A single deep tree can memorize. Pruning, minimum leaf sizes, and maximum depth reduce variance.</p>
+            </div>
+            <div>
+              <h3>Ensemble logic</h3>
+              <ul>
+                <li><b>Bagging:</b> train models on bootstrapped datasets and average predictions.</li>
+                <li><b>Random forest:</b> bagged trees plus random feature subsets at each split.</li>
+                <li><b>Extra trees:</b> use more random split thresholds to reduce correlation.</li>
+                <li><b>Gradient boosting:</b> add trees sequentially to correct residuals or gradients.</li>
+                <li><b>AdaBoost:</b> reweight difficult examples after each weak learner.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>5. Interactive Simulators</h2>
+          <p class="lead">These demos run small versions of the algorithms locally in the browser. The goal is not production performance; it is visible mechanics.</p>
+
+          <div class="simulation" id="kmeansSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>K-means Clustering</h3>
+                <p>Alternate between assigning each point to the nearest centroid and moving centroids to the mean of their assigned points.</p>
+              </div>
+              <div>
+                <button type="button" id="kmeansStep">Step</button>
+                <button type="button" id="kmeansPlay" aria-pressed="false">Play</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Dataset
+                <select id="kmeansDataset">
+                  <option value="blobs">blobs</option>
+                  <option value="rings">rings</option>
+                  <option value="stretched">stretched</option>
+                </select>
+              </label>
+              <label class="control">K <output id="kmeansKOut">3</output>
+                <input id="kmeansK" type="range" min="2" max="6" value="3">
+              </label>
+              <label class="control">Noise <output id="kmeansNoiseOut">0.18</output>
+                <input id="kmeansNoise" type="range" min="5" max="45" value="18">
+              </label>
+              <label class="control">Reset
+                <button type="button" id="kmeansReset">Regenerate</button>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="kmeansCanvas" width="760" height="520" aria-label="K-means simulator"></canvas>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Iteration</b><span id="kmeansIter"></span></div>
+                  <div class="metric"><b>Phase</b><span id="kmeansPhase"></span></div>
+                  <div class="metric"><b>Inertia</b><span id="kmeansInertia"></span></div>
+                  <div class="metric"><b>Centroids</b><span id="kmeansCentroids"></span></div>
+                </div>
+                <div class="legend">
+                  <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>assigned points</span>
+                  <span class="legend-chip"><i class="swatch" style="background:#16212a"></i>centroids</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="svmSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Support Vector Machine Margin</h3>
+                <p>Move the separating hyperplane and margin. Points inside the margin or on the wrong side contribute hinge loss and behave like support vectors.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Angle <output id="svmAngleOut">45 deg</output>
+                <input id="svmAngle" type="range" min="0" max="180" value="45">
+              </label>
+              <label class="control">Offset <output id="svmOffsetOut">0.00</output>
+                <input id="svmOffset" type="range" min="-80" max="80" value="0">
+              </label>
+              <label class="control">Margin width <output id="svmMarginOut">0.42</output>
+                <input id="svmMargin" type="range" min="18" max="95" value="42">
+              </label>
+              <label class="control">Overlap <output id="svmOverlapOut">0.22</output>
+                <input id="svmOverlap" type="range" min="5" max="55" value="22">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="svmCanvas" width="760" height="520" aria-label="SVM margin simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>Hinge loss</b><span id="svmLoss"></span></div>
+                <div class="metric"><b>Support vectors</b><span id="svmSupport"></span></div>
+                <div class="metric"><b>Training accuracy</b><span id="svmAccuracy"></span></div>
+                <div class="metric"><b>Geometry</b><span id="svmGeometry"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="knnSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>K-nearest Neighbors</h3>
+                <p>Click the canvas to move the query point. The model predicts by majority vote among the nearest labeled examples.</p>
+              </div>
+              <button type="button" id="knnReset">Regenerate</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">K <output id="knnKOut">7</output>
+                <input id="knnK" type="range" min="1" max="25" value="7">
+              </label>
+              <label class="control">Dataset
+                <select id="knnDataset">
+                  <option value="moons">moons</option>
+                  <option value="blobs">blobs</option>
+                  <option value="rings">rings</option>
+                </select>
+              </label>
+              <label class="control">Distance
+                <select id="knnMetric">
+                  <option value="euclidean">euclidean</option>
+                  <option value="manhattan">manhattan</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="knnCanvas" width="760" height="520" aria-label="K nearest neighbors simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>Prediction</b><span id="knnPred"></span></div>
+                <div class="metric"><b>Vote</b><span id="knnVote"></span></div>
+                <div class="metric"><b>Nearest radius</b><span id="knnRadius"></span></div>
+                <div class="metric"><b>Query</b><span id="knnQuery"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="forestSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Random Forest Decision Surface</h3>
+                <p>Train many small randomized trees. The background shows the ensemble vote over feature space.</p>
+              </div>
+              <button type="button" id="forestTrain">Train forest</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Trees <output id="forestTreesOut">25</output>
+                <input id="forestTrees" type="range" min="1" max="80" value="25">
+              </label>
+              <label class="control">Max depth <output id="forestDepthOut">4</output>
+                <input id="forestDepth" type="range" min="1" max="7" value="4">
+              </label>
+              <label class="control">Feature randomness
+                <select id="forestFeatures">
+                  <option value="sqrt">sqrt</option>
+                  <option value="all">all</option>
+                  <option value="one">one feature</option>
+                </select>
+              </label>
+              <label class="control">Dataset
+                <select id="forestDataset">
+                  <option value="moons">moons</option>
+                  <option value="rings">rings</option>
+                  <option value="blobs">blobs</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="forestCanvas" width="760" height="520" aria-label="Random forest simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>Train accuracy</b><span id="forestAccuracy"></span></div>
+                <div class="metric"><b>Out-of-bag style</b><span id="forestOob"></span></div>
+                <div class="metric"><b>Avg leaves</b><span id="forestLeaves"></span></div>
+                <div class="metric"><b>Ensemble</b><span id="forestSummary"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="pcaSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>PCA Projection</h3>
+                <p>PCA rotates the coordinate system to directions of maximum variance, then optionally drops low-variance directions.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Angle <output id="pcaAngleOut">32 deg</output>
+                <input id="pcaAngle" type="range" min="-75" max="75" value="32">
+              </label>
+              <label class="control">Spread <output id="pcaSpreadOut">1.80</output>
+                <input id="pcaSpread" type="range" min="80" max="260" value="180">
+              </label>
+              <label class="control">Noise <output id="pcaNoiseOut">0.34</output>
+                <input id="pcaNoise" type="range" min="5" max="80" value="34">
+              </label>
+              <label class="control">Projection
+                <select id="pcaProjection">
+                  <option value="on">show 1D reconstruction</option>
+                  <option value="off">axes only</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="pcaCanvas" width="760" height="520" aria-label="PCA simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>Explained PC1</b><span id="pcaExplained1"></span></div>
+                <div class="metric"><b>Explained PC2</b><span id="pcaExplained2"></span></div>
+                <div class="metric"><b>Eigenvalues</b><span id="pcaEigen"></span></div>
+                <div class="metric"><b>Components</b><span id="pcaComponents"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="regressionSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Linear Regression and Regularization</h3>
+                <p>Fit a line to noisy data. Ridge shrinkage pulls the slope toward zero, trading variance for bias.</p>
+              </div>
+              <button type="button" id="regFit">Fit closed form</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Slope <output id="regSlopeOut">1.00</output>
+                <input id="regSlope" type="range" min="-300" max="300" value="100">
+              </label>
+              <label class="control">Intercept <output id="regInterceptOut">0.00</output>
+                <input id="regIntercept" type="range" min="-180" max="180" value="0">
+              </label>
+              <label class="control">Ridge alpha <output id="regAlphaOut">0.00</output>
+                <input id="regAlpha" type="range" min="0" max="200" value="0">
+              </label>
+              <label class="control">Noise <output id="regNoiseOut">0.32</output>
+                <input id="regNoise" type="range" min="5" max="90" value="32">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="regCanvas" width="760" height="520" aria-label="Linear regression simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>MSE</b><span id="regMse"></span></div>
+                <div class="metric"><b>MAE</b><span id="regMae"></span></div>
+                <div class="metric"><b>Ridge penalty</b><span id="regPenalty"></span></div>
+                <div class="metric"><b>Line</b><span id="regLine"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="atlas">
+        <div class="inner">
+          <h2>6. Classic ML Algorithm Atlas</h2>
+          <p class="lead">Use the atlas as a compact reference for objectives, assumptions, and failure modes. Filter it while comparing candidate models.</p>
+
+          <div class="atlas-tools">
+            <input id="algoSearch" type="search" placeholder="Search algorithms, assumptions, outputs" aria-label="Search algorithm atlas">
+            <select id="algoFamily" aria-label="Filter algorithm family">
+              <option value="all">All families</option>
+            </select>
+            <div class="formula" id="algoCount">0 algorithms</div>
+          </div>
+          <div class="algo-list" id="algoList"></div>
+
+          <h3>Choosing a baseline</h3>
+          <p>For tabular supervised learning, start with a regularized linear model and a random forest or gradient boosting model. The linear model gives a scale-sensitive, interpretable baseline. The tree ensemble gives a nonlinear, interaction-aware baseline. If both fail, inspect data leakage, target quality, and feature definitions before reaching for more complicated models.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="workflow">
+        <div class="inner">
+          <h2>7. Workflow, Validation, and Metrics</h2>
+          <p class="lead">Classic ML succeeds or fails on data splitting, preprocessing discipline, metric choice, and leakage control.</p>
+
+          <div class="workflow" id="workflowViz"></div>
+
+          <h3>Validation contracts</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Setting</th>
+                <th>Preferred split</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Independent rows</td>
+                <td>Random train/validation/test or K-fold CV.</td>
+                <td>Rows are exchangeable enough that random splits estimate future data.</td>
+              </tr>
+              <tr>
+                <td>Time series</td>
+                <td>Chronological split or rolling-origin validation.</td>
+                <td>Future information must not leak into training.</td>
+              </tr>
+              <tr>
+                <td>Grouped data</td>
+                <td>Group split by user, patient, device, account, or entity.</td>
+                <td>The same entity in train and validation inflates performance.</td>
+              </tr>
+              <tr>
+                <td>Imbalanced classification</td>
+                <td>Stratified split and threshold evaluation.</td>
+                <td>Accuracy can hide poor minority-class performance.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Metric selection</h3>
+          <ul>
+            <li><b>Accuracy:</b> useful for balanced classification with equal error costs.</li>
+            <li><b>Precision and recall:</b> use when false positives and false negatives have different costs.</li>
+            <li><b>ROC AUC:</b> threshold-free ranking metric, often optimistic under severe imbalance.</li>
+            <li><b>PR AUC:</b> better when positives are rare and positive-class quality matters.</li>
+            <li><b>RMSE:</b> penalizes large regression errors heavily.</li>
+            <li><b>MAE:</b> robust and easy to explain for regression.</li>
+            <li><b>Log loss:</b> rewards calibrated probabilities, not just correct labels.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="band" id="debugging">
+        <div class="inner">
+          <h2>8. Debugging Classic ML</h2>
+          <p class="lead">Most failures come from data leakage, bad splits, mismatched preprocessing, target bugs, or objective-metric mismatch.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Symptom</th>
+                <th>Likely cause</th>
+                <th>Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Validation score is unrealistically high</td>
+                <td>Leakage, duplicated entities, target-derived feature.</td>
+                <td>Audit feature timestamps and split by entity or time.</td>
+              </tr>
+              <tr>
+                <td>Model works in notebook but fails in production</td>
+                <td>Preprocessing not packaged with model.</td>
+                <td>Use a pipeline so imputation, scaling, encoding, and estimator are fit together.</td>
+              </tr>
+              <tr>
+                <td>SVM or kNN performs poorly</td>
+                <td>Feature scale dominates distance or margin.</td>
+                <td>Standardize numeric features and encode categoricals carefully.</td>
+              </tr>
+              <tr>
+                <td>Random forest overfits</td>
+                <td>Trees too deep, leaves too small, leakage, weak validation.</td>
+                <td>Increase <code>min_samples_leaf</code>, cap depth, inspect split design.</td>
+              </tr>
+              <tr>
+                <td>K-means clusters are unstable</td>
+                <td>Wrong <code>k</code>, anisotropic data, poor scaling, bad initialization.</td>
+                <td>Run multiple seeds, scale features, compare GMM, DBSCAN, or PCA view.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code># scikit-learn style safety pattern
+pipe = Pipeline([
+    ("preprocess", ColumnTransformer([
+        ("num", StandardScaler(), numeric_columns),
+        ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_columns),
+    ])),
+    ("model", RandomForestClassifier(
+        n_estimators=300,
+        min_samples_leaf=5,
+        random_state=42,
+    )),
+])
+
+scores = cross_val_score(pipe, X, y, cv=GroupKFold(5), groups=account_id)</code></pre>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="inner">Standalone HTML/CSS/JS edition. All simulations run locally in the browser.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const COLORS = {
+      blue: "#1f6fb2",
+      blueSoft: "rgba(31,111,178,.16)",
+      red: "#bd4b43",
+      redSoft: "rgba(189,75,67,.16)",
+      green: "#2f7d57",
+      greenSoft: "rgba(47,125,87,.17)",
+      amber: "#bc7a20",
+      violet: "#6a56a5",
+      ink: "#16212a",
+      line: "#d9d1c4"
+    };
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const round = (value, places = 2) => Number.parseFloat(value).toFixed(places);
+    const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const distance2 = (a, b) => (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+    const distance = (a, b) => Math.sqrt(distance2(a, b));
+    const sigmoid = value => 1 / (1 + Math.exp(-value));
+
+    function lcg(seed) {
+      let state = seed >>> 0;
+      return () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 4294967296;
+      };
+    }
+
+    function gaussian(rand) {
+      const u = Math.max(rand(), 1e-9);
+      const v = Math.max(rand(), 1e-9);
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    function worldToCanvas(point, canvas) {
+      return {
+        x: (point.x + 3) / 6 * canvas.width,
+        y: canvas.height - (point.y + 3) / 6 * canvas.height
+      };
+    }
+
+    function canvasToWorld(point, canvas) {
+      return {
+        x: point.x / canvas.width * 6 - 3,
+        y: (canvas.height - point.y) / canvas.height * 6 - 3
+      };
+    }
+
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return ctx;
+    }
+
+    function drawAxes(ctx, canvas) {
+      ctx.strokeStyle = "#e6ded2";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 6; i += 1) {
+        const x = i * canvas.width / 6;
+        const y = i * canvas.height / 6;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      const zero = worldToCanvas({ x: 0, y: 0 }, canvas);
+      ctx.strokeStyle = "#cfc6b8";
+      ctx.beginPath();
+      ctx.moveTo(zero.x, 0);
+      ctx.lineTo(zero.x, canvas.height);
+      ctx.moveTo(0, zero.y);
+      ctx.lineTo(canvas.width, zero.y);
+      ctx.stroke();
+    }
+
+    function drawPoint(ctx, canvas, point, color, radius = 5, stroke = "#fff") {
+      const p = worldToCanvas(point, canvas);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+    }
+
+    function generateDataset(kind, seed = 1, count = 150, noise = .2) {
+      const rand = lcg(seed);
+      const points = [];
+      if (kind === "moons") {
+        for (let i = 0; i < count; i += 1) {
+          const cls = i % 2;
+          const t = rand() * Math.PI;
+          const n1 = gaussian(rand) * noise;
+          const n2 = gaussian(rand) * noise;
+          if (cls === 0) {
+            points.push({ x: Math.cos(t) * 1.45 - .55 + n1, y: Math.sin(t) * 1.15 + .1 + n2, label: 0 });
+          } else {
+            points.push({ x: 1.35 - Math.cos(t) * 1.45 + n1, y: -.75 - Math.sin(t) * 1.05 + n2, label: 1 });
+          }
+        }
+      } else if (kind === "rings") {
+        for (let i = 0; i < count; i += 1) {
+          const cls = i % 2;
+          const angle = rand() * Math.PI * 2;
+          const radius = cls === 0 ? .95 + gaussian(rand) * noise : 2.0 + gaussian(rand) * noise;
+          points.push({ x: Math.cos(angle) * radius + gaussian(rand) * noise * .2, y: Math.sin(angle) * radius + gaussian(rand) * noise * .2, label: cls });
+        }
+      } else if (kind === "stretched") {
+        const centers = [{ x: -1.7, y: -1.1 }, { x: 1.45, y: .9 }, { x: -.2, y: 1.8 }];
+        for (let i = 0; i < count; i += 1) {
+          const c = centers[i % centers.length];
+          const gx = gaussian(rand);
+          const gy = gaussian(rand);
+          points.push({ x: c.x + gx * (.38 + noise) + gy * .65, y: c.y + gy * (.22 + noise), label: i % centers.length });
+        }
+      } else {
+        const centers = [{ x: -1.5, y: -1 }, { x: 1.45, y: .9 }, { x: -.5, y: 1.75 }];
+        for (let i = 0; i < count; i += 1) {
+          const c = centers[i % centers.length];
+          points.push({ x: c.x + gaussian(rand) * (noise + .22), y: c.y + gaussian(rand) * (noise + .22), label: i % centers.length });
+        }
+      }
+      return points;
+    }
+
+    function classColor(label, soft = false) {
+      if (label === 0) return soft ? COLORS.blueSoft : COLORS.blue;
+      if (label === 1) return soft ? COLORS.redSoft : COLORS.red;
+      if (label === 2) return soft ? "rgba(47,125,87,.18)" : COLORS.green;
+      if (label === 3) return soft ? "rgba(188,122,32,.18)" : COLORS.amber;
+      if (label === 4) return soft ? "rgba(106,86,165,.18)" : COLORS.violet;
+      return soft ? "rgba(21,127,134,.18)" : "#157f86";
+    }
+
+    function drawScatter(ctx, canvas, points, options = {}) {
+      points.forEach(point => {
+        const color = options.assignments ? classColor(point.cluster ?? point.label ?? 0) : classColor(point.label ?? 0);
+        drawPoint(ctx, canvas, point, color, options.radius || 4.8, options.stroke || "#fff");
+      });
+    }
+
+    const kmeansState = {
+      seed: 7,
+      points: [],
+      centroids: [],
+      phase: "assign",
+      iter: 0,
+      timer: null
+    };
+
+    function resetKMeans() {
+      const dataset = document.getElementById("kmeansDataset").value;
+      const noise = Number(document.getElementById("kmeansNoise").value) / 100;
+      const k = Number(document.getElementById("kmeansK").value);
+      kmeansState.seed += 13;
+      kmeansState.points = generateDataset(dataset, kmeansState.seed, 150, noise);
+      const rand = lcg(kmeansState.seed + 99);
+      kmeansState.centroids = Array.from({ length: k }, () => ({ x: rand() * 5 - 2.5, y: rand() * 5 - 2.5 }));
+      kmeansState.phase = "assign";
+      kmeansState.iter = 0;
+      drawKMeans();
+    }
+
+    function kmeansAssign() {
+      kmeansState.points.forEach(point => {
+        let best = 0;
+        let bestDist = Infinity;
+        kmeansState.centroids.forEach((centroid, index) => {
+          const d = distance2(point, centroid);
+          if (d < bestDist) {
+            bestDist = d;
+            best = index;
+          }
+        });
+        point.cluster = best;
+      });
+    }
+
+    function kmeansUpdate() {
+      kmeansState.centroids = kmeansState.centroids.map((centroid, index) => {
+        const group = kmeansState.points.filter(point => point.cluster === index);
+        if (!group.length) return centroid;
+        return { x: mean(group.map(point => point.x)), y: mean(group.map(point => point.y)) };
+      });
+    }
+
+    function kmeansStep() {
+      if (kmeansState.phase === "assign") {
+        kmeansAssign();
+        kmeansState.phase = "update";
+      } else {
+        kmeansUpdate();
+        kmeansState.phase = "assign";
+        kmeansState.iter += 1;
+      }
+      drawKMeans();
+    }
+
+    function kmeansInertia() {
+      return kmeansState.points.reduce((sum, point) => {
+        const centroid = kmeansState.centroids[point.cluster ?? 0] || kmeansState.centroids[0];
+        return sum + distance2(point, centroid);
+      }, 0);
+    }
+
+    function drawKMeans() {
+      const canvas = document.getElementById("kmeansCanvas");
+      const ctx = clearCanvas(canvas);
+      drawAxes(ctx, canvas);
+      drawScatter(ctx, canvas, kmeansState.points, { assignments: true });
+      kmeansState.centroids.forEach((centroid, index) => {
+        const p = worldToCanvas(centroid, canvas);
+        ctx.fillStyle = COLORS.ink;
+        ctx.strokeStyle = classColor(index);
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(p.x - 10, p.y - 10);
+        ctx.lineTo(p.x + 10, p.y + 10);
+        ctx.moveTo(p.x + 10, p.y - 10);
+        ctx.lineTo(p.x - 10, p.y + 10);
+        ctx.stroke();
+      });
+      document.getElementById("kmeansKOut").textContent = document.getElementById("kmeansK").value;
+      document.getElementById("kmeansNoiseOut").textContent = round(Number(document.getElementById("kmeansNoise").value) / 100, 2);
+      document.getElementById("kmeansIter").textContent = String(kmeansState.iter);
+      document.getElementById("kmeansPhase").textContent = kmeansState.phase;
+      document.getElementById("kmeansInertia").textContent = round(kmeansInertia(), 2);
+      document.getElementById("kmeansCentroids").textContent = kmeansState.centroids.map(c => `(${round(c.x, 1)}, ${round(c.y, 1)})`).join(" ");
+    }
+
+    function bindKMeans() {
+      document.getElementById("kmeansStep").addEventListener("click", kmeansStep);
+      document.getElementById("kmeansReset").addEventListener("click", resetKMeans);
+      ["kmeansDataset", "kmeansK", "kmeansNoise"].forEach(id => document.getElementById(id).addEventListener("input", resetKMeans));
+      document.getElementById("kmeansPlay").addEventListener("click", event => {
+        const button = event.currentTarget;
+        const playing = button.getAttribute("aria-pressed") === "true";
+        button.setAttribute("aria-pressed", String(!playing));
+        button.textContent = playing ? "Play" : "Pause";
+        if (playing) {
+          clearInterval(kmeansState.timer);
+          kmeansState.timer = null;
+        } else {
+          kmeansState.timer = setInterval(kmeansStep, 600);
+        }
+      });
+      resetKMeans();
+    }
+
+    const svmState = { seed: 41, points: [] };
+
+    function resetSvm() {
+      const overlap = Number(document.getElementById("svmOverlap").value) / 100;
+      svmState.points = generateDataset("blobs", svmState.seed, 150, overlap + .1).map(point => {
+        const label = point.label === 2 ? 1 : point.label;
+        return { x: point.x + (label === 0 ? -.35 : .35), y: point.y * .8, label };
+      });
+      drawSvm();
+    }
+
+    function drawSvm() {
+      const canvas = document.getElementById("svmCanvas");
+      const ctx = clearCanvas(canvas);
+      drawAxes(ctx, canvas);
+      const angle = Number(document.getElementById("svmAngle").value) * Math.PI / 180;
+      const offset = Number(document.getElementById("svmOffset").value) / 40;
+      const margin = Number(document.getElementById("svmMargin").value) / 100;
+      const normal = { x: Math.cos(angle), y: Math.sin(angle) };
+      const tangent = { x: -normal.y, y: normal.x };
+      const endpoints = [
+        { x: tangent.x * -4 - normal.x * offset, y: tangent.y * -4 - normal.y * offset },
+        { x: tangent.x * 4 - normal.x * offset, y: tangent.y * 4 - normal.y * offset }
+      ];
+      function drawLine(shift, color, width, dash = []) {
+        const a = worldToCanvas({ x: endpoints[0].x + normal.x * shift, y: endpoints[0].y + normal.y * shift }, canvas);
+        const b = worldToCanvas({ x: endpoints[1].x + normal.x * shift, y: endpoints[1].y + normal.y * shift }, canvas);
+        ctx.save();
+        ctx.setLineDash(dash);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+      drawLine(0, COLORS.green, 3);
+      drawLine(margin, COLORS.amber, 2, [8, 7]);
+      drawLine(-margin, COLORS.amber, 2, [8, 7]);
+      let loss = 0;
+      let support = 0;
+      let correct = 0;
+      svmState.points.forEach(point => {
+        const y = point.label === 1 ? 1 : -1;
+        const score = normal.x * point.x + normal.y * point.y + offset;
+        const hinge = Math.max(0, 1 - y * score / Math.max(margin, .05));
+        loss += hinge;
+        if (hinge > 0) support += 1;
+        if ((score >= 0 ? 1 : -1) === y) correct += 1;
+        drawPoint(ctx, canvas, point, classColor(point.label), hinge > 0 ? 7 : 4.8, hinge > 0 ? COLORS.ink : "#fff");
+      });
+      document.getElementById("svmAngleOut").textContent = `${Math.round(Number(document.getElementById("svmAngle").value))} deg`;
+      document.getElementById("svmOffsetOut").textContent = round(offset, 2);
+      document.getElementById("svmMarginOut").textContent = round(margin, 2);
+      document.getElementById("svmOverlapOut").textContent = round(Number(document.getElementById("svmOverlap").value) / 100, 2);
+      document.getElementById("svmLoss").textContent = round(loss / svmState.points.length, 3);
+      document.getElementById("svmSupport").textContent = `${support} points`;
+      document.getElementById("svmAccuracy").textContent = `${round(correct / svmState.points.length * 100, 1)}%`;
+      document.getElementById("svmGeometry").textContent = `w=(${round(normal.x, 2)}, ${round(normal.y, 2)})`;
+    }
+
+    function bindSvm() {
+      ["svmAngle", "svmOffset", "svmMargin"].forEach(id => document.getElementById(id).addEventListener("input", drawSvm));
+      document.getElementById("svmOverlap").addEventListener("input", resetSvm);
+      resetSvm();
+    }
+
+    const knnState = {
+      seed: 23,
+      points: [],
+      query: { x: .25, y: .2 }
+    };
+
+    function resetKnn() {
+      const kind = document.getElementById("knnDataset").value;
+      knnState.seed += 5;
+      knnState.points = generateDataset(kind, knnState.seed, 140, .22);
+      drawKnn();
+    }
+
+    function knnDistance(a, b) {
+      const metric = document.getElementById("knnMetric").value;
+      if (metric === "manhattan") return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+      return distance(a, b);
+    }
+
+    function drawKnn() {
+      const canvas = document.getElementById("knnCanvas");
+      const ctx = clearCanvas(canvas);
+      drawAxes(ctx, canvas);
+      const k = Number(document.getElementById("knnK").value);
+      const ranked = knnState.points.map(point => ({ point, d: knnDistance(point, knnState.query) })).sort((a, b) => a.d - b.d);
+      const nearest = ranked.slice(0, k);
+      const votes = nearest.reduce((acc, item) => {
+        acc[item.point.label] = (acc[item.point.label] || 0) + 1;
+        return acc;
+      }, {});
+      const pred = Number(Object.entries(votes).sort((a, b) => b[1] - a[1])[0][0]);
+      drawScatter(ctx, canvas, knnState.points, { radius: 4.5 });
+      const q = worldToCanvas(knnState.query, canvas);
+      const edge = nearest[nearest.length - 1];
+      if (edge) {
+        const radius = distance(worldToCanvas(edge.point, canvas), q);
+        ctx.beginPath();
+        ctx.arc(q.x, q.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = classColor(pred, true);
+        ctx.fill();
+        ctx.strokeStyle = classColor(pred);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      nearest.forEach(item => {
+        const p = worldToCanvas(item.point, canvas);
+        ctx.strokeStyle = COLORS.ink;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(q.x, q.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        drawPoint(ctx, canvas, item.point, classColor(item.point.label), 7, COLORS.ink);
+      });
+      ctx.fillStyle = COLORS.ink;
+      ctx.beginPath();
+      ctx.arc(q.x, q.y, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      document.getElementById("knnKOut").textContent = String(k);
+      document.getElementById("knnPred").textContent = `class ${pred}`;
+      document.getElementById("knnVote").textContent = Object.entries(votes).map(([label, count]) => `${label}:${count}`).join(" ");
+      document.getElementById("knnRadius").textContent = edge ? round(edge.d, 3) : "n/a";
+      document.getElementById("knnQuery").textContent = `(${round(knnState.query.x, 2)}, ${round(knnState.query.y, 2)})`;
+    }
+
+    function bindKnn() {
+      const canvas = document.getElementById("knnCanvas");
+      canvas.addEventListener("click", event => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) * canvas.width / rect.width;
+        const y = (event.clientY - rect.top) * canvas.height / rect.height;
+        knnState.query = canvasToWorld({ x, y }, canvas);
+        drawKnn();
+      });
+      ["knnK", "knnMetric"].forEach(id => document.getElementById(id).addEventListener("input", drawKnn));
+      document.getElementById("knnDataset").addEventListener("input", resetKnn);
+      document.getElementById("knnReset").addEventListener("click", resetKnn);
+      resetKnn();
+    }
+
+    function gini(points) {
+      if (!points.length) return 0;
+      const counts = points.reduce((acc, point) => {
+        acc[point.label] = (acc[point.label] || 0) + 1;
+        return acc;
+      }, {});
+      return 1 - Object.values(counts).reduce((sum, count) => sum + (count / points.length) ** 2, 0);
+    }
+
+    function majority(points) {
+      const counts = points.reduce((acc, point) => {
+        acc[point.label] = (acc[point.label] || 0) + 1;
+        return acc;
+      }, {});
+      return Number(Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0]);
+    }
+
+    function trainTree(points, depth, maxDepth, rand, featureMode) {
+      const labels = new Set(points.map(point => point.label));
+      if (depth >= maxDepth || points.length < 6 || labels.size === 1) {
+        return { leaf: true, label: majority(points), count: points.length };
+      }
+      const featureCount = featureMode === "one" ? 1 : 2;
+      const features = featureMode === "all" ? ["x", "y"] : Array.from({ length: featureCount }, () => rand() < .5 ? "x" : "y");
+      let best = null;
+      features.forEach(feature => {
+        const sorted = [...points].sort((a, b) => a[feature] - b[feature]);
+        for (let i = 8; i < sorted.length - 8; i += Math.max(3, Math.floor(sorted.length / 18))) {
+          const threshold = (sorted[i][feature] + sorted[i + 1][feature]) / 2;
+          const left = points.filter(point => point[feature] <= threshold);
+          const right = points.filter(point => point[feature] > threshold);
+          const score = (left.length * gini(left) + right.length * gini(right)) / points.length;
+          if (!best || score < best.score) best = { feature, threshold, left, right, score };
+        }
+      });
+      if (!best) return { leaf: true, label: majority(points), count: points.length };
+      return {
+        leaf: false,
+        feature: best.feature,
+        threshold: best.threshold,
+        left: trainTree(best.left, depth + 1, maxDepth, rand, featureMode),
+        right: trainTree(best.right, depth + 1, maxDepth, rand, featureMode),
+        label: majority(points)
+      };
+    }
+
+    function predictTree(tree, point) {
+      if (tree.leaf) return tree.label;
+      return predictTree(point[tree.feature] <= tree.threshold ? tree.left : tree.right, point);
+    }
+
+    function countLeaves(tree) {
+      return tree.leaf ? 1 : countLeaves(tree.left) + countLeaves(tree.right);
+    }
+
+    const forestState = {
+      seed: 101,
+      points: [],
+      trees: [],
+      bootstraps: []
+    };
+
+    function resetForestData() {
+      const kind = document.getElementById("forestDataset").value;
+      forestState.seed += 17;
+      forestState.points = generateDataset(kind, forestState.seed, 160, .24);
+      trainForest();
+    }
+
+    function trainForest() {
+      const nTrees = Number(document.getElementById("forestTrees").value);
+      const maxDepth = Number(document.getElementById("forestDepth").value);
+      const featureMode = document.getElementById("forestFeatures").value;
+      const rand = lcg(forestState.seed + nTrees * 31 + maxDepth);
+      forestState.trees = [];
+      forestState.bootstraps = [];
+      for (let t = 0; t < nTrees; t += 1) {
+        const bag = [];
+        const used = new Set();
+        for (let i = 0; i < forestState.points.length; i += 1) {
+          const index = Math.floor(rand() * forestState.points.length);
+          bag.push(forestState.points[index]);
+          used.add(index);
+        }
+        forestState.bootstraps.push(used);
+        forestState.trees.push(trainTree(bag, 0, maxDepth, rand, featureMode));
+      }
+      drawForest();
+    }
+
+    function forestPredict(point, trees = forestState.trees) {
+      const counts = {};
+      trees.forEach(tree => {
+        const label = predictTree(tree, point);
+        counts[label] = (counts[label] || 0) + 1;
+      });
+      return Number(Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0]);
+    }
+
+    function drawForest() {
+      const canvas = document.getElementById("forestCanvas");
+      const ctx = clearCanvas(canvas);
+      const step = 12;
+      for (let px = 0; px < canvas.width; px += step) {
+        for (let py = 0; py < canvas.height; py += step) {
+          const point = canvasToWorld({ x: px + step / 2, y: py + step / 2 }, canvas);
+          const pred = forestPredict(point);
+          ctx.fillStyle = classColor(pred, true);
+          ctx.fillRect(px, py, step + 1, step + 1);
+        }
+      }
+      drawAxes(ctx, canvas);
+      drawScatter(ctx, canvas, forestState.points, { radius: 4.7 });
+      const correct = forestState.points.filter(point => forestPredict(point) === point.label).length;
+      let oobCorrect = 0;
+      let oobTotal = 0;
+      forestState.points.forEach((point, index) => {
+        const trees = forestState.trees.filter((_, treeIndex) => !forestState.bootstraps[treeIndex].has(index));
+        if (trees.length) {
+          oobTotal += 1;
+          if (forestPredict(point, trees) === point.label) oobCorrect += 1;
+        }
+      });
+      const leaves = forestState.trees.map(countLeaves);
+      document.getElementById("forestTreesOut").textContent = document.getElementById("forestTrees").value;
+      document.getElementById("forestDepthOut").textContent = document.getElementById("forestDepth").value;
+      document.getElementById("forestAccuracy").textContent = `${round(correct / forestState.points.length * 100, 1)}%`;
+      document.getElementById("forestOob").textContent = oobTotal ? `${round(oobCorrect / oobTotal * 100, 1)}% on ${oobTotal}` : "n/a";
+      document.getElementById("forestLeaves").textContent = round(mean(leaves), 1);
+      document.getElementById("forestSummary").textContent = `${forestState.trees.length} trees, depth <= ${document.getElementById("forestDepth").value}`;
+    }
+
+    function bindForest() {
+      document.getElementById("forestTrain").addEventListener("click", trainForest);
+      ["forestTrees", "forestDepth", "forestFeatures"].forEach(id => document.getElementById(id).addEventListener("input", trainForest));
+      document.getElementById("forestDataset").addEventListener("input", resetForestData);
+      resetForestData();
+    }
+
+    function covariance(points) {
+      const mx = mean(points.map(p => p.x));
+      const my = mean(points.map(p => p.y));
+      const centered = points.map(p => ({ x: p.x - mx, y: p.y - my }));
+      const xx = mean(centered.map(p => p.x * p.x));
+      const xy = mean(centered.map(p => p.x * p.y));
+      const yy = mean(centered.map(p => p.y * p.y));
+      return { mx, my, xx, xy, yy };
+    }
+
+    function pca2(cov) {
+      const trace = cov.xx + cov.yy;
+      const determinant = cov.xx * cov.yy - cov.xy ** 2;
+      const root = Math.sqrt(Math.max(0, trace ** 2 / 4 - determinant));
+      const l1 = trace / 2 + root;
+      const l2 = trace / 2 - root;
+      let v1 = { x: cov.xy, y: l1 - cov.xx };
+      if (Math.abs(v1.x) + Math.abs(v1.y) < 1e-8) v1 = { x: 1, y: 0 };
+      const norm = Math.sqrt(v1.x ** 2 + v1.y ** 2);
+      v1 = { x: v1.x / norm, y: v1.y / norm };
+      const v2 = { x: -v1.y, y: v1.x };
+      return { l1, l2, v1, v2 };
+    }
+
+    function drawArrow(ctx, canvas, origin, vector, scale, color, width = 4) {
+      const a = worldToCanvas(origin, canvas);
+      const b = worldToCanvas({ x: origin.x + vector.x * scale, y: origin.y + vector.y * scale }, canvas);
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      const angle = Math.atan2(b.y - a.y, b.x - a.x);
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y);
+      ctx.lineTo(b.x - 12 * Math.cos(angle - .5), b.y - 12 * Math.sin(angle - .5));
+      ctx.lineTo(b.x - 12 * Math.cos(angle + .5), b.y - 12 * Math.sin(angle + .5));
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function generatePcaPoints() {
+      const angle = Number(document.getElementById("pcaAngle").value) * Math.PI / 180;
+      const spread = Number(document.getElementById("pcaSpread").value) / 100;
+      const noise = Number(document.getElementById("pcaNoise").value) / 100;
+      const rand = lcg(57);
+      const points = [];
+      for (let i = 0; i < 130; i += 1) {
+        const a = gaussian(rand) * spread;
+        const b = gaussian(rand) * noise;
+        points.push({
+          x: Math.cos(angle) * a - Math.sin(angle) * b,
+          y: Math.sin(angle) * a + Math.cos(angle) * b,
+          label: 0
+        });
+      }
+      return points;
+    }
+
+    function drawPca() {
+      const canvas = document.getElementById("pcaCanvas");
+      const ctx = clearCanvas(canvas);
+      drawAxes(ctx, canvas);
+      const points = generatePcaPoints();
+      const cov = covariance(points);
+      const pca = pca2(cov);
+      const origin = { x: cov.mx, y: cov.my };
+      const showProjection = document.getElementById("pcaProjection").value === "on";
+      if (showProjection) {
+        points.forEach(point => {
+          const dx = point.x - origin.x;
+          const dy = point.y - origin.y;
+          const score = dx * pca.v1.x + dy * pca.v1.y;
+          const projected = { x: origin.x + pca.v1.x * score, y: origin.y + pca.v1.y * score };
+          const a = worldToCanvas(point, canvas);
+          const b = worldToCanvas(projected, canvas);
+          ctx.strokeStyle = "rgba(96,112,123,.22)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+          drawPoint(ctx, canvas, projected, COLORS.green, 2.8, COLORS.green);
+        });
+      }
+      points.forEach(point => drawPoint(ctx, canvas, point, COLORS.blue, 4.2, "#fff"));
+      drawArrow(ctx, canvas, origin, pca.v1, Math.sqrt(pca.l1) * 1.35, COLORS.red, 4);
+      drawArrow(ctx, canvas, origin, pca.v2, Math.sqrt(Math.max(pca.l2, 0)) * 1.35, COLORS.amber, 3);
+      const total = pca.l1 + pca.l2;
+      document.getElementById("pcaAngleOut").textContent = `${document.getElementById("pcaAngle").value} deg`;
+      document.getElementById("pcaSpreadOut").textContent = round(Number(document.getElementById("pcaSpread").value) / 100, 2);
+      document.getElementById("pcaNoiseOut").textContent = round(Number(document.getElementById("pcaNoise").value) / 100, 2);
+      document.getElementById("pcaExplained1").textContent = `${round(pca.l1 / total * 100, 1)}%`;
+      document.getElementById("pcaExplained2").textContent = `${round(pca.l2 / total * 100, 1)}%`;
+      document.getElementById("pcaEigen").textContent = `${round(pca.l1, 3)}, ${round(pca.l2, 3)}`;
+      document.getElementById("pcaComponents").textContent = `pc1=(${round(pca.v1.x, 2)}, ${round(pca.v1.y, 2)})`;
+    }
+
+    function bindPca() {
+      ["pcaAngle", "pcaSpread", "pcaNoise", "pcaProjection"].forEach(id => document.getElementById(id).addEventListener("input", drawPca));
+      drawPca();
+    }
+
+    const regressionState = { points: [] };
+
+    function generateRegression() {
+      const noise = Number(document.getElementById("regNoise").value) / 100;
+      const rand = lcg(87);
+      regressionState.points = Array.from({ length: 80 }, () => {
+        const x = rand() * 5.4 - 2.7;
+        const y = .55 + 1.25 * x + Math.sin(x * 1.7) * .45 + gaussian(rand) * noise;
+        return { x, y };
+      });
+    }
+
+    function fitRegression() {
+      const alpha = Number(document.getElementById("regAlpha").value) / 20;
+      const xs = regressionState.points.map(p => p.x);
+      const ys = regressionState.points.map(p => p.y);
+      const mx = mean(xs);
+      const my = mean(ys);
+      const numerator = xs.reduce((sum, x, i) => sum + (x - mx) * (ys[i] - my), 0);
+      const denominator = xs.reduce((sum, x) => sum + (x - mx) ** 2, 0) + alpha;
+      const slope = numerator / denominator;
+      const intercept = my - slope * mx;
+      document.getElementById("regSlope").value = Math.round(slope * 100);
+      document.getElementById("regIntercept").value = Math.round(intercept * 60);
+      drawRegression();
+    }
+
+    function drawRegression() {
+      const canvas = document.getElementById("regCanvas");
+      const ctx = clearCanvas(canvas);
+      drawAxes(ctx, canvas);
+      const slope = Number(document.getElementById("regSlope").value) / 100;
+      const intercept = Number(document.getElementById("regIntercept").value) / 60;
+      const alpha = Number(document.getElementById("regAlpha").value) / 20;
+      const noise = Number(document.getElementById("regNoise").value) / 100;
+      regressionState.points.forEach(point => {
+        const yhat = slope * point.x + intercept;
+        const a = worldToCanvas(point, canvas);
+        const b = worldToCanvas({ x: point.x, y: yhat }, canvas);
+        ctx.strokeStyle = "rgba(189,75,67,.32)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        drawPoint(ctx, canvas, point, COLORS.blue, 4.5, "#fff");
+      });
+      const left = worldToCanvas({ x: -3, y: slope * -3 + intercept }, canvas);
+      const right = worldToCanvas({ x: 3, y: slope * 3 + intercept }, canvas);
+      ctx.strokeStyle = COLORS.green;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(left.x, left.y);
+      ctx.lineTo(right.x, right.y);
+      ctx.stroke();
+      const errors = regressionState.points.map(point => point.y - (slope * point.x + intercept));
+      const mse = mean(errors.map(error => error ** 2));
+      const mae = mean(errors.map(error => Math.abs(error)));
+      document.getElementById("regSlopeOut").textContent = round(slope, 2);
+      document.getElementById("regInterceptOut").textContent = round(intercept, 2);
+      document.getElementById("regAlphaOut").textContent = round(alpha, 2);
+      document.getElementById("regNoiseOut").textContent = round(noise, 2);
+      document.getElementById("regMse").textContent = round(mse, 3);
+      document.getElementById("regMae").textContent = round(mae, 3);
+      document.getElementById("regPenalty").textContent = round(alpha * slope ** 2, 3);
+      document.getElementById("regLine").textContent = `y=${round(slope, 2)}x + ${round(intercept, 2)}`;
+    }
+
+    function bindRegression() {
+      generateRegression();
+      ["regSlope", "regIntercept", "regAlpha"].forEach(id => document.getElementById(id).addEventListener("input", drawRegression));
+      document.getElementById("regNoise").addEventListener("input", () => {
+        generateRegression();
+        drawRegression();
+      });
+      document.getElementById("regFit").addEventListener("click", fitRegression);
+      drawRegression();
+    }
+
+    const ALGORITHMS = [
+      { family: "Linear", name: "Linear Regression", objective: "Minimize squared error.", assumption: "Target is approximately additive in features.", output: "Numeric prediction.", failure: "Nonlinear patterns, outliers, multicollinearity without regularization." },
+      { family: "Linear", name: "Ridge Regression", objective: "Squared error plus L2 coefficient penalty.", assumption: "Many small effects; shrinkage improves stability.", output: "Numeric prediction.", failure: "Does not select sparse features exactly." },
+      { family: "Linear", name: "Lasso Regression", objective: "Squared error plus L1 coefficient penalty.", assumption: "Sparse set of useful features.", output: "Numeric prediction and feature selection.", failure: "Unstable among correlated features." },
+      { family: "Linear", name: "Elastic Net", objective: "Squared error plus L1 and L2 penalties.", assumption: "Sparse but correlated feature groups.", output: "Numeric prediction.", failure: "Requires tuning two regularization controls." },
+      { family: "Classification", name: "Logistic Regression", objective: "Minimize log loss for a linear decision score.", assumption: "Log odds are approximately linear in features.", output: "Class probabilities and labels.", failure: "Underfits complex nonlinear boundaries." },
+      { family: "Classification", name: "Linear SVM", objective: "Maximize margin with hinge-loss violations.", assumption: "Classes are separable by a wide linear margin after features.", output: "Class labels and decision scores.", failure: "Needs scaling; probabilities require calibration." },
+      { family: "Classification", name: "Kernel SVM", objective: "Large-margin separator in implicit feature space.", assumption: "Kernel similarity captures the boundary geometry.", output: "Class labels and decision scores.", failure: "Can be slow and sensitive to C and kernel parameters." },
+      { family: "Classification", name: "kNN", objective: "Lazy local voting by distance.", assumption: "Nearby points have similar labels.", output: "Class vote or local regression average.", failure: "Sensitive to scale, irrelevant features, and large training sets." },
+      { family: "Classification", name: "Naive Bayes", objective: "Bayesian classification with conditional independence.", assumption: "Feature likelihoods are informative even if independence is imperfect.", output: "Class probabilities.", failure: "Correlated features can distort confidence." },
+      { family: "Trees", name: "Decision Tree", objective: "Greedy impurity or variance reduction.", assumption: "Axis-aligned rules capture useful interactions.", output: "Class, probability, or numeric value.", failure: "High variance when deep." },
+      { family: "Trees", name: "Random Forest", objective: "Average many bootstrapped randomized trees.", assumption: "Many decorrelated trees reduce variance.", output: "Vote, probability, or averaged regression.", failure: "Large models, weak extrapolation, less smooth probabilities." },
+      { family: "Trees", name: "Extra Trees", objective: "Average trees with more randomized thresholds.", assumption: "More randomization reduces variance and correlation.", output: "Vote or average.", failure: "Can increase bias on small datasets." },
+      { family: "Boosting", name: "Gradient Boosting Trees", objective: "Sequentially fit trees to loss gradients.", assumption: "Many weak learners can build a strong additive model.", output: "High-quality tabular predictions.", failure: "Needs validation, learning-rate tuning, and early stopping." },
+      { family: "Boosting", name: "AdaBoost", objective: "Reweight difficult examples and add weak learners.", assumption: "Weak learner performs slightly better than chance.", output: "Weighted ensemble vote.", failure: "Sensitive to noisy labels and outliers." },
+      { family: "Clustering", name: "K-means", objective: "Minimize within-cluster squared distance to centroids.", assumption: "Clusters are compact, convex, and similarly scaled.", output: "Centroids and hard assignments.", failure: "Bad for rings, densities, anisotropic clusters, wrong k." },
+      { family: "Clustering", name: "Gaussian Mixture Model", objective: "Maximize likelihood under a Gaussian mixture.", assumption: "Clusters are ellipsoidal probability components.", output: "Soft cluster probabilities.", failure: "Can overfit components and depends on initialization." },
+      { family: "Clustering", name: "DBSCAN", objective: "Find dense regions connected by neighbor reachability.", assumption: "Clusters are density-connected and noise is sparse.", output: "Cluster labels and outliers.", failure: "Hard when densities vary." },
+      { family: "Clustering", name: "Hierarchical Clustering", objective: "Build nested merges or splits by linkage criterion.", assumption: "A tree of group similarity is meaningful.", output: "Dendrogram or cut labels.", failure: "Linkage choice strongly changes results." },
+      { family: "Dimensionality", name: "PCA", objective: "Find orthogonal directions of maximum variance.", assumption: "Useful structure is linear and high variance.", output: "Components, projections, explained variance.", failure: "Can ignore low-variance predictive signals." },
+      { family: "Dimensionality", name: "LDA Projection", objective: "Find projection separating class means relative to class variance.", assumption: "Labels define useful linear discriminant directions.", output: "Lower-dimensional supervised projection.", failure: "Needs labels and class covariance assumptions." },
+      { family: "Anomaly", name: "Isolation Forest", objective: "Isolate unusual points with random tree splits.", assumption: "Anomalies are easier to isolate than normal points.", output: "Anomaly score.", failure: "Unclear contamination rate and context-dependent anomalies." },
+      { family: "Anomaly", name: "One-Class SVM", objective: "Learn a boundary around normal data.", assumption: "Normal points occupy a compact region in kernel space.", output: "Inlier/outlier score.", failure: "Sensitive to kernel and nu/gamma tuning." }
+    ];
+
+    function bindAtlas() {
+      const familySelect = document.getElementById("algoFamily");
+      [...new Set(ALGORITHMS.map(algo => algo.family))].sort().forEach(family => {
+        const option = document.createElement("option");
+        option.value = family;
+        option.textContent = family;
+        familySelect.appendChild(option);
+      });
+      function render() {
+        const search = document.getElementById("algoSearch").value.trim().toLowerCase();
+        const family = familySelect.value;
+        const filtered = ALGORITHMS.filter(algo => {
+          const matchesFamily = family === "all" || algo.family === family;
+          const haystack = `${algo.family} ${algo.name} ${algo.objective} ${algo.assumption} ${algo.output} ${algo.failure}`.toLowerCase();
+          return matchesFamily && (!search || haystack.includes(search));
+        });
+        document.getElementById("algoCount").textContent = `${filtered.length} of ${ALGORITHMS.length} algorithms`;
+        const list = document.getElementById("algoList");
+        list.innerHTML = "";
+        filtered.forEach(algo => {
+          const item = document.createElement("article");
+          item.className = "algo-item";
+          const left = document.createElement("div");
+          const title = document.createElement("div");
+          title.className = "algo-name";
+          title.textContent = algo.name;
+          const tag = document.createElement("span");
+          tag.className = "algo-family";
+          tag.textContent = algo.family;
+          left.append(title, tag);
+          const right = document.createElement("div");
+          const summary = document.createElement("p");
+          summary.textContent = algo.objective;
+          const meta = document.createElement("div");
+          meta.className = "algo-meta";
+          [
+            ["Assumption", algo.assumption],
+            ["Output", algo.output],
+            ["Failure mode", algo.failure]
+          ].forEach(([label, value]) => {
+            const block = document.createElement("div");
+            const b = document.createElement("b");
+            b.textContent = label;
+            const br = document.createElement("br");
+            block.append(b, br, document.createTextNode(value));
+            meta.appendChild(block);
+          });
+          right.append(summary, meta);
+          item.append(left, right);
+          list.appendChild(item);
+        });
+      }
+      document.getElementById("algoSearch").addEventListener("input", render);
+      familySelect.addEventListener("input", render);
+      render();
+    }
+
+    function bindWorkflow() {
+      const steps = [
+        { name: "Split", shape: "train / validation / test", values: [.8, .15, .05] },
+        { name: "Preprocess", shape: "fit on train only", values: [.55, .75, .42] },
+        { name: "Train", shape: "estimator.fit(X, y)", values: [.88, .7, .62] },
+        { name: "Validate", shape: "metric on held-out data", values: [.72, .58, .82] },
+        { name: "Calibrate", shape: "thresholds and probabilities", values: [.66, .74, .49] }
+      ];
+      const root = document.getElementById("workflowViz");
+      root.innerHTML = "";
+      steps.forEach(step => {
+        const item = document.createElement("div");
+        item.className = "step";
+        const title = document.createElement("b");
+        title.textContent = step.name;
+        const bars = document.createElement("div");
+        bars.className = "mini-bars";
+        step.values.forEach(value => {
+          const row = document.createElement("div");
+          row.className = "mini-bar";
+          const fill = document.createElement("span");
+          fill.style.width = `${value * 100}%`;
+          row.appendChild(fill);
+          bars.appendChild(row);
+        });
+        const small = document.createElement("small");
+        small.textContent = step.shape;
+        item.append(title, bars, small);
+        root.appendChild(item);
+      });
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      const points = generateDataset("moons", 12, 120, .18);
+      let frame = 0;
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = COLORS.ink;
+        ctx.font = "700 24px Georgia";
+        ctx.fillText("Classic ML models carve feature space", 32, 48);
+        ctx.font = "14px ui-monospace, monospace";
+        ctx.fillStyle = "#60707b";
+        ctx.fillText("X: [samples, features]  ->  model.fit(X, y)  ->  prediction surface", 34, 82);
+        const angle = frame * .015;
+        const line = { x: Math.cos(angle), y: Math.sin(angle) };
+        for (let px = 36; px < canvas.width - 36; px += 14) {
+          for (let py = 116; py < canvas.height - 28; py += 14) {
+            const p = canvasToWorld({ x: px, y: py }, canvas);
+            const curved = Math.sin(p.x * 1.5 + frame * .02) * .55 + line.x * p.x + line.y * p.y;
+            ctx.fillStyle = curved > 0 ? COLORS.redSoft : COLORS.blueSoft;
+            ctx.fillRect(px, py, 15, 15);
+          }
+        }
+        drawAxes(ctx, canvas);
+        points.forEach(point => drawPoint(ctx, canvas, point, classColor(point.label), 5, "#fff"));
+        ctx.strokeStyle = COLORS.green;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        for (let i = 0; i <= 120; i += 1) {
+          const x = -2.8 + i * 5.6 / 120;
+          const y = Math.sin(x * 1.5 + frame * .02) * -.55 - line.x / Math.max(.2, line.y) * x;
+          const p = worldToCanvas({ x, y: clamp(y, -2.8, 2.8) }, canvas);
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = COLORS.ink;
+        ctx.font = "700 15px Inter, system-ui, sans-serif";
+        ctx.fillText("decision surface", 504, 466);
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      bindKMeans();
+      bindSvm();
+      bindKnn();
+      bindForest();
+      bindPca();
+      bindRegression();
+      bindAtlas();
+      bindWorkflow();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

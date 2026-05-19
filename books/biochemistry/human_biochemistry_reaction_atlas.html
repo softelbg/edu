@@ -1,0 +1,1935 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Human Biochemistry: A Reaction Atlas</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #5c6670;
+      --line: #d8dde3;
+      --paper: #fbfbf8;
+      --panel: #ffffff;
+      --blue: #0b5cad;
+      --green: #24714a;
+      --red: #a1372c;
+      --amber: #9a6200;
+      --violet: #684fa3;
+      --shade: #eef3f8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.58 Georgia, "Times New Roman", serif;
+    }
+
+    .page {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    header.hero {
+      min-height: 86vh;
+      display: grid;
+      align-content: center;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 36px;
+      padding: 56px 0 40px;
+    }
+
+    .kicker {
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font: 700 13px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      line-height: 1.14;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(44px, 8vw, 92px);
+      max-width: 930px;
+      margin: 0 0 18px;
+    }
+
+    .subtitle {
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 23px;
+      margin: 0 0 36px;
+    }
+
+    .hero-formula {
+      max-width: 900px;
+      border-left: 5px solid var(--blue);
+      background: #f0f6fc;
+      padding: 18px 22px;
+      font: 600 24px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--blue);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    nav.toc {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 28px 0 42px;
+      box-shadow: 0 12px 34px rgba(20, 30, 40, .06);
+    }
+
+    nav.toc h2 {
+      margin-top: 0;
+    }
+
+    nav.toc ol {
+      columns: 2;
+      gap: 44px;
+      padding-left: 22px;
+      margin-bottom: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    main {
+      display: grid;
+      gap: 44px;
+    }
+
+    section.chapter {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: clamp(22px, 4vw, 42px);
+      box-shadow: 0 10px 28px rgba(20, 30, 40, .05);
+    }
+
+    section.chapter > h2 {
+      font-size: clamp(31px, 4vw, 49px);
+      margin: 0 0 14px;
+    }
+
+    h3 {
+      font-size: 27px;
+      margin: 34px 0 10px;
+    }
+
+    h4 {
+      font-size: 21px;
+      margin: 24px 0 8px;
+    }
+
+    p {
+      max-width: 860px;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .note,
+    .clinical,
+    .scope {
+      border-left: 5px solid var(--green);
+      background: #eef8f1;
+      padding: 16px 18px;
+      margin: 20px 0;
+      max-width: 940px;
+    }
+
+    .scope {
+      border-left-color: var(--amber);
+      background: #fff6e5;
+    }
+
+    .clinical {
+      border-left-color: var(--red);
+      background: #fff1ef;
+    }
+
+    .formula,
+    .rxn {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+      white-space: normal;
+    }
+
+    .rxn {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: var(--shade);
+      overflow-wrap: anywhere;
+    }
+
+    .reaction-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0 28px;
+      font-size: 15px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .reaction-table th,
+    .reaction-table td {
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    .reaction-table th {
+      background: #e7edf4;
+      color: #17212b;
+      font-weight: 700;
+    }
+
+    .reaction-table td:nth-child(1) {
+      width: 22%;
+      font-weight: 700;
+    }
+
+    .reaction-table td:nth-child(2) {
+      width: 45%;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #fcfdff;
+    }
+
+    .card h4 {
+      margin-top: 0;
+      color: var(--blue);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 2px 6px 2px 0;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e8f0f8;
+      color: #244661;
+      font: 700 12px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 4px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+      max-width: 880px;
+      margin: 16px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    .flow div {
+      background: #f7f8fa;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    footer {
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      margin-top: 48px;
+      padding-top: 24px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        font-size: 16px;
+      }
+
+      nav.toc ol {
+        columns: 1;
+      }
+
+      .reaction-table,
+      .reaction-table thead,
+      .reaction-table tbody,
+      .reaction-table tr,
+      .reaction-table th,
+      .reaction-table td {
+        display: block;
+      }
+
+      .reaction-table thead {
+        display: none;
+      }
+
+      .reaction-table tr {
+        border: 1px solid var(--line);
+        margin-bottom: 12px;
+      }
+
+      .reaction-table td {
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        width: 100% !important;
+      }
+
+      .hero-formula {
+        font-size: 18px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+        font-size: 11.5pt;
+      }
+
+      .page {
+        width: auto;
+        padding: 0;
+      }
+
+      header.hero {
+        min-height: auto;
+        page-break-after: always;
+      }
+
+      section.chapter,
+      nav.toc {
+        box-shadow: none;
+        border: 0;
+        border-radius: 0;
+        page-break-inside: avoid;
+      }
+
+      a {
+        color: black;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">Human biochemistry reference</div>
+      <h1>Human Biochemistry: A Reaction Atlas</h1>
+      <p class="subtitle">A compact book of the major chemical reactions that power, build, repair, signal, protect, and regulate the human body.</p>
+      <div class="hero-formula">
+        C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6 O<sub>2</sub> &rarr; 6 CO<sub>2</sub> + 6 H<sub>2</sub>O + energy captured as ATP and heat
+      </div>
+      <div class="hero-links">
+        <a class="button" href="index.html">Biochemistry Book Home</a>
+        <a class="button" href="human_biochemistry_compound_index.html">Alphabetical Compound Formula Index</a>
+        <a class="button" href="human_biochemistry_3d_models.html">Interactive 3D Molecular Models</a>
+      </div>
+      <p class="small">Prepared as an educational reaction atlas. It is not medical advice and is not a substitute for a clinical biochemistry text, pathway database, or physician guidance.</p>
+    </header>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#scope">Scope: why a reaction atlas, not a literal dump</a></li>
+        <li><a href="#grammar">The chemical grammar of life</a></li>
+        <li><a href="#carbohydrates">Carbohydrate metabolism</a></li>
+        <li><a href="#mitochondria">Mitochondria, oxygen, and ATP</a></li>
+        <li><a href="#lipids">Lipid metabolism</a></li>
+        <li><a href="#nitrogen">Amino acids and nitrogen</a></li>
+        <li><a href="#nucleotides">Nucleotides, DNA, and RNA chemistry</a></li>
+        <li><a href="#one-carbon">One-carbon metabolism and vitamins</a></li>
+        <li><a href="#detox">Detoxification, redox defense, and signaling</a></li>
+        <li><a href="#tissues">Tissue-level integration</a></li>
+        <li><a href="#appendix">Appendix: master reaction index</a></li>
+        <li><a href="#references">References and databases</a></li>
+        <li><a href="human_biochemistry_compound_index.html">Companion: alphabetical compound formula index</a></li>
+        <li><a href="human_biochemistry_3d_models.html">Companion: interactive 3D molecular models</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="scope" class="chapter">
+        <h2>1. Scope</h2>
+        <div class="scope">
+          A literal list of every chemical reaction in the human body is not a normal book-length object. Human genome-scale metabolic reconstructions contain more than ten thousand reactions, and pathway databases include not only small-molecule metabolism but also transport, binding, protein processing, signaling, transcription, translation, and repair. This book therefore gives a curated, readable map of the core human biochemical reactions, with references to databases that hold exhaustive machine-readable reaction sets.
+        </div>
+        <p>Biochemistry is the chemistry of organized flux. Human cells do not simply contain chemicals; they maintain directed flows of carbon, nitrogen, electrons, phosphate groups, methyl groups, acyl groups, ions, and information. The same molecule can be fuel in one tissue, building material in another, and a signal somewhere else.</p>
+        <p>The most useful way to learn this chemistry is by pattern. A reaction such as phosphorylation appears in glycolysis, protein signaling, glycogen regulation, and nucleotide metabolism. Oxidation-reduction appears in energy metabolism, detoxification, collagen maturation, and antioxidant defense. Hydrolysis appears in digestion, ATP use, proteolysis, lipolysis, and nucleic-acid turnover.</p>
+        <div class="legend">
+          <span class="tag">Cytosol</span>
+          <span class="tag">Mitochondrial matrix</span>
+          <span class="tag">Endoplasmic reticulum</span>
+          <span class="tag">Peroxisome</span>
+          <span class="tag">Lysosome</span>
+          <span class="tag">Blood plasma</span>
+        </div>
+      </section>
+
+      <section id="grammar" class="chapter">
+        <h2>2. The Chemical Grammar of Life</h2>
+        <p>Human biochemical reactions are mostly ordinary organic and inorganic chemistry under extraordinary control. Enzymes lower activation energy, cofactors move electrons or groups, membranes separate incompatible chemistries, and regulation makes the pathway responsive to energy state, hormones, nutrients, oxygen, and stress.</p>
+
+        <h3>Core Molecules</h3>
+        <div class="grid">
+          <div class="card">
+            <h4>Water</h4>
+            <p class="rxn">H<sub>2</sub>O &harr; H<sup>+</sup> + OH<sup>&minus;</sup></p>
+            <p>Water participates directly in hydrolysis, hydration, dehydration, proton transfer, and acid-base buffering.</p>
+          </div>
+          <div class="card">
+            <h4>Carbon dioxide buffer</h4>
+            <p class="rxn">CO<sub>2</sub> + H<sub>2</sub>O &harr; H<sub>2</sub>CO<sub>3</sub> &harr; HCO<sub>3</sub><sup>&minus;</sup> + H<sup>+</sup></p>
+            <p>Carbonic anhydrase makes this fast enough to connect cellular respiration with blood pH and ventilation.</p>
+          </div>
+          <div class="card">
+            <h4>ATP</h4>
+            <p class="rxn">ATP + H<sub>2</sub>O &rarr; ADP + P<sub>i</sub> + H<sup>+</sup></p>
+            <p>ATP hydrolysis is coupled to transport, movement, biosynthesis, and regulation.</p>
+          </div>
+          <div class="card">
+            <h4>Redox currency</h4>
+            <p class="rxn">NAD<sup>+</sup> + 2 e<sup>&minus;</sup> + H<sup>+</sup> &harr; NADH</p>
+            <p>NADH usually carries electrons to ATP production. NADPH usually powers reductive biosynthesis and antioxidant repair.</p>
+          </div>
+        </div>
+
+        <h3>Recurring Reaction Types</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>General reaction</th>
+              <th>Where it matters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Phosphorylation</td>
+              <td>R-OH + ATP &rarr; R-O-PO<sub>3</sub><sup>2&minus;</sup> + ADP + H<sup>+</sup></td>
+              <td>Glycolysis, protein kinase signaling, glycogen control.</td>
+            </tr>
+            <tr>
+              <td>Hydrolysis</td>
+              <td>R-X + H<sub>2</sub>O &rarr; R-OH + HX</td>
+              <td>Digestion, ATPases, proteases, phosphatases, esterases.</td>
+            </tr>
+            <tr>
+              <td>Oxidation</td>
+              <td>R-H + NAD<sup>+</sup> &rarr; R + NADH + H<sup>+</sup></td>
+              <td>TCA cycle, alcohol metabolism, beta-oxidation.</td>
+            </tr>
+            <tr>
+              <td>Reduction</td>
+              <td>R + NADPH + H<sup>+</sup> &rarr; R-H + NADP<sup>+</sup></td>
+              <td>Fatty acid synthesis, cholesterol synthesis, glutathione recycling.</td>
+            </tr>
+            <tr>
+              <td>Carboxylation</td>
+              <td>R-H + CO<sub>2</sub> + ATP &rarr; R-COO<sup>&minus;</sup> + ADP + P<sub>i</sub></td>
+              <td>Pyruvate carboxylase, acetyl-CoA carboxylase, propionyl-CoA carboxylase.</td>
+            </tr>
+            <tr>
+              <td>Decarboxylation</td>
+              <td>R-COO<sup>&minus;</sup> + H<sup>+</sup> &rarr; R-H + CO<sub>2</sub></td>
+              <td>TCA cycle, amino acid neurotransmitter synthesis, ketone formation.</td>
+            </tr>
+            <tr>
+              <td>Transamination</td>
+              <td>Amino acid + &alpha;-ketoglutarate &harr; &alpha;-keto acid + glutamate</td>
+              <td>Amino acid catabolism and nonessential amino acid synthesis.</td>
+            </tr>
+            <tr>
+              <td>Methyl transfer</td>
+              <td>S-adenosylmethionine + acceptor &rarr; S-adenosylhomocysteine + methyl-acceptor</td>
+              <td>DNA methylation, creatine synthesis, phospholipids, epinephrine synthesis.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Cofactors as Chemical Tools</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Cofactor</th>
+              <th>Chemistry carried</th>
+              <th>Examples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>NAD<sup>+</sup>/NADH</td>
+              <td>Hydride transfer in catabolism.</td>
+              <td>Glyceraldehyde-3-phosphate dehydrogenase, malate dehydrogenase, lactate dehydrogenase.</td>
+            </tr>
+            <tr>
+              <td>NADP<sup>+</sup>/NADPH</td>
+              <td>Reductive power for biosynthesis and defense.</td>
+              <td>Fatty acid synthase, glutathione reductase, cytochrome P450 reductase.</td>
+            </tr>
+            <tr>
+              <td>FAD/FADH<sub>2</sub></td>
+              <td>Two-electron redox often bound tightly to enzymes.</td>
+              <td>Succinate dehydrogenase, acyl-CoA dehydrogenase.</td>
+            </tr>
+            <tr>
+              <td>CoA-SH</td>
+              <td>Activated acyl-group transfer through thioesters.</td>
+              <td>Acetyl-CoA, succinyl-CoA, fatty acyl-CoA.</td>
+            </tr>
+            <tr>
+              <td>PLP</td>
+              <td>Amino-group chemistry.</td>
+              <td>Transaminases, decarboxylases, glycogen phosphorylase.</td>
+            </tr>
+            <tr>
+              <td>Biotin</td>
+              <td>CO<sub>2</sub> transfer.</td>
+              <td>Pyruvate carboxylase, acetyl-CoA carboxylase, propionyl-CoA carboxylase.</td>
+            </tr>
+            <tr>
+              <td>THF</td>
+              <td>One-carbon units at multiple oxidation states.</td>
+              <td>Purine synthesis, thymidylate synthesis, methionine regeneration.</td>
+            </tr>
+            <tr>
+              <td>Cobalamin</td>
+              <td>Methyl transfer and radical rearrangement.</td>
+              <td>Methionine synthase, methylmalonyl-CoA mutase.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="carbohydrates" class="chapter">
+        <h2>3. Carbohydrate Metabolism</h2>
+        <p>Carbohydrates enter human metabolism as glucose, fructose, galactose, glycogen, glycoprotein sugars, and glycolytic intermediates. Glucose is central because it can feed ATP production, lactate generation, glycogen storage, pentose phosphate chemistry, lipid synthesis, amino acid synthesis, and glycosylation.</p>
+
+        <h3>Digestion and Entry</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Starch hydrolysis</td>
+              <td>(C<sub>6</sub>H<sub>10</sub>O<sub>5</sub>)<sub>n</sub> + n H<sub>2</sub>O &rarr; n C<sub>6</sub>H<sub>12</sub>O<sub>6</sub></td>
+              <td>Amylases and brush-border enzymes release absorbable monosaccharides.</td>
+            </tr>
+            <tr>
+              <td>Sucrose hydrolysis</td>
+              <td>Sucrose + H<sub>2</sub>O &rarr; glucose + fructose</td>
+              <td>Sucrase splits a disaccharide into two hexoses.</td>
+            </tr>
+            <tr>
+              <td>Lactose hydrolysis</td>
+              <td>Lactose + H<sub>2</sub>O &rarr; glucose + galactose</td>
+              <td>Lactase activity determines lactose tolerance.</td>
+            </tr>
+            <tr>
+              <td>Glucose phosphorylation</td>
+              <td>Glucose + ATP &rarr; glucose-6-phosphate + ADP + H<sup>+</sup></td>
+              <td>Hexokinase and glucokinase trap glucose inside cells and commit it to metabolism.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Glycolysis</h3>
+        <p>Glycolysis converts glucose into pyruvate. In oxygen-rich cells, pyruvate usually enters mitochondria. In red blood cells, exercising muscle, and hypoxic tissues, pyruvate is reduced to lactate to regenerate NAD<sup>+</sup>.</p>
+        <p class="rxn">Net: glucose + 2 ADP + 2 P<sub>i</sub> + 2 NAD<sup>+</sup> &rarr; 2 pyruvate + 2 ATP + 2 NADH + 2 H<sup>+</sup> + 2 H<sub>2</sub>O</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Equation</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hexokinase/glucokinase</td>
+              <td>Glucose + ATP &rarr; glucose-6-phosphate + ADP + H<sup>+</sup></td>
+              <td>Glucose capture; glucokinase supports hepatic glucose buffering.</td>
+            </tr>
+            <tr>
+              <td>Phosphoglucose isomerase</td>
+              <td>Glucose-6-phosphate &harr; fructose-6-phosphate</td>
+              <td>Aldose-ketose rearrangement prepares for symmetric cleavage.</td>
+            </tr>
+            <tr>
+              <td>Phosphofructokinase-1</td>
+              <td>Fructose-6-phosphate + ATP &rarr; fructose-1,6-bisphosphate + ADP + H<sup>+</sup></td>
+              <td>Main committed glycolytic control step; stimulated by AMP and fructose-2,6-bisphosphate.</td>
+            </tr>
+            <tr>
+              <td>Aldolase</td>
+              <td>Fructose-1,6-bisphosphate &harr; glyceraldehyde-3-phosphate + dihydroxyacetone phosphate</td>
+              <td>Splits a six-carbon sugar into two three-carbon phosphates.</td>
+            </tr>
+            <tr>
+              <td>Triose phosphate isomerase</td>
+              <td>Dihydroxyacetone phosphate &harr; glyceraldehyde-3-phosphate</td>
+              <td>Converts both products into the oxidation-ready form.</td>
+            </tr>
+            <tr>
+              <td>GAP dehydrogenase</td>
+              <td>Glyceraldehyde-3-phosphate + P<sub>i</sub> + NAD<sup>+</sup> &harr; 1,3-bisphosphoglycerate + NADH + H<sup>+</sup></td>
+              <td>Captures oxidation energy as a high-energy acyl phosphate.</td>
+            </tr>
+            <tr>
+              <td>Phosphoglycerate kinase</td>
+              <td>1,3-bisphosphoglycerate + ADP &harr; 3-phosphoglycerate + ATP</td>
+              <td>Substrate-level phosphorylation.</td>
+            </tr>
+            <tr>
+              <td>Phosphoglycerate mutase</td>
+              <td>3-phosphoglycerate &harr; 2-phosphoglycerate</td>
+              <td>Moves phosphate to prepare for dehydration.</td>
+            </tr>
+            <tr>
+              <td>Enolase</td>
+              <td>2-phosphoglycerate &harr; phosphoenolpyruvate + H<sub>2</sub>O</td>
+              <td>Forms a high-energy enol phosphate.</td>
+            </tr>
+            <tr>
+              <td>Pyruvate kinase</td>
+              <td>Phosphoenolpyruvate + ADP + H<sup>+</sup> &rarr; pyruvate + ATP</td>
+              <td>Second ATP-forming step; strongly regulated in liver.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Lactate, Cori Cycling, and Anaerobic Flux</h3>
+        <p class="rxn">Pyruvate + NADH + H<sup>+</sup> &harr; lactate + NAD<sup>+</sup></p>
+        <p>Lactate dehydrogenase protects glycolytic flux when mitochondrial oxidation is limited. Lactate is not merely waste; it is a circulating carbon carrier. Liver and kidney can convert it back to glucose, while heart and oxidative muscle can burn it.</p>
+
+        <h3>Gluconeogenesis</h3>
+        <p>Gluconeogenesis is not simple reverse glycolysis. Three irreversible glycolytic steps are bypassed with separate enzymes.</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Bypass</th>
+              <th>Equation</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pyruvate carboxylase</td>
+              <td>Pyruvate + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; oxaloacetate + ADP + P<sub>i</sub></td>
+              <td>Mitochondrial biotin enzyme; activated by acetyl-CoA.</td>
+            </tr>
+            <tr>
+              <td>PEP carboxykinase</td>
+              <td>Oxaloacetate + GTP &rarr; phosphoenolpyruvate + GDP + CO<sub>2</sub></td>
+              <td>Uses decarboxylation to help drive PEP formation.</td>
+            </tr>
+            <tr>
+              <td>Fructose-1,6-bisphosphatase</td>
+              <td>Fructose-1,6-bisphosphate + H<sub>2</sub>O &rarr; fructose-6-phosphate + P<sub>i</sub></td>
+              <td>Major regulated gluconeogenic step; inhibited by AMP and fructose-2,6-bisphosphate.</td>
+            </tr>
+            <tr>
+              <td>Glucose-6-phosphatase</td>
+              <td>Glucose-6-phosphate + H<sub>2</sub>O &rarr; glucose + P<sub>i</sub></td>
+              <td>ER enzyme in liver, kidney, and intestine; releases free glucose.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="rxn">Approximate net: 2 pyruvate + 4 ATP + 2 GTP + 2 NADH + 6 H<sub>2</sub>O &rarr; glucose + 4 ADP + 2 GDP + 6 P<sub>i</sub> + 2 NAD<sup>+</sup> + 2 H<sup>+</sup></p>
+
+        <h3>Glycogen Metabolism</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>UDP-glucose formation</td>
+              <td>Glucose-1-phosphate + UTP &rarr; UDP-glucose + PP<sub>i</sub></td>
+              <td>Activates glucose for polymerization.</td>
+            </tr>
+            <tr>
+              <td>Glycogen synthase</td>
+              <td>UDP-glucose + glycogen<sub>n</sub> &rarr; UDP + glycogen<sub>n+1</sub></td>
+              <td>Builds alpha-1,4 glycosidic chains.</td>
+            </tr>
+            <tr>
+              <td>Branching enzyme</td>
+              <td>Linear glycogen segment &rarr; alpha-1,6-branched glycogen</td>
+              <td>Creates branch points for rapid synthesis and breakdown.</td>
+            </tr>
+            <tr>
+              <td>Glycogen phosphorylase</td>
+              <td>Glycogen<sub>n</sub> + P<sub>i</sub> &rarr; glycogen<sub>n-1</sub> + glucose-1-phosphate</td>
+              <td>Phosphorolysis conserves bond energy as glucose phosphate.</td>
+            </tr>
+            <tr>
+              <td>Phosphoglucomutase</td>
+              <td>Glucose-1-phosphate &harr; glucose-6-phosphate</td>
+              <td>Connects glycogen to glycolysis or glucose release.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Pentose Phosphate Pathway</h3>
+        <p>The oxidative branch makes NADPH. The nonoxidative branch rearranges carbon skeletons so ribose-5-phosphate and glycolytic intermediates can be interconverted.</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>G6PD</td>
+              <td>Glucose-6-phosphate + NADP<sup>+</sup> &rarr; 6-phosphoglucono-&delta;-lactone + NADPH + H<sup>+</sup></td>
+              <td>Rate-limiting oxidative step; vital for red blood cell antioxidant defense.</td>
+            </tr>
+            <tr>
+              <td>Lactonase</td>
+              <td>6-phosphoglucono-&delta;-lactone + H<sub>2</sub>O &rarr; 6-phosphogluconate + H<sup>+</sup></td>
+              <td>Hydrolyzes the lactone.</td>
+            </tr>
+            <tr>
+              <td>6-phosphogluconate dehydrogenase</td>
+              <td>6-phosphogluconate + NADP<sup>+</sup> &rarr; ribulose-5-phosphate + CO<sub>2</sub> + NADPH</td>
+              <td>Second NADPH-producing step.</td>
+            </tr>
+            <tr>
+              <td>Transketolase/transaldolase</td>
+              <td>3 ribulose-5-phosphate &harr; 2 fructose-6-phosphate + glyceraldehyde-3-phosphate</td>
+              <td>Carbon shuffling; transketolase requires thiamine pyrophosphate.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="mitochondria" class="chapter">
+        <h2>4. Mitochondria, Oxygen, and ATP</h2>
+        <p>Mitochondria oxidize carbon fuels to CO<sub>2</sub>, reduce oxygen to water, and conserve a portion of the released free energy as a proton gradient and ATP. They also host key steps in gluconeogenesis, urea synthesis, heme synthesis, fatty acid oxidation, steroid metabolism, apoptosis, and innate immune signaling.</p>
+
+        <h3>Pyruvate Dehydrogenase Complex</h3>
+        <p class="rxn">Pyruvate + CoA-SH + NAD<sup>+</sup> &rarr; acetyl-CoA + CO<sub>2</sub> + NADH + H<sup>+</sup></p>
+        <p>Pyruvate dehydrogenase is a gate between carbohydrate oxidation and acetyl-CoA metabolism. It uses thiamine pyrophosphate, lipoamide, FAD, NAD<sup>+</sup>, and CoA. It is inhibited by phosphorylation, NADH, and acetyl-CoA, and activated by dephosphorylation when energy demand rises.</p>
+
+        <h3>Citric Acid Cycle</h3>
+        <p class="rxn">Net: acetyl-CoA + 3 NAD<sup>+</sup> + FAD + GDP + P<sub>i</sub> + 2 H<sub>2</sub>O &rarr; 2 CO<sub>2</sub> + CoA-SH + 3 NADH + FADH<sub>2</sub> + GTP + 3 H<sup>+</sup></p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Equation</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Citrate synthase</td>
+              <td>Oxaloacetate + acetyl-CoA + H<sub>2</sub>O &rarr; citrate + CoA-SH + H<sup>+</sup></td>
+              <td>Condenses two-carbon acetyl with four-carbon oxaloacetate.</td>
+            </tr>
+            <tr>
+              <td>Aconitase</td>
+              <td>Citrate &harr; cis-aconitate + H<sub>2</sub>O &harr; isocitrate</td>
+              <td>Moves hydroxyl group to enable oxidation.</td>
+            </tr>
+            <tr>
+              <td>Isocitrate dehydrogenase</td>
+              <td>Isocitrate + NAD<sup>+</sup> &rarr; &alpha;-ketoglutarate + CO<sub>2</sub> + NADH + H<sup>+</sup></td>
+              <td>First oxidative decarboxylation.</td>
+            </tr>
+            <tr>
+              <td>&alpha;-ketoglutarate dehydrogenase</td>
+              <td>&alpha;-ketoglutarate + CoA-SH + NAD<sup>+</sup> &rarr; succinyl-CoA + CO<sub>2</sub> + NADH + H<sup>+</sup></td>
+              <td>Second oxidative decarboxylation; mechanistically resembles PDH.</td>
+            </tr>
+            <tr>
+              <td>Succinyl-CoA synthetase</td>
+              <td>Succinyl-CoA + GDP + P<sub>i</sub> &harr; succinate + GTP + CoA-SH</td>
+              <td>Substrate-level phosphorylation.</td>
+            </tr>
+            <tr>
+              <td>Succinate dehydrogenase</td>
+              <td>Succinate + FAD &rarr; fumarate + FADH<sub>2</sub></td>
+              <td>Only TCA enzyme embedded in the inner mitochondrial membrane; Complex II.</td>
+            </tr>
+            <tr>
+              <td>Fumarase</td>
+              <td>Fumarate + H<sub>2</sub>O &harr; malate</td>
+              <td>Hydration of a double bond.</td>
+            </tr>
+            <tr>
+              <td>Malate dehydrogenase</td>
+              <td>Malate + NAD<sup>+</sup> &harr; oxaloacetate + NADH + H<sup>+</sup></td>
+              <td>Regenerates oxaloacetate; pulled forward by citrate synthase.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Anaplerosis and Cataplerosis</h3>
+        <p>The TCA cycle is not only a furnace. It is also a traffic circle. Intermediates leave for amino acids, glucose, heme, and lipids, and they must be replenished.</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Equation</th>
+              <th>Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pyruvate carboxylase</td>
+              <td>Pyruvate + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; oxaloacetate + ADP + P<sub>i</sub></td>
+              <td>Replenishes oxaloacetate for TCA flux or gluconeogenesis.</td>
+            </tr>
+            <tr>
+              <td>Glutamate dehydrogenase</td>
+              <td>Glutamate + NAD(P)<sup>+</sup> + H<sub>2</sub>O &harr; &alpha;-ketoglutarate + NH<sub>4</sub><sup>+</sup> + NAD(P)H + H<sup>+</sup></td>
+              <td>Links amino nitrogen with the TCA cycle.</td>
+            </tr>
+            <tr>
+              <td>Propionyl-CoA entry</td>
+              <td>Propionyl-CoA &rarr; D-methylmalonyl-CoA &rarr; L-methylmalonyl-CoA &rarr; succinyl-CoA</td>
+              <td>Odd-chain fatty acids and several amino acids enter as succinyl-CoA.</td>
+            </tr>
+            <tr>
+              <td>Citrate export</td>
+              <td>Citrate<sub>matrix</sub> &rarr; citrate<sub>cytosol</sub> &rarr; acetyl-CoA + oxaloacetate</td>
+              <td>Provides cytosolic acetyl-CoA for fatty acid and cholesterol synthesis.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Electron Transport and Oxidative Phosphorylation</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Complex</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>I: NADH dehydrogenase</td>
+              <td>NADH + H<sup>+</sup> + Q &rarr; NAD<sup>+</sup> + QH<sub>2</sub></td>
+              <td>Transfers electrons from NADH to ubiquinone and pumps protons.</td>
+            </tr>
+            <tr>
+              <td>II: Succinate dehydrogenase</td>
+              <td>Succinate + Q &rarr; fumarate + QH<sub>2</sub></td>
+              <td>Feeds electrons from FADH<sub>2</sub> into ubiquinone without proton pumping.</td>
+            </tr>
+            <tr>
+              <td>III: Cytochrome bc<sub>1</sub></td>
+              <td>QH<sub>2</sub> + 2 cytochrome c(Fe<sup>3+</sup>) &rarr; Q + 2 cytochrome c(Fe<sup>2+</sup>) + 2 H<sup>+</sup></td>
+              <td>Q cycle moves electrons to cytochrome c and contributes to the proton gradient.</td>
+            </tr>
+            <tr>
+              <td>IV: Cytochrome c oxidase</td>
+              <td>4 cytochrome c(Fe<sup>2+</sup>) + O<sub>2</sub> + 8 H<sup>+</sup><sub>matrix</sub> &rarr; 4 cytochrome c(Fe<sup>3+</sup>) + 2 H<sub>2</sub>O + 4 H<sup>+</sup><sub>IMS</sub></td>
+              <td>Reduces oxygen to water and pumps protons.</td>
+            </tr>
+            <tr>
+              <td>V: ATP synthase</td>
+              <td>ADP + P<sub>i</sub> + proton motive force &rarr; ATP + H<sub>2</sub>O</td>
+              <td>Converts electrochemical gradient energy into phosphoryl-transfer potential.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="clinical">
+          Cyanide, carbon monoxide, hydrogen sulfide, and severe hypoxia impair oxygen-linked electron transport. The immediate biochemical problem is not lack of glucose; it is failure to reoxidize reduced cofactors and maintain ATP production.
+        </div>
+      </section>
+
+      <section id="lipids" class="chapter">
+        <h2>5. Lipid Metabolism</h2>
+        <p>Lipids store energy, build membranes, insulate nerves, transport fat-soluble vitamins, and generate hormones and inflammatory mediators. Their reactions are compartmentalized: cytosol for fatty acid synthesis, mitochondria for beta-oxidation, ER for many lipid modifications, peroxisomes for very-long-chain fatty acids, and mitochondria plus smooth ER for steroid synthesis.</p>
+
+        <h3>Digestion, Transport, and Mobilization</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Triacylglycerol hydrolysis</td>
+              <td>Triacylglycerol + 3 H<sub>2</sub>O &rarr; glycerol + 3 fatty acids</td>
+              <td>Lipases digest dietary fat and mobilize adipose stores.</td>
+            </tr>
+            <tr>
+              <td>Fatty acid activation</td>
+              <td>Fatty acid + CoA-SH + ATP &rarr; acyl-CoA + AMP + PP<sub>i</sub></td>
+              <td>Costs two high-energy phosphate equivalents; commits fatty acid to metabolism.</td>
+            </tr>
+            <tr>
+              <td>Carnitine acyltransferase</td>
+              <td>Acyl-CoA + carnitine &harr; acyl-carnitine + CoA-SH</td>
+              <td>Transfers long-chain fatty acids into mitochondria.</td>
+            </tr>
+            <tr>
+              <td>Glycerol kinase</td>
+              <td>Glycerol + ATP &rarr; glycerol-3-phosphate + ADP + H<sup>+</sup></td>
+              <td>Important in liver; adipose lacks high glycerol kinase activity.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Beta-Oxidation</h3>
+        <p>Each mitochondrial beta-oxidation cycle shortens a fatty acyl-CoA by two carbons and produces acetyl-CoA, FADH<sub>2</sub>, and NADH.</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Equation</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Acyl-CoA dehydrogenase</td>
+              <td>Acyl-CoA + FAD &rarr; trans-&Delta;<sup>2</sup>-enoyl-CoA + FADH<sub>2</sub></td>
+              <td>Introduces a double bond.</td>
+            </tr>
+            <tr>
+              <td>Enoyl-CoA hydratase</td>
+              <td>trans-&Delta;<sup>2</sup>-enoyl-CoA + H<sub>2</sub>O &rarr; L-3-hydroxyacyl-CoA</td>
+              <td>Hydrates the double bond.</td>
+            </tr>
+            <tr>
+              <td>Hydroxyacyl-CoA dehydrogenase</td>
+              <td>L-3-hydroxyacyl-CoA + NAD<sup>+</sup> &rarr; 3-ketoacyl-CoA + NADH + H<sup>+</sup></td>
+              <td>Oxidizes an alcohol to a ketone.</td>
+            </tr>
+            <tr>
+              <td>Thiolase</td>
+              <td>3-ketoacyl-CoA + CoA-SH &rarr; acetyl-CoA + acyl-CoA<sub>n-2</sub></td>
+              <td>Cleaves the beta-keto thioester.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="rxn">Palmitoyl-CoA + 7 FAD + 7 NAD<sup>+</sup> + 7 CoA-SH + 7 H<sub>2</sub>O &rarr; 8 acetyl-CoA + 7 FADH<sub>2</sub> + 7 NADH + 7 H<sup>+</sup></p>
+
+        <h3>Fatty Acid Synthesis</h3>
+        <p>Fatty acid synthesis is reductive, cytosolic, and fed by citrate export from mitochondria. NADPH comes mainly from the pentose phosphate pathway and malic enzyme.</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ATP citrate lyase</td>
+              <td>Citrate + CoA-SH + ATP &rarr; acetyl-CoA + oxaloacetate + ADP + P<sub>i</sub></td>
+              <td>Generates cytosolic acetyl-CoA.</td>
+            </tr>
+            <tr>
+              <td>Acetyl-CoA carboxylase</td>
+              <td>Acetyl-CoA + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; malonyl-CoA + ADP + P<sub>i</sub></td>
+              <td>Committed step; malonyl-CoA inhibits carnitine palmitoyltransferase I.</td>
+            </tr>
+            <tr>
+              <td>Fatty acid synthase</td>
+              <td>Acetyl-CoA + 7 malonyl-CoA + 14 NADPH + 14 H<sup>+</sup> &rarr; palmitate + 7 CO<sub>2</sub> + 8 CoA-SH + 14 NADP<sup>+</sup> + 6 H<sub>2</sub>O</td>
+              <td>Builds palmitate by repeated condensation, reduction, dehydration, and reduction.</td>
+            </tr>
+            <tr>
+              <td>Desaturase</td>
+              <td>Acyl-CoA + NADH + H<sup>+</sup> + O<sub>2</sub> &rarr; unsaturated acyl-CoA + NAD<sup>+</sup> + 2 H<sub>2</sub>O</td>
+              <td>Introduces double bonds; humans cannot introduce omega-3 or omega-6 double bonds de novo.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Ketone Bodies</h3>
+        <p>Ketogenesis occurs mainly in hepatic mitochondria during fasting, prolonged exercise, low insulin states, or carbohydrate restriction. Ketone bodies export acetyl units to extrahepatic tissues.</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Thiolase</td>
+              <td>2 acetyl-CoA &harr; acetoacetyl-CoA + CoA-SH</td>
+              <td>Condenses two acetyl units.</td>
+            </tr>
+            <tr>
+              <td>HMG-CoA synthase</td>
+              <td>Acetoacetyl-CoA + acetyl-CoA + H<sub>2</sub>O &rarr; HMG-CoA + CoA-SH</td>
+              <td>Rate-controlling hepatic ketogenesis enzyme.</td>
+            </tr>
+            <tr>
+              <td>HMG-CoA lyase</td>
+              <td>HMG-CoA &rarr; acetoacetate + acetyl-CoA</td>
+              <td>Produces the first ketone body.</td>
+            </tr>
+            <tr>
+              <td>Beta-hydroxybutyrate dehydrogenase</td>
+              <td>Acetoacetate + NADH + H<sup>+</sup> &harr; &beta;-hydroxybutyrate + NAD<sup>+</sup></td>
+              <td>Reflects mitochondrial redox state.</td>
+            </tr>
+            <tr>
+              <td>Spontaneous decarboxylation</td>
+              <td>Acetoacetate &rarr; acetone + CO<sub>2</sub></td>
+              <td>Produces volatile acetone.</td>
+            </tr>
+            <tr>
+              <td>Ketolysis</td>
+              <td>Acetoacetate + succinyl-CoA &rarr; acetoacetyl-CoA + succinate</td>
+              <td>Extrahepatic tissues activate ketones; liver lacks thiophorase for its own ketone use.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Cholesterol, Bile Acids, Steroids, and Eicosanoids</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Pathway</th>
+              <th>Representative reaction</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cholesterol synthesis</td>
+              <td>HMG-CoA + 2 NADPH + 2 H<sup>+</sup> &rarr; mevalonate + CoA-SH + 2 NADP<sup>+</sup></td>
+              <td>HMG-CoA reductase is the statin target and key regulated step.</td>
+            </tr>
+            <tr>
+              <td>Isoprenoid assembly</td>
+              <td>Mevalonate &rarr; isopentenyl-PP &rarr; farnesyl-PP &rarr; squalene &rarr; lanosterol &rarr; cholesterol</td>
+              <td>Builds sterols and prenyl groups for protein modification.</td>
+            </tr>
+            <tr>
+              <td>Bile acid formation</td>
+              <td>Cholesterol + O<sub>2</sub> + NADPH &rarr; 7&alpha;-hydroxycholesterol + H<sub>2</sub>O + NADP<sup>+</sup></td>
+              <td>CYP7A1 initiates the main bile acid pathway.</td>
+            </tr>
+            <tr>
+              <td>Steroidogenesis</td>
+              <td>Cholesterol + O<sub>2</sub> + NADPH &rarr; pregnenolone + isocaproaldehyde + H<sub>2</sub>O + NADP<sup>+</sup></td>
+              <td>CYP11A1 side-chain cleavage starts steroid hormone synthesis.</td>
+            </tr>
+            <tr>
+              <td>Cyclooxygenase</td>
+              <td>Arachidonate + 2 O<sub>2</sub> &rarr; PGG<sub>2</sub> &rarr; PGH<sub>2</sub></td>
+              <td>Produces prostaglandin and thromboxane precursors.</td>
+            </tr>
+            <tr>
+              <td>Lipoxygenase</td>
+              <td>Arachidonate + O<sub>2</sub> &rarr; 5-HPETE &rarr; leukotrienes</td>
+              <td>Generates inflammatory lipid mediators.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="nitrogen" class="chapter">
+        <h2>6. Amino Acids and Nitrogen</h2>
+        <p>Nitrogen metabolism balances protein turnover, amino acid synthesis, neurotransmitter production, heme synthesis, nucleotide synthesis, methylation, and ammonia disposal. Free ammonia is toxic, so human metabolism usually moves nitrogen as glutamate, glutamine, alanine, aspartate, or urea.</p>
+
+        <h3>Transamination and Ammonia Handling</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>General transamination</td>
+              <td>Amino acid + &alpha;-ketoglutarate &harr; &alpha;-keto acid + glutamate</td>
+              <td>PLP-dependent transfer of amino groups.</td>
+            </tr>
+            <tr>
+              <td>ALT</td>
+              <td>Alanine + &alpha;-ketoglutarate &harr; pyruvate + glutamate</td>
+              <td>Glucose-alanine cycle between muscle and liver.</td>
+            </tr>
+            <tr>
+              <td>AST</td>
+              <td>Aspartate + &alpha;-ketoglutarate &harr; oxaloacetate + glutamate</td>
+              <td>Feeds nitrogen to the urea cycle and links to malate-aspartate shuttle.</td>
+            </tr>
+            <tr>
+              <td>Glutamate dehydrogenase</td>
+              <td>Glutamate + NAD(P)<sup>+</sup> + H<sub>2</sub>O &harr; &alpha;-ketoglutarate + NH<sub>4</sub><sup>+</sup> + NAD(P)H + H<sup>+</sup></td>
+              <td>Releases or captures ammonia in mitochondrial metabolism.</td>
+            </tr>
+            <tr>
+              <td>Glutamine synthetase</td>
+              <td>Glutamate + NH<sub>4</sub><sup>+</sup> + ATP &rarr; glutamine + ADP + P<sub>i</sub></td>
+              <td>Detoxifies ammonia and transports nitrogen safely.</td>
+            </tr>
+            <tr>
+              <td>Glutaminase</td>
+              <td>Glutamine + H<sub>2</sub>O &rarr; glutamate + NH<sub>4</sub><sup>+</sup></td>
+              <td>Important in kidney acid-base balance and rapidly dividing cells.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Urea Cycle</h3>
+        <p>The urea cycle converts ammonia and aspartate nitrogen into urea, mainly in liver. It spans mitochondria and cytosol.</p>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Equation</th>
+              <th>Location and note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Carbamoyl phosphate synthetase I</td>
+              <td>NH<sub>4</sub><sup>+</sup> + HCO<sub>3</sub><sup>&minus;</sup> + 2 ATP &rarr; carbamoyl phosphate + 2 ADP + P<sub>i</sub></td>
+              <td>Mitochondrial; requires N-acetylglutamate.</td>
+            </tr>
+            <tr>
+              <td>Ornithine transcarbamylase</td>
+              <td>Ornithine + carbamoyl phosphate &rarr; citrulline + P<sub>i</sub></td>
+              <td>Mitochondrial; citrulline exits to cytosol.</td>
+            </tr>
+            <tr>
+              <td>Argininosuccinate synthetase</td>
+              <td>Citrulline + aspartate + ATP &rarr; argininosuccinate + AMP + PP<sub>i</sub></td>
+              <td>Cytosolic; adds the second urea nitrogen.</td>
+            </tr>
+            <tr>
+              <td>Argininosuccinate lyase</td>
+              <td>Argininosuccinate &rarr; arginine + fumarate</td>
+              <td>Fumarate links the urea cycle to the TCA cycle.</td>
+            </tr>
+            <tr>
+              <td>Arginase</td>
+              <td>Arginine + H<sub>2</sub>O &rarr; ornithine + urea</td>
+              <td>Completes the cycle; ornithine returns to mitochondria.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="rxn">Net: NH<sub>4</sub><sup>+</sup> + HCO<sub>3</sub><sup>&minus;</sup> + aspartate + 3 ATP + H<sub>2</sub>O &rarr; urea + fumarate + 2 ADP + AMP + 2 P<sub>i</sub> + PP<sub>i</sub></p>
+
+        <h3>Aromatic Amino Acids and Neurotransmitters</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Pathway</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Phenylalanine hydroxylase</td>
+              <td>Phenylalanine + BH<sub>4</sub> + O<sub>2</sub> &rarr; tyrosine + BH<sub>2</sub> + H<sub>2</sub>O</td>
+              <td>Defect causes phenylketonuria; BH<sub>4</sub> also supports nitric oxide and monoamine synthesis.</td>
+            </tr>
+            <tr>
+              <td>Tyrosine hydroxylase</td>
+              <td>Tyrosine + BH<sub>4</sub> + O<sub>2</sub> &rarr; L-DOPA + BH<sub>2</sub> + H<sub>2</sub>O</td>
+              <td>Rate-limiting catecholamine synthesis step.</td>
+            </tr>
+            <tr>
+              <td>DOPA decarboxylase</td>
+              <td>L-DOPA + H<sup>+</sup> &rarr; dopamine + CO<sub>2</sub></td>
+              <td>PLP-dependent decarboxylation.</td>
+            </tr>
+            <tr>
+              <td>Dopamine beta-hydroxylase</td>
+              <td>Dopamine + ascorbate + O<sub>2</sub> &rarr; norepinephrine + dehydroascorbate + H<sub>2</sub>O</td>
+              <td>Copper-dependent monooxygenase.</td>
+            </tr>
+            <tr>
+              <td>PNMT</td>
+              <td>Norepinephrine + S-adenosylmethionine &rarr; epinephrine + S-adenosylhomocysteine</td>
+              <td>Methylation step in adrenal medulla.</td>
+            </tr>
+            <tr>
+              <td>Tryptophan hydroxylase</td>
+              <td>Tryptophan + BH<sub>4</sub> + O<sub>2</sub> &rarr; 5-hydroxytryptophan + BH<sub>2</sub> + H<sub>2</sub>O</td>
+              <td>First step toward serotonin.</td>
+            </tr>
+            <tr>
+              <td>Aromatic amino acid decarboxylase</td>
+              <td>5-hydroxytryptophan &rarr; serotonin + CO<sub>2</sub></td>
+              <td>PLP-dependent serotonin synthesis step.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Sulfur, Creatine, Heme, and Glutathione</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Pathway</th>
+              <th>Representative equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SAM formation</td>
+              <td>Methionine + ATP &rarr; S-adenosylmethionine + P<sub>i</sub> + PP<sub>i</sub></td>
+              <td>Creates the major biological methyl donor.</td>
+            </tr>
+            <tr>
+              <td>Transsulfuration</td>
+              <td>Homocysteine + serine &rarr; cystathionine &rarr; cysteine + &alpha;-ketobutyrate + NH<sub>4</sub><sup>+</sup></td>
+              <td>PLP-dependent route from methionine sulfur to cysteine.</td>
+            </tr>
+            <tr>
+              <td>Creatine synthesis</td>
+              <td>Arginine + glycine &rarr; guanidinoacetate + ornithine; guanidinoacetate + SAM &rarr; creatine + SAH</td>
+              <td>Uses arginine, glycine, and methyl-group metabolism.</td>
+            </tr>
+            <tr>
+              <td>Creatine kinase</td>
+              <td>Phosphocreatine + ADP + H<sup>+</sup> &harr; creatine + ATP</td>
+              <td>Fast energy buffer in muscle and brain.</td>
+            </tr>
+            <tr>
+              <td>Heme first step</td>
+              <td>Glycine + succinyl-CoA &rarr; &delta;-aminolevulinate + CO<sub>2</sub> + CoA-SH</td>
+              <td>ALA synthase is PLP-dependent and regulated by heme.</td>
+            </tr>
+            <tr>
+              <td>Ferrochelatase</td>
+              <td>Protoporphyrin IX + Fe<sup>2+</sup> &rarr; heme + 2 H<sup>+</sup></td>
+              <td>Final heme synthesis step.</td>
+            </tr>
+            <tr>
+              <td>Glutathione synthesis</td>
+              <td>Glutamate + cysteine + ATP &rarr; &gamma;-glutamylcysteine + ADP + P<sub>i</sub>; &gamma;-glutamylcysteine + glycine + ATP &rarr; GSH + ADP + P<sub>i</sub></td>
+              <td>Builds the main intracellular thiol antioxidant.</td>
+            </tr>
+            <tr>
+              <td>Glutathione peroxidase</td>
+              <td>2 GSH + ROOH &rarr; GSSG + ROH + H<sub>2</sub>O</td>
+              <td>Selenium-dependent detoxification of peroxides.</td>
+            </tr>
+            <tr>
+              <td>Glutathione reductase</td>
+              <td>GSSG + NADPH + H<sup>+</sup> &rarr; 2 GSH + NADP<sup>+</sup></td>
+              <td>Uses NADPH to keep glutathione reduced.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="nucleotides" class="chapter">
+        <h2>7. Nucleotides, DNA, and RNA Chemistry</h2>
+        <p>Nucleotides are genetic letters, energy carriers, signaling molecules, activated sugars, lipid head-group donors, and coenzyme components. Their synthesis consumes amino acid nitrogen, one-carbon units, ribose phosphate, bicarbonate, and ATP.</p>
+
+        <h3>Ribose Activation and Purines</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PRPP synthetase</td>
+              <td>Ribose-5-phosphate + ATP &rarr; PRPP + AMP</td>
+              <td>Activates ribose for purine, pyrimidine, and salvage pathways.</td>
+            </tr>
+            <tr>
+              <td>Committed purine step</td>
+              <td>PRPP + glutamine + H<sub>2</sub>O &rarr; 5-phosphoribosylamine + glutamate + PP<sub>i</sub></td>
+              <td>Amidophosphoribosyltransferase commits carbon to purines.</td>
+            </tr>
+            <tr>
+              <td>IMP synthesis summary</td>
+              <td>PRPP + glycine + glutamine + aspartate + CO<sub>2</sub> + 10-formyl-THF + ATP &rarr; IMP + byproducts</td>
+              <td>The purine ring is assembled on ribose.</td>
+            </tr>
+            <tr>
+              <td>AMP branch</td>
+              <td>IMP + aspartate + GTP &rarr; adenylosuccinate &rarr; AMP + fumarate</td>
+              <td>Uses GTP to make AMP, balancing purine pools.</td>
+            </tr>
+            <tr>
+              <td>GMP branch</td>
+              <td>IMP + NAD<sup>+</sup> + H<sub>2</sub>O &rarr; XMP + NADH + H<sup>+</sup>; XMP + glutamine + ATP &rarr; GMP + glutamate + AMP + PP<sub>i</sub></td>
+              <td>Uses ATP to make GMP.</td>
+            </tr>
+            <tr>
+              <td>Salvage</td>
+              <td>Hypoxanthine + PRPP &rarr; IMP + PP<sub>i</sub>; guanine + PRPP &rarr; GMP + PP<sub>i</sub></td>
+              <td>HGPRT conserves purine bases.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Pyrimidines</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Carbamoyl phosphate synthetase II</td>
+              <td>Glutamine + HCO<sub>3</sub><sup>&minus;</sup> + 2 ATP + H<sub>2</sub>O &rarr; carbamoyl phosphate + glutamate + 2 ADP + P<sub>i</sub></td>
+              <td>Cytosolic first committed pyrimidine step.</td>
+            </tr>
+            <tr>
+              <td>Aspartate transcarbamoylase</td>
+              <td>Carbamoyl phosphate + aspartate &rarr; carbamoyl aspartate + P<sub>i</sub></td>
+              <td>Builds the pyrimidine ring before ribose attachment.</td>
+            </tr>
+            <tr>
+              <td>Dihydroorotate dehydrogenase</td>
+              <td>Dihydroorotate + Q &rarr; orotate + QH<sub>2</sub></td>
+              <td>Mitochondrial enzyme tied to the respiratory chain.</td>
+            </tr>
+            <tr>
+              <td>Orotate phosphoribosyltransferase</td>
+              <td>Orotate + PRPP &rarr; OMP + PP<sub>i</sub></td>
+              <td>Attaches ribose phosphate.</td>
+            </tr>
+            <tr>
+              <td>OMP decarboxylase</td>
+              <td>OMP &rarr; UMP + CO<sub>2</sub></td>
+              <td>Generates UMP.</td>
+            </tr>
+            <tr>
+              <td>CTP synthetase</td>
+              <td>UTP + glutamine + ATP + H<sub>2</sub>O &rarr; CTP + glutamate + ADP + P<sub>i</sub></td>
+              <td>Aminates UTP to CTP.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Deoxyribonucleotides and DNA</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ribonucleotide reductase</td>
+              <td>NDP + thioredoxin-(SH)<sub>2</sub> &rarr; dNDP + H<sub>2</sub>O + thioredoxin-S<sub>2</sub></td>
+              <td>Converts ribonucleotides to deoxyribonucleotides.</td>
+            </tr>
+            <tr>
+              <td>Thioredoxin reductase</td>
+              <td>Thioredoxin-S<sub>2</sub> + NADPH + H<sup>+</sup> &rarr; thioredoxin-(SH)<sub>2</sub> + NADP<sup>+</sup></td>
+              <td>Regenerates reducing power for DNA precursor synthesis.</td>
+            </tr>
+            <tr>
+              <td>Thymidylate synthase</td>
+              <td>dUMP + N<sup>5</sup>,N<sup>10</sup>-methylene-THF &rarr; dTMP + DHF</td>
+              <td>Connects folate metabolism to DNA synthesis.</td>
+            </tr>
+            <tr>
+              <td>DNA polymerase</td>
+              <td>(DNA)<sub>n</sub> + dNTP &rarr; (DNA)<sub>n+1</sub> + PP<sub>i</sub></td>
+              <td>Extends DNA using base pairing and triphosphate energy.</td>
+            </tr>
+            <tr>
+              <td>RNA polymerase</td>
+              <td>(RNA)<sub>n</sub> + NTP &rarr; (RNA)<sub>n+1</sub> + PP<sub>i</sub></td>
+              <td>Transcribes RNA from DNA templates.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Nucleotide Degradation</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Pathway</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>AMP deamination</td>
+              <td>AMP + H<sub>2</sub>O &rarr; IMP + NH<sub>4</sub><sup>+</sup></td>
+              <td>Important in muscle energy stress.</td>
+            </tr>
+            <tr>
+              <td>Adenosine deamination</td>
+              <td>Adenosine + H<sub>2</sub>O &rarr; inosine + NH<sub>4</sub><sup>+</sup></td>
+              <td>ADA deficiency impairs lymphocyte function.</td>
+            </tr>
+            <tr>
+              <td>Xanthine oxidoreductase</td>
+              <td>Hypoxanthine &rarr; xanthine &rarr; uric acid</td>
+              <td>Final human purine oxidation route.</td>
+            </tr>
+            <tr>
+              <td>Pyrimidine breakdown</td>
+              <td>Uracil &rarr; &beta;-alanine + CO<sub>2</sub> + NH<sub>4</sub><sup>+</sup></td>
+              <td>Pyrimidines degrade to soluble products rather than uric acid.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="one-carbon" class="chapter">
+        <h2>8. One-Carbon Metabolism and Vitamins</h2>
+        <p>One-carbon metabolism is the movement of single-carbon units for nucleotides, methylation, amino acid interconversion, and redox balance. It depends heavily on folate, cobalamin, riboflavin, niacin, vitamin B<sub>6</sub>, and choline/betaine pathways.</p>
+
+        <h3>Folate and Methionine Cycle</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Serine hydroxymethyltransferase</td>
+              <td>Serine + THF &harr; glycine + N<sup>5</sup>,N<sup>10</sup>-methylene-THF + H<sub>2</sub>O</td>
+              <td>Major source of one-carbon units.</td>
+            </tr>
+            <tr>
+              <td>MTHFR</td>
+              <td>N<sup>5</sup>,N<sup>10</sup>-methylene-THF + NADPH + H<sup>+</sup> &rarr; N<sup>5</sup>-methyl-THF + NADP<sup>+</sup></td>
+              <td>Creates methyl donor for methionine synthase.</td>
+            </tr>
+            <tr>
+              <td>Methionine synthase</td>
+              <td>Homocysteine + N<sup>5</sup>-methyl-THF &rarr; methionine + THF</td>
+              <td>Vitamin B<sub>12</sub>-dependent remethylation.</td>
+            </tr>
+            <tr>
+              <td>Betaine-homocysteine methyltransferase</td>
+              <td>Homocysteine + betaine &rarr; methionine + dimethylglycine</td>
+              <td>Liver and kidney backup methylation route.</td>
+            </tr>
+            <tr>
+              <td>Dihydrofolate reductase</td>
+              <td>DHF + NADPH + H<sup>+</sup> &rarr; THF + NADP<sup>+</sup></td>
+              <td>Regenerates reduced folate after thymidylate synthesis.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Vitamin-Linked Reactions</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Vitamin-derived cofactor</th>
+              <th>Representative reaction</th>
+              <th>Biochemical role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Thiamine pyrophosphate</td>
+              <td>Pyruvate + CoA-SH + NAD<sup>+</sup> &rarr; acetyl-CoA + CO<sub>2</sub> + NADH</td>
+              <td>Oxidative decarboxylation and two-carbon transfers.</td>
+            </tr>
+            <tr>
+              <td>Riboflavin as FAD/FMN</td>
+              <td>Succinate + FAD &rarr; fumarate + FADH<sub>2</sub></td>
+              <td>Protein-bound redox chemistry.</td>
+            </tr>
+            <tr>
+              <td>Niacin as NAD/NADP</td>
+              <td>Lactate + NAD<sup>+</sup> &harr; pyruvate + NADH + H<sup>+</sup></td>
+              <td>Hydride transfer in hundreds of reactions.</td>
+            </tr>
+            <tr>
+              <td>Pantothenate as CoA</td>
+              <td>Acetate + CoA-SH + ATP &rarr; acetyl-CoA + AMP + PP<sub>i</sub></td>
+              <td>Acyl activation and transfer.</td>
+            </tr>
+            <tr>
+              <td>Pyridoxal phosphate</td>
+              <td>Alanine + &alpha;-ketoglutarate &harr; pyruvate + glutamate</td>
+              <td>Amino acid transformations.</td>
+            </tr>
+            <tr>
+              <td>Biotin</td>
+              <td>Propionyl-CoA + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; D-methylmalonyl-CoA + ADP + P<sub>i</sub></td>
+              <td>Carboxylation chemistry.</td>
+            </tr>
+            <tr>
+              <td>Cobalamin</td>
+              <td>L-methylmalonyl-CoA &rarr; succinyl-CoA</td>
+              <td>Radical rearrangement and methyl transfer.</td>
+            </tr>
+            <tr>
+              <td>Vitamin C</td>
+              <td>Proline residue + &alpha;-ketoglutarate + O<sub>2</sub> &rarr; hydroxyproline residue + succinate + CO<sub>2</sub></td>
+              <td>Collagen hydroxylation and reducing cofactor chemistry.</td>
+            </tr>
+            <tr>
+              <td>Vitamin K</td>
+              <td>Glutamate residue + CO<sub>2</sub> + O<sub>2</sub> &rarr; &gamma;-carboxyglutamate residue</td>
+              <td>Carboxylates clotting factors and bone proteins.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="detox" class="chapter">
+        <h2>9. Detoxification, Redox Defense, and Signaling</h2>
+        <p>Cells constantly transform oxygen, xenobiotics, drugs, hormones, heme, bile pigments, and reactive intermediates. Detoxification is not a single pathway. It is a layered system of functionalization, conjugation, transport, and antioxidant repair.</p>
+
+        <h3>Alcohol and Acetate</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alcohol dehydrogenase</td>
+              <td>Ethanol + NAD<sup>+</sup> &rarr; acetaldehyde + NADH + H<sup>+</sup></td>
+              <td>Raises hepatic NADH/NAD<sup>+</sup>, altering lactate, fatty acid, and gluconeogenic metabolism.</td>
+            </tr>
+            <tr>
+              <td>Aldehyde dehydrogenase</td>
+              <td>Acetaldehyde + NAD<sup>+</sup> + H<sub>2</sub>O &rarr; acetate + NADH + 2 H<sup>+</sup></td>
+              <td>Detoxifies a reactive aldehyde.</td>
+            </tr>
+            <tr>
+              <td>Acetyl-CoA synthetase</td>
+              <td>Acetate + CoA-SH + ATP &rarr; acetyl-CoA + AMP + PP<sub>i</sub></td>
+              <td>Converts acetate into central metabolism.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Phase I and Phase II Chemistry</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cytochrome P450 hydroxylation</td>
+              <td>RH + O<sub>2</sub> + NADPH + H<sup>+</sup> &rarr; ROH + H<sub>2</sub>O + NADP<sup>+</sup></td>
+              <td>Functionalizes hydrophobic molecules; can detoxify or bioactivate.</td>
+            </tr>
+            <tr>
+              <td>Glucuronidation</td>
+              <td>ROH + UDP-glucuronate &rarr; R-O-glucuronide + UDP</td>
+              <td>Increases solubility for bile or urine excretion.</td>
+            </tr>
+            <tr>
+              <td>Sulfation</td>
+              <td>ROH + PAPS &rarr; R-OSO<sub>3</sub><sup>&minus;</sup> + PAP</td>
+              <td>Conjugates phenols, hormones, and xenobiotics.</td>
+            </tr>
+            <tr>
+              <td>Acetylation</td>
+              <td>Arylamine + acetyl-CoA &rarr; acetyl-arylamine + CoA-SH</td>
+              <td>N-acetyltransferase pathway with inherited rate variation.</td>
+            </tr>
+            <tr>
+              <td>Glutathione conjugation</td>
+              <td>R-X + GSH &rarr; R-SG + HX</td>
+              <td>Detoxifies electrophiles.</td>
+            </tr>
+            <tr>
+              <td>Methylation</td>
+              <td>R-XH + SAM &rarr; R-X-CH<sub>3</sub> + SAH</td>
+              <td>Changes activity and clearance of catechols, thiols, DNA, RNA, and proteins.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Reactive Oxygen and Nitrogen Species</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Reaction</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Superoxide dismutase</td>
+              <td>2 O<sub>2</sub><sup>&bull;&minus;</sup> + 2 H<sup>+</sup> &rarr; H<sub>2</sub>O<sub>2</sub> + O<sub>2</sub></td>
+              <td>Converts superoxide into hydrogen peroxide.</td>
+            </tr>
+            <tr>
+              <td>Catalase</td>
+              <td>2 H<sub>2</sub>O<sub>2</sub> &rarr; 2 H<sub>2</sub>O + O<sub>2</sub></td>
+              <td>High-capacity peroxide detoxification, especially peroxisomal.</td>
+            </tr>
+            <tr>
+              <td>Glutathione peroxidase</td>
+              <td>H<sub>2</sub>O<sub>2</sub> + 2 GSH &rarr; GSSG + 2 H<sub>2</sub>O</td>
+              <td>Selenium-dependent peroxide reduction.</td>
+            </tr>
+            <tr>
+              <td>Nitric oxide synthase</td>
+              <td>Arginine + O<sub>2</sub> + NADPH &rarr; citrulline + nitric oxide + NADP<sup>+</sup></td>
+              <td>Generates NO for vascular, neural, and immune signaling.</td>
+            </tr>
+            <tr>
+              <td>Peroxynitrite formation</td>
+              <td>NO + O<sub>2</sub><sup>&bull;&minus;</sup> &rarr; ONOO<sup>&minus;</sup></td>
+              <td>Reactive nitrogen chemistry under oxidative stress.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Second Messengers and Protein Switching</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Switch</th>
+              <th>Equation</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Adenylyl cyclase</td>
+              <td>ATP &rarr; cAMP + PP<sub>i</sub></td>
+              <td>Generates cAMP downstream of many G protein-coupled receptors.</td>
+            </tr>
+            <tr>
+              <td>Phosphodiesterase</td>
+              <td>cAMP + H<sub>2</sub>O &rarr; AMP</td>
+              <td>Turns off cyclic nucleotide signaling.</td>
+            </tr>
+            <tr>
+              <td>Guanylyl cyclase</td>
+              <td>GTP &rarr; cGMP + PP<sub>i</sub></td>
+              <td>NO-sensitive soluble guanylyl cyclase controls smooth muscle relaxation.</td>
+            </tr>
+            <tr>
+              <td>Protein kinase</td>
+              <td>Protein-OH + ATP &rarr; protein-O-PO<sub>3</sub><sup>2&minus;</sup> + ADP + H<sup>+</sup></td>
+              <td>Adds phosphate to serine, threonine, tyrosine, or histidine residues.</td>
+            </tr>
+            <tr>
+              <td>Protein phosphatase</td>
+              <td>Protein-O-PO<sub>3</sub><sup>2&minus;</sup> + H<sub>2</sub>O &rarr; protein-OH + P<sub>i</sub></td>
+              <td>Removes phosphate and resets signaling states.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="tissues" class="chapter">
+        <h2>10. Tissue-Level Integration</h2>
+        <p>The same pathways are expressed differently across tissues. Human biochemistry is therefore both molecular and anatomical. A liver cell, red blood cell, neuron, adipocyte, kidney tubule cell, and skeletal muscle fiber make different choices from the same chemical menu.</p>
+
+        <h3>Major Tissue Programs</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Tissue</th>
+              <th>Signature reactions</th>
+              <th>Metabolic role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Liver</td>
+              <td>Glucose-6-phosphate + H<sub>2</sub>O &rarr; glucose + P<sub>i</sub>; NH<sub>4</sub><sup>+</sup> + HCO<sub>3</sub><sup>&minus;</sup> + aspartate &rarr; urea</td>
+              <td>Blood glucose buffering, urea production, detoxification, bile acid synthesis, ketogenesis.</td>
+            </tr>
+            <tr>
+              <td>Skeletal muscle</td>
+              <td>Phosphocreatine + ADP + H<sup>+</sup> &harr; creatine + ATP; glycogen + P<sub>i</sub> &rarr; glucose-1-phosphate</td>
+              <td>Rapid ATP demand, glycogen storage for local use, amino acid export as alanine/glutamine.</td>
+            </tr>
+            <tr>
+              <td>Heart</td>
+              <td>Fatty acyl-CoA + O<sub>2</sub> &rarr; CO<sub>2</sub> + H<sub>2</sub>O + ATP</td>
+              <td>High continuous oxidative metabolism; flexible use of fatty acids, lactate, glucose, and ketones.</td>
+            </tr>
+            <tr>
+              <td>Brain</td>
+              <td>Glucose &rarr; CO<sub>2</sub> + H<sub>2</sub>O; &beta;-hydroxybutyrate &rarr; acetyl-CoA</td>
+              <td>Normally glucose-rich metabolism; uses ketones during fasting adaptation.</td>
+            </tr>
+            <tr>
+              <td>Adipose</td>
+              <td>Triacylglycerol + 3 H<sub>2</sub>O &rarr; glycerol + 3 fatty acids; glycerol-3-phosphate + acyl-CoA &rarr; triacylglycerol</td>
+              <td>Energy storage, endocrine signaling, fatty acid release.</td>
+            </tr>
+            <tr>
+              <td>Red blood cell</td>
+              <td>Glucose &rarr; lactate; glucose-6-phosphate + NADP<sup>+</sup> &rarr; NADPH</td>
+              <td>No mitochondria; relies on glycolysis, pentose phosphate pathway, and glutathione.</td>
+            </tr>
+            <tr>
+              <td>Kidney</td>
+              <td>Glutamine + H<sub>2</sub>O &rarr; glutamate + NH<sub>4</sub><sup>+</sup>; lactate &rarr; glucose</td>
+              <td>Acid-base balance, ammonium excretion, gluconeogenesis.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Fed, Fasting, and Exercise States</h3>
+        <div class="flow">
+          <div><strong>Fed:</strong> insulin favors glucose uptake, glycolysis, glycogen synthesis, fatty acid synthesis, protein synthesis, and storage.</div>
+          <div><strong>Early fasting:</strong> glucagon and epinephrine favor hepatic glycogenolysis, adipose lipolysis, gluconeogenesis, and fatty acid oxidation.</div>
+          <div><strong>Prolonged fasting:</strong> liver makes ketone bodies; kidney contributes more gluconeogenesis; muscle reduces glucose use to spare it for brain and red blood cells.</div>
+          <div><strong>Exercise:</strong> ATP demand increases phosphocreatine use, glycogenolysis, glycolysis, TCA flux, fatty acid oxidation, lactate exchange, and amino acid turnover depending on intensity and duration.</div>
+        </div>
+
+        <h3>Blood as the Common Exchange</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Carrier</th>
+              <th>Typical movement</th>
+              <th>Biochemical purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Glucose</td>
+              <td>Intestine/liver &rarr; blood &rarr; brain, muscle, adipose, red blood cells</td>
+              <td>Universal carbohydrate fuel and biosynthetic precursor.</td>
+            </tr>
+            <tr>
+              <td>Lactate</td>
+              <td>Muscle/RBC &rarr; blood &rarr; liver/heart/kidney</td>
+              <td>Carbon recycling and oxidative fuel.</td>
+            </tr>
+            <tr>
+              <td>Alanine</td>
+              <td>Muscle &rarr; liver</td>
+              <td>Nitrogen transport plus gluconeogenic carbon.</td>
+            </tr>
+            <tr>
+              <td>Glutamine</td>
+              <td>Muscle/other tissues &rarr; kidney, gut, immune cells</td>
+              <td>Nitrogen carrier, acid-base support, rapidly dividing cell fuel.</td>
+            </tr>
+            <tr>
+              <td>Free fatty acids</td>
+              <td>Adipose &rarr; albumin &rarr; liver, muscle, heart</td>
+              <td>High-energy fasting fuel.</td>
+            </tr>
+            <tr>
+              <td>Ketone bodies</td>
+              <td>Liver &rarr; brain, heart, muscle, kidney</td>
+              <td>Water-soluble exported acetyl units.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="appendix" class="chapter">
+        <h2>Appendix: Master Reaction Index</h2>
+        <p>This index gathers the key reactions from the book in compact form. It is a teaching index, not a replacement for Reactome, HumanCyc, HMDB, Human-GEM, Recon3D, or other pathway databases.</p>
+
+        <h3>Energy and Carbon</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Reaction</th>
+              <th>Pathway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Glucose oxidation</td><td>C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6 O<sub>2</sub> &rarr; 6 CO<sub>2</sub> + 6 H<sub>2</sub>O</td><td>Whole-body energy metabolism</td></tr>
+            <tr><td>ATP hydrolysis</td><td>ATP + H<sub>2</sub>O &rarr; ADP + P<sub>i</sub> + H<sup>+</sup></td><td>Energy coupling</td></tr>
+            <tr><td>Creatine kinase</td><td>Phosphocreatine + ADP + H<sup>+</sup> &harr; creatine + ATP</td><td>Energy buffering</td></tr>
+            <tr><td>Lactate dehydrogenase</td><td>Pyruvate + NADH + H<sup>+</sup> &harr; lactate + NAD<sup>+</sup></td><td>Anaerobic glycolysis</td></tr>
+            <tr><td>Pyruvate dehydrogenase</td><td>Pyruvate + CoA-SH + NAD<sup>+</sup> &rarr; acetyl-CoA + CO<sub>2</sub> + NADH + H<sup>+</sup></td><td>Carbohydrate oxidation</td></tr>
+            <tr><td>Citrate synthase</td><td>Oxaloacetate + acetyl-CoA + H<sub>2</sub>O &rarr; citrate + CoA-SH + H<sup>+</sup></td><td>TCA cycle</td></tr>
+            <tr><td>Isocitrate dehydrogenase</td><td>Isocitrate + NAD<sup>+</sup> &rarr; &alpha;-ketoglutarate + CO<sub>2</sub> + NADH + H<sup>+</sup></td><td>TCA cycle</td></tr>
+            <tr><td>Succinate dehydrogenase</td><td>Succinate + FAD &rarr; fumarate + FADH<sub>2</sub></td><td>TCA cycle and ETC Complex II</td></tr>
+            <tr><td>ATP synthase</td><td>ADP + P<sub>i</sub> + proton motive force &rarr; ATP + H<sub>2</sub>O</td><td>Oxidative phosphorylation</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Carbohydrates</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Reaction</th>
+              <th>Pathway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Hexokinase</td><td>Glucose + ATP &rarr; glucose-6-phosphate + ADP + H<sup>+</sup></td><td>Glycolysis</td></tr>
+            <tr><td>PFK-1</td><td>Fructose-6-phosphate + ATP &rarr; fructose-1,6-bisphosphate + ADP + H<sup>+</sup></td><td>Glycolysis</td></tr>
+            <tr><td>GAPDH</td><td>Glyceraldehyde-3-phosphate + P<sub>i</sub> + NAD<sup>+</sup> &harr; 1,3-bisphosphoglycerate + NADH + H<sup>+</sup></td><td>Glycolysis</td></tr>
+            <tr><td>Pyruvate kinase</td><td>Phosphoenolpyruvate + ADP + H<sup>+</sup> &rarr; pyruvate + ATP</td><td>Glycolysis</td></tr>
+            <tr><td>Pyruvate carboxylase</td><td>Pyruvate + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; oxaloacetate + ADP + P<sub>i</sub></td><td>Gluconeogenesis/anaplerosis</td></tr>
+            <tr><td>PEPCK</td><td>Oxaloacetate + GTP &rarr; phosphoenolpyruvate + GDP + CO<sub>2</sub></td><td>Gluconeogenesis</td></tr>
+            <tr><td>G6PD</td><td>Glucose-6-phosphate + NADP<sup>+</sup> &rarr; 6-phosphoglucono-&delta;-lactone + NADPH + H<sup>+</sup></td><td>Pentose phosphate pathway</td></tr>
+            <tr><td>Glycogen synthase</td><td>UDP-glucose + glycogen<sub>n</sub> &rarr; UDP + glycogen<sub>n+1</sub></td><td>Glycogen synthesis</td></tr>
+            <tr><td>Glycogen phosphorylase</td><td>Glycogen<sub>n</sub> + P<sub>i</sub> &rarr; glycogen<sub>n-1</sub> + glucose-1-phosphate</td><td>Glycogen breakdown</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Lipids</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Reaction</th>
+              <th>Pathway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Fatty acid activation</td><td>Fatty acid + CoA-SH + ATP &rarr; acyl-CoA + AMP + PP<sub>i</sub></td><td>Fatty acid metabolism</td></tr>
+            <tr><td>Acyl-CoA dehydrogenase</td><td>Acyl-CoA + FAD &rarr; trans-&Delta;<sup>2</sup>-enoyl-CoA + FADH<sub>2</sub></td><td>Beta-oxidation</td></tr>
+            <tr><td>Thiolase</td><td>3-ketoacyl-CoA + CoA-SH &rarr; acetyl-CoA + acyl-CoA<sub>n-2</sub></td><td>Beta-oxidation</td></tr>
+            <tr><td>Acetyl-CoA carboxylase</td><td>Acetyl-CoA + HCO<sub>3</sub><sup>&minus;</sup> + ATP &rarr; malonyl-CoA + ADP + P<sub>i</sub></td><td>Fatty acid synthesis</td></tr>
+            <tr><td>Fatty acid synthase</td><td>Acetyl-CoA + 7 malonyl-CoA + 14 NADPH + 14 H<sup>+</sup> &rarr; palmitate + 7 CO<sub>2</sub> + 8 CoA-SH + 14 NADP<sup>+</sup> + 6 H<sub>2</sub>O</td><td>Fatty acid synthesis</td></tr>
+            <tr><td>HMG-CoA reductase</td><td>HMG-CoA + 2 NADPH + 2 H<sup>+</sup> &rarr; mevalonate + CoA-SH + 2 NADP<sup>+</sup></td><td>Cholesterol synthesis</td></tr>
+            <tr><td>Ketogenesis</td><td>HMG-CoA &rarr; acetoacetate + acetyl-CoA</td><td>Fasting liver metabolism</td></tr>
+            <tr><td>Ketolysis</td><td>Acetoacetate + succinyl-CoA &rarr; acetoacetyl-CoA + succinate</td><td>Extrahepatic ketone use</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Nitrogen, Nucleotides, and Defense</h3>
+        <table class="reaction-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Reaction</th>
+              <th>Pathway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>ALT</td><td>Alanine + &alpha;-ketoglutarate &harr; pyruvate + glutamate</td><td>Amino acid metabolism</td></tr>
+            <tr><td>CPS I</td><td>NH<sub>4</sub><sup>+</sup> + HCO<sub>3</sub><sup>&minus;</sup> + 2 ATP &rarr; carbamoyl phosphate + 2 ADP + P<sub>i</sub></td><td>Urea cycle</td></tr>
+            <tr><td>Arginase</td><td>Arginine + H<sub>2</sub>O &rarr; ornithine + urea</td><td>Urea cycle</td></tr>
+            <tr><td>Phenylalanine hydroxylase</td><td>Phenylalanine + BH<sub>4</sub> + O<sub>2</sub> &rarr; tyrosine + BH<sub>2</sub> + H<sub>2</sub>O</td><td>Aromatic amino acids</td></tr>
+            <tr><td>PRPP synthetase</td><td>Ribose-5-phosphate + ATP &rarr; PRPP + AMP</td><td>Nucleotide synthesis</td></tr>
+            <tr><td>Thymidylate synthase</td><td>dUMP + N<sup>5</sup>,N<sup>10</sup>-methylene-THF &rarr; dTMP + DHF</td><td>DNA precursor synthesis</td></tr>
+            <tr><td>Cytochrome P450</td><td>RH + O<sub>2</sub> + NADPH + H<sup>+</sup> &rarr; ROH + H<sub>2</sub>O + NADP<sup>+</sup></td><td>Detoxification and steroid metabolism</td></tr>
+            <tr><td>Superoxide dismutase</td><td>2 O<sub>2</sub><sup>&bull;&minus;</sup> + 2 H<sup>+</sup> &rarr; H<sub>2</sub>O<sub>2</sub> + O<sub>2</sub></td><td>Antioxidant defense</td></tr>
+            <tr><td>Glutathione reductase</td><td>GSSG + NADPH + H<sup>+</sup> &rarr; 2 GSH + NADP<sup>+</sup></td><td>Antioxidant defense</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="references" class="chapter">
+        <h2>References and Databases</h2>
+        <p>The book text is original, but the pathway scope and reaction framing are aligned with standard biochemical references and curated pathway resources.</p>
+        <ol>
+          <li><a href="https://reactome.org/">Reactome Pathway Database</a>. Curated, peer-reviewed human pathway knowledge, including reaction-level biological processes.</li>
+          <li><a href="https://reactome.org/content/detail/R-HSA-1430728">Reactome: Metabolism</a>. Overview of human metabolic processes and pathway classification.</li>
+          <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK9903/">NCBI Bookshelf: Metabolic Energy, The Cell</a>. Overview of glycolysis, citric acid cycle, oxidative metabolism, and energy capture.</li>
+          <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK26882/">NCBI Bookshelf: How Cells Obtain Energy from Food, Molecular Biology of the Cell</a>. Broad treatment of cellular fuel oxidation and metabolic maps.</li>
+          <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK541072/">NCBI Bookshelf: Biochemistry, Citric Acid Cycle</a>. Clinical and biochemical summary of the TCA cycle.</li>
+          <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5840010/">Recon3D: A Resource Enabling a Three-Dimensional View of Gene Variation in Human Metabolism</a>. Genome-scale human metabolic reconstruction with thousands of reactions and metabolites.</li>
+          <li><a href="https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-s1-o12">HumanCyc overview</a>. Manually curated human enzymatic reaction and metabolic pathway database.</li>
+        </ol>
+        <div class="note">
+          For a truly exhaustive reaction inventory, use a database export from Reactome, HumanCyc/BioCyc, Human-GEM, Recon3D, HMDB, or Virtual Metabolic Human. A readable book can explain the chemistry; a database is the right shape for every compartment-specific, enzyme-specific, isoform-specific, and transport-specific reaction.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Human Biochemistry: A Reaction Atlas. Educational manuscript generated for local use. Open this HTML file in a browser and use the browser print dialog to export a PDF.</p>
+    </footer>
+  </div>
+</body>
+</html>

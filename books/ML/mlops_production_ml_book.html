@@ -1,0 +1,2034 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MLOps and ML Productionisation</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f4ee;
+      --ink: #17212a;
+      --muted: #5f6d77;
+      --line: #d8d0c2;
+      --panel: #ffffff;
+      --soft: #eee8dd;
+      --nav: #fbfaf7;
+      --blue: #1f6fb2;
+      --green: #2f7d57;
+      --red: #bd4b43;
+      --amber: #b87924;
+      --violet: #6b55a3;
+      --cyan: #147f87;
+      --shadow: 0 18px 48px rgba(23, 33, 42, .12);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #edf5ff;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    code {
+      border-radius: 4px;
+      background: #ede7dc;
+      padding: 1px 5px;
+      font-size: .92em;
+    }
+
+    pre {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8f4ed;
+      color: #203645;
+      padding: 16px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--nav);
+      padding: 28px 22px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .toc-title {
+      margin-bottom: 18px;
+      color: #203645;
+      font-weight: 800;
+    }
+
+    .breadcrumbs {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      font: 800 13px/1.25 var(--sans);
+    }
+
+    .toc .breadcrumbs a {
+      color: var(--blue);
+      text-decoration: none;
+      padding: 0;
+    }
+
+    .toc a {
+      display: block;
+      color: #364650;
+      text-decoration: none;
+      padding: 7px 0;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero,
+    .chapter,
+    .band {
+      padding: 54px 0;
+    }
+
+    .inner {
+      width: min(1140px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 94vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.88), rgba(255,255,255,.56)),
+        repeating-linear-gradient(0deg, rgba(31,111,178,.08), rgba(31,111,178,.08) 1px, transparent 1px, transparent 32px),
+        repeating-linear-gradient(90deg, rgba(47,125,87,.08), rgba(47,125,87,.08) 1px, transparent 1px, transparent 32px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(330px, .74fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--blue);
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 930px;
+      font-size: 64px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 42px;
+    }
+
+    h3 {
+      margin: 34px 0 10px;
+      font-size: 28px;
+    }
+
+    h4 {
+      margin: 24px 0 8px;
+      font-size: 21px;
+    }
+
+    .subtitle {
+      max-width: 820px;
+      margin: 18px 0 26px;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .lead {
+      max-width: 930px;
+      color: #2c3942;
+      font-size: 21px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .point {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.76);
+      padding: 12px;
+    }
+
+    .point:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .point:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .hero-visual,
+    .simulation {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.95);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid #e5ded3;
+      background: #fff;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font: 13px/1.35 var(--sans);
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .note {
+      margin: 22px 0;
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+      padding: 16px 18px;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff5e3;
+    }
+
+    .formula {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1ebe0;
+      color: #243643;
+      padding: 14px;
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #ede7dc;
+      color: #203645;
+    }
+
+    .simulation {
+      margin: 24px 0;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sim-header h3 {
+      margin-top: 0;
+    }
+
+    .sim-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font: 14px/1.45 var(--sans);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(126px, 1fr));
+      gap: 12px;
+      margin: 16px 0 18px;
+      font: 14px/1.3 var(--sans);
+    }
+
+    .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    .control input,
+    .control select,
+    .control textarea {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 9px;
+    }
+
+    .control textarea {
+      min-height: 86px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+
+    .control output {
+      color: var(--blue);
+      font-family: var(--mono);
+    }
+
+    .wide-control {
+      grid-column: span 2;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 306px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .viz-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      color: #203645;
+      font: 700 14px/1.2 var(--sans);
+    }
+
+    .shape {
+      color: var(--muted);
+      font: 12px/1.2 var(--mono);
+      font-weight: 500;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .metric {
+      min-height: 78px;
+      border-top: 3px solid var(--cyan);
+      background: #f8f4ed;
+      padding: 10px;
+    }
+
+    .metric:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .metric:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .metric:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .metric b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font: 13px/1.2 var(--mono);
+      overflow-wrap: anywhere;
+    }
+
+    .bars,
+    .matrix,
+    .rank-list,
+    .timeline,
+    .artifact-list {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(92px, .45fr) minmax(0, 1fr) 64px;
+      gap: 8px;
+      align-items: center;
+      margin: 7px 0;
+    }
+
+    .bar-track {
+      height: 18px;
+      overflow: hidden;
+      background: #eee7db;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .bar-row:nth-child(2n) .bar-fill {
+      background: var(--green);
+    }
+
+    .bar-row:nth-child(3n) .bar-fill {
+      background: var(--amber);
+    }
+
+    .matrix {
+      display: grid;
+      gap: 4px;
+      overflow: auto;
+    }
+
+    .matrix-row {
+      display: grid;
+      gap: 4px;
+      align-items: stretch;
+    }
+
+    .cell {
+      min-width: 42px;
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e5ded3;
+      background: #f8f4ed;
+      color: #203645;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .cell.header {
+      background: #ede7dc;
+      font-weight: 800;
+    }
+
+    .rank-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .rank-item {
+      border-left: 4px solid var(--blue);
+      background: #f8f4ed;
+      padding: 8px;
+    }
+
+    .rank-item b {
+      display: block;
+      margin-bottom: 3px;
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) 70px;
+      gap: 10px;
+      align-items: center;
+      border-left: 4px solid var(--blue);
+      background: #f8f4ed;
+      padding: 8px;
+    }
+
+    .stage.done {
+      border-left-color: var(--green);
+    }
+
+    .stage.warn {
+      border-left-color: var(--amber);
+    }
+
+    .stage.fail {
+      border-left-color: var(--red);
+    }
+
+    .stage b {
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+
+    .stage span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .artifact-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .artifact {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr);
+      gap: 8px;
+      border-left: 4px solid var(--violet);
+      background: #f8f4ed;
+      padding: 8px;
+    }
+
+    .artifact b {
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+
+    .atlas-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, .45fr) minmax(220px, .34fr) minmax(0, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+      font-family: var(--sans);
+    }
+
+    .atlas-tools input,
+    .atlas-tools select {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 10px;
+    }
+
+    .card-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: minmax(170px, .3fr) minmax(0, 1fr);
+      gap: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 14px;
+    }
+
+    .card-name {
+      margin-bottom: 6px;
+      color: #203645;
+      font: 800 15px/1.25 var(--sans);
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 6px;
+      background: var(--violet);
+      color: #fff;
+      padding: 5px 7px;
+      font: 12px/1 var(--sans);
+    }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--muted);
+      font: 12px/1.35 var(--sans);
+    }
+
+    .card-meta div {
+      border-left: 3px solid var(--blue);
+      background: #f6f1e9;
+      padding: 8px;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 64px;
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    @media (max-width: 1060px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .toc nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .hero-grid,
+      .split,
+      .sim-grid,
+      .atlas-tools,
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      .wide-control {
+        grid-column: span 1;
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1140px);
+      }
+
+      .hero,
+      .chapter,
+      .band {
+        padding: 34px 0;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-points,
+      .sim-controls,
+      .metric-grid,
+      .card-meta,
+      .stage,
+      .artifact {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row {
+        justify-content: flex-start;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Book breadcrumbs">
+        <a href="index.html">Home</a>
+        <a href="nlp_ml_book.html">Prev: NLP ML</a>
+      </nav>
+      <div class="toc-title">MLOps and Production ML</div>
+      <nav>
+        <a href="#preface">Preface</a>
+        <a href="#contracts">Production contracts</a>
+        <a href="#lifecycle">Lifecycle</a>
+        <a href="#use-cases">Use cases</a>
+        <a href="#systems">System patterns</a>
+        <a href="#simulators">Interactive demos</a>
+        <a href="#atlas">MLOps atlas</a>
+        <a href="#workflow">Operating model</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="preface">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | Section 05</p>
+            <h1>MLOps and ML Productionisation</h1>
+            <p class="subtitle">A practical book for turning models into operated systems: labels, training, evaluation, deployment, monitoring, feedback loops, large vision-language models, and agentic production workflows.</p>
+            <div class="hero-points">
+              <div class="point"><b>Models become services.</b><br>Track artifacts, versions, datasets, packages, endpoints, telemetry, incidents, and rollback paths.</div>
+              <div class="point"><b>Feedback closes the loop.</b><br>Production predictions become monitoring signals, review queues, labels, retraining data, and release decisions.</div>
+              <div class="point"><b>Large models need systems.</b><br>VLMs, LLMs, and agents add retrieval, tools, safety gates, cost controls, eval harnesses, and human review.</div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <canvas id="heroCanvas" width="720" height="520" aria-label="Animated MLOps lifecycle"></canvas>
+            <div class="legend">
+              <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>build</span>
+              <span class="legend-chip"><i class="swatch" style="background:#2f7d57"></i>serve</span>
+              <span class="legend-chip"><i class="swatch" style="background:#bd4b43"></i>monitor</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="contracts">
+        <div class="inner">
+          <p class="lead">Production ML is the discipline of keeping a model useful after it leaves a notebook. The contract includes data, labels, features, model artifacts, packages, runtime behavior, monitoring, and the decisions made from predictions.</p>
+
+          <h2>1. Production Contracts</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Contract</th>
+                <th>Artifact</th>
+                <th>Owner question</th>
+                <th>Failure mode</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data contract</td>
+                <td>Schema, source, sampling window, split policy, quality rules.</td>
+                <td>Can we reproduce the exact rows and know why they were included?</td>
+                <td>Training data silently differs from production input.</td>
+              </tr>
+              <tr>
+                <td>Label contract</td>
+                <td>Guidelines, annotator policy, weak-label rules, gold set, adjudication.</td>
+                <td>Does the label mean the same thing across people and time?</td>
+                <td>Model learns inconsistent business policy, not ground truth.</td>
+              </tr>
+              <tr>
+                <td>Feature contract</td>
+                <td>Transform code, feature store definitions, freshness, null policy.</td>
+                <td>Are offline and online features computed the same way?</td>
+                <td>Training-serving skew and hidden leakage.</td>
+              </tr>
+              <tr>
+                <td>Model contract</td>
+                <td>Model version, hyperparameters, training code, metrics, calibration.</td>
+                <td>What changed and why should this model replace the old one?</td>
+                <td>Unreviewed regression hidden by one aggregate metric.</td>
+              </tr>
+              <tr>
+                <td>Serving contract</td>
+                <td>Container, endpoint, batch job, runtime, dependencies, hardware target.</td>
+                <td>Can the model meet latency, throughput, cost, and reliability needs?</td>
+                <td>Good offline model cannot operate inside production constraints.</td>
+              </tr>
+              <tr>
+                <td>Monitoring contract</td>
+                <td>Telemetry, alerts, dashboards, drift tests, feedback sampling.</td>
+                <td>How do we know the model is wrong before customers tell us?</td>
+                <td>Model decays quietly after data, users, or policy changes.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <b>Rule of thumb:</b> a model is not productionised until it has a rollback path, an owner, an evaluation report, monitored inputs and outputs, and a plan for collecting new labels.
+          </div>
+
+          <h3>Minimal production manifest</h3>
+          <pre><code>model:
+  name: fraud_risk_v17
+  training_data: transactions_2026_04_train
+  evaluation_data: transactions_2026_05_holdout
+  metrics: precision@alert_budget, recall, calibration, latency_p95
+  package: image_sha256_or_model_registry_uri
+  serving: online_endpoint_or_batch_job
+  monitors: schema, drift, missingness, score_distribution, delayed_labels
+  release: shadow -> canary -> 50% -> 100% with rollback</code></pre>
+        </div>
+      </section>
+
+      <section class="band" id="lifecycle">
+        <div class="inner">
+          <h2>2. The Closed Production Loop</h2>
+          <p class="lead">The useful mental model is a loop, not a one-way pipeline. Production data creates feedback; feedback creates labels; labels create better evaluations and retraining; release decisions create new production data.</p>
+
+          <div class="split">
+            <div>
+              <h3>Small model loop</h3>
+              <ol>
+                <li>Define the decision and collect candidate examples.</li>
+                <li>Label enough examples for a baseline and a holdout set.</li>
+                <li>Train a simple model with leakage-safe splits.</li>
+                <li>Evaluate against operational metrics and slices.</li>
+                <li>Package preprocessing and model together.</li>
+                <li>Deploy behind shadow, canary, or batch review.</li>
+                <li>Monitor input drift, output drift, latency, missing values, and delayed labels.</li>
+                <li>Route uncertain or high-impact cases to human review.</li>
+                <li>Use reviewed cases to refresh labels and retrain.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>Large model loop</h3>
+              <ol>
+                <li>Define prompt, tool, retrieval, and output schema contracts.</li>
+                <li>Build an eval set with exact checks and human rubrics.</li>
+                <li>Choose hosted, self-hosted, quantized, or fine-tuned models.</li>
+                <li>Measure latency, cost, context use, refusal, safety, and grounding.</li>
+                <li>Add retrieval, validators, guardrails, and tool permission boundaries.</li>
+                <li>Log prompts, retrieved evidence, tool calls, outputs, and user feedback.</li>
+                <li>Sample failures into review queues and update evals before changing prompts.</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="formula">label -> train -> evaluate -> package -> deploy -> monitor -> review -> relabel -> retrain</div>
+        </div>
+      </section>
+
+      <section class="chapter" id="use-cases">
+        <div class="inner">
+          <h2>3. Production ML Use Cases</h2>
+          <p class="lead">MLOps differs by the decision being automated. A nightly churn model, a real-time fraud service, a medical image triage model, and a VLLM agent need different release gates and monitors.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Use case</th>
+                <th>Model pattern</th>
+                <th>Production risk</th>
+                <th>Key monitors</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Fraud alerting</td>
+                <td>Tabular classifier, graph features, rules plus ML.</td>
+                <td>Adversarial drift, alert fatigue, delayed chargeback labels.</td>
+                <td>Precision at alert budget, recall on delayed labels, score distribution, entity drift.</td>
+              </tr>
+              <tr>
+                <td>Demand forecasting</td>
+                <td>Time series models, regressors, hierarchical forecasts.</td>
+                <td>Calendar shifts, stockouts, promotion leakage, stale exogenous features.</td>
+                <td>MAPE/MAE by horizon, bias, seasonality drift, backtest freshness.</td>
+              </tr>
+              <tr>
+                <td>Recommendation ranking</td>
+                <td>Two-stage retrieval and ranker, embeddings, bandits.</td>
+                <td>Feedback loops, popularity bias, cold-start failures.</td>
+                <td>CTR, conversion, diversity, novelty, coverage, online experiment guardrails.</td>
+              </tr>
+              <tr>
+                <td>Computer vision inspection</td>
+                <td>CNN/ViT detector or segmenter.</td>
+                <td>Lighting, camera angle, product mix, annotation boundary policy.</td>
+                <td>Per-class IoU/recall, false reject rate, image quality, camera drift.</td>
+              </tr>
+              <tr>
+                <td>Document automation</td>
+                <td>OCR, layout model, LLM extraction, validators.</td>
+                <td>Wrong field extraction, invalid JSON, hallucinated values.</td>
+                <td>Schema validity, field-level exact match, confidence, human correction rate.</td>
+              </tr>
+              <tr>
+                <td>Support agent assistant</td>
+                <td>RAG plus tool-calling LLM agent.</td>
+                <td>Unsupported answers, unsafe tool calls, prompt injection.</td>
+                <td>Answer groundedness, citation coverage, tool success, escalation rate, cost per case.</td>
+              </tr>
+              <tr>
+                <td>Vision-language safety review</td>
+                <td>VLM classifier plus policy engine and reviewer queue.</td>
+                <td>Multimodal false negatives, policy drift, demographic or context bias.</td>
+                <td>Policy precision/recall, review disagreement, image source drift, appeal rate.</td>
+              </tr>
+              <tr>
+                <td>Autonomous coding or operations agent</td>
+                <td>LLM planner, tools, sandbox, tests, approval gates.</td>
+                <td>Bad tool arguments, destructive actions, hidden state, flaky tests.</td>
+                <td>Task success, tool error rate, diff review findings, approval overrides, incident count.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="band" id="systems">
+        <div class="inner">
+          <h2>4. Production System Patterns</h2>
+          <p class="lead">The right architecture depends on latency, feedback delay, cost, risk, and how frequently the world changes.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Pattern</th>
+                <th>When it fits</th>
+                <th>Core design</th>
+                <th>Release gate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Batch scoring</td>
+                <td>Daily lists, forecasts, campaign targeting, offline ranking.</td>
+                <td>Scheduled feature build, batch predict, output table, downstream checks.</td>
+                <td>Data freshness, row count, score distribution, backtest score.</td>
+              </tr>
+              <tr>
+                <td>Online endpoint</td>
+                <td>Fraud, personalization, search ranking, real-time moderation.</td>
+                <td>Low-latency feature fetch, model server, request logging, fallback.</td>
+                <td>Latency p95/p99, error rate, canary metrics, rollback health.</td>
+              </tr>
+              <tr>
+                <td>Streaming inference</td>
+                <td>IoT, clicks, financial events, monitoring signals.</td>
+                <td>Event bus, stateful features, streaming model, windowed monitors.</td>
+                <td>Lag, exactly-once/at-least-once semantics, state correctness.</td>
+              </tr>
+              <tr>
+                <td>Edge deployment</td>
+                <td>Mobile, robotics, cameras, low-connectivity sites.</td>
+                <td>Compressed model, local runtime, telemetry sync, remote update policy.</td>
+                <td>Device latency, memory, battery, rollback package, sensor coverage.</td>
+              </tr>
+              <tr>
+                <td>Self-hosted VLLM/LLM service</td>
+                <td>Privacy, cost control, high throughput, domain fine-tunes.</td>
+                <td>GPU scheduler, batching, KV cache, quantization, routing, prompt logs.</td>
+                <td>Tokens/sec, queue time, context length, eval score, safety tests.</td>
+              </tr>
+              <tr>
+                <td>Agentic workflow</td>
+                <td>Multi-step tasks with tools, retrieval, review, and state.</td>
+                <td>Planner, tool registry, permissions, validators, memory, audit log.</td>
+                <td>Tool-call accuracy, schema validity, human approval, sandbox tests.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>5. Interactive Demos</h2>
+          <p class="lead">These demos compress production decisions into small local simulations. They are intentionally simplified, but each computes real tradeoffs: labels, metrics, traffic, drift, cost, latency, review queues, and release risk.</p>
+
+          <div class="simulation" id="pipelineSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Full Label -> Train -> Evaluate -> Production -> Monitor -> Relabel Loop</h3>
+                <p>A small classifier goes through the complete production cycle. Labels improve the model; drift and feedback decide whether the next cycle is safe.</p>
+              </div>
+              <div class="button-row">
+                <button type="button" id="pipeRun">Run full cycle</button>
+                <button type="button" id="pipeFeedback">Add reviewed labels</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Initial labels <output id="pipeLabelsOut">80</output>
+                <input id="pipeLabels" type="range" min="30" max="220" value="80">
+              </label>
+              <label class="control">Label noise <output id="pipeNoiseOut">0.08</output>
+                <input id="pipeNoise" type="range" min="0" max="35" value="8">
+              </label>
+              <label class="control">Model capacity <output id="pipeCapacityOut">0.55</output>
+                <input id="pipeCapacity" type="range" min="20" max="100" value="55">
+              </label>
+              <label class="control">Production drift <output id="pipeDriftOut">0.18</output>
+                <input id="pipeDrift" type="range" min="0" max="70" value="18">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Lifecycle and production sample</span><span class="shape" id="pipeShape">cycle 0</span></div>
+                <canvas id="pipeCanvas" width="760" height="520" aria-label="Full ML production lifecycle simulator"></canvas>
+                <div class="timeline" id="pipeTimeline"></div>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Holdout F1</b><span id="pipeF1"></span></div>
+                  <div class="metric"><b>Prod precision</b><span id="pipePrecision"></span></div>
+                  <div class="metric"><b>Drift PSI</b><span id="pipePsi"></span></div>
+                  <div class="metric"><b>Release state</b><span id="pipeRelease"></span></div>
+                </div>
+                <div class="artifact-list" id="pipeArtifacts"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="labelSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Active Labeling Queue</h3>
+                <p>Choose a review budget and sampling policy. Active learning sends uncertain or high-risk examples to human review instead of labeling uniformly at random.</p>
+              </div>
+              <button type="button" id="labelReview">Review batch</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Review budget <output id="labelBudgetOut">24</output>
+                <input id="labelBudget" type="range" min="5" max="80" value="24">
+              </label>
+              <label class="control">Sampling policy
+                <select id="labelPolicy">
+                  <option value="uncertain">uncertainty</option>
+                  <option value="risk">high risk</option>
+                  <option value="random">random</option>
+                </select>
+              </label>
+              <label class="control">Positive rarity <output id="labelRarityOut">0.28</output>
+                <input id="labelRarity" type="range" min="8" max="50" value="28">
+              </label>
+              <label class="control">Reviewer accuracy <output id="labelAccuracyOut">0.94</output>
+                <input id="labelAccuracy" type="range" min="70" max="100" value="94">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Unlabeled pool and review picks</span><span class="shape" id="labelShape"></span></div>
+                <canvas id="labelCanvas" width="760" height="520" aria-label="Active learning labeling queue simulator"></canvas>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Reviewed</b><span id="labelReviewed"></span></div>
+                  <div class="metric"><b>Useful labels</b><span id="labelUseful"></span></div>
+                  <div class="metric"><b>Estimated gain</b><span id="labelGain"></span></div>
+                  <div class="metric"><b>Queue risk</b><span id="labelRisk"></span></div>
+                </div>
+                <div class="bars" id="labelBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="driftSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Monitoring and Drift Lab</h3>
+                <p>Feature drift can appear before delayed labels arrive. Compare distribution drift, score drift, error estimates, latency, and alert thresholds.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Feature drift <output id="driftFeatureOut">0.25</output>
+                <input id="driftFeature" type="range" min="0" max="90" value="25">
+              </label>
+              <label class="control">Label delay days <output id="driftDelayOut">7</output>
+                <input id="driftDelay" type="range" min="0" max="30" value="7">
+              </label>
+              <label class="control">Traffic change <output id="driftTrafficOut">1.15</output>
+                <input id="driftTraffic" type="range" min="50" max="210" value="115">
+              </label>
+              <label class="control">Alert threshold <output id="driftThresholdOut">0.20</output>
+                <input id="driftThreshold" type="range" min="5" max="55" value="20">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Production telemetry</span><span class="shape" id="driftShape">30 day window</span></div>
+                <canvas id="driftCanvas" width="760" height="520" aria-label="MLOps drift monitoring simulator"></canvas>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Feature PSI</b><span id="driftPsi"></span></div>
+                  <div class="metric"><b>Score shift</b><span id="driftScore"></span></div>
+                  <div class="metric"><b>Error estimate</b><span id="driftError"></span></div>
+                  <div class="metric"><b>Alert</b><span id="driftAlert"></span></div>
+                </div>
+                <div class="bars" id="driftBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="deploySimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Shadow, Canary, and Rollback Decisions</h3>
+                <p>Compare old and new model versions under traffic. A new model should beat quality gates without breaking latency, cost, or incident budgets.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">New model lift <output id="deployLiftOut">0.06</output>
+                <input id="deployLift" type="range" min="-12" max="18" value="6">
+              </label>
+              <label class="control">Canary traffic <output id="deployTrafficOut">10%</output>
+                <input id="deployTraffic" type="range" min="0" max="100" value="10">
+              </label>
+              <label class="control">Latency overhead <output id="deployLatencyOut">18 ms</output>
+                <input id="deployLatency" type="range" min="0" max="160" value="18">
+              </label>
+              <label class="control">Cost overhead <output id="deployCostOut">12%</output>
+                <input id="deployCost" type="range" min="0" max="160" value="12">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Release gate comparison</span><span class="shape" id="deployShape"></span></div>
+                <div class="matrix" id="deployMatrix"></div>
+                <div class="bars" id="deployBars"></div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Quality delta</b><span id="deployQuality"></span></div>
+                <div class="metric"><b>Latency p95</b><span id="deployP95"></span></div>
+                <div class="metric"><b>Expected cost</b><span id="deployCostMetric"></span></div>
+                <div class="metric"><b>Decision</b><span id="deployDecision"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="agentSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>VLLM, LLM, and Agent Operations</h3>
+                <p>Large-model systems add context windows, GPU capacity, retrieval quality, tool reliability, validation gates, and cost ceilings.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">System type
+                <select id="agentType">
+                  <option value="rag">RAG answer bot</option>
+                  <option value="vlm">vision-language reviewer</option>
+                  <option value="agent">tool-using agent</option>
+                </select>
+              </label>
+              <label class="control">Context tokens <output id="agentContextOut">8000</output>
+                <input id="agentContext" type="range" min="1000" max="32000" step="1000" value="8000">
+              </label>
+              <label class="control">Retrieval quality <output id="agentRetrievalOut">0.78</output>
+                <input id="agentRetrieval" type="range" min="25" max="98" value="78">
+              </label>
+              <label class="control">Tool reliability <output id="agentToolsOut">0.90</output>
+                <input id="agentTools" type="range" min="45" max="99" value="90">
+              </label>
+              <label class="control">Concurrent requests <output id="agentConcOut">24</output>
+                <input id="agentConc" type="range" min="1" max="96" value="24">
+              </label>
+              <label class="control">Safety gate
+                <select id="agentSafety">
+                  <option value="strict">strict</option>
+                  <option value="balanced">balanced</option>
+                  <option value="open">open</option>
+                </select>
+              </label>
+              <label class="control">Model size
+                <select id="agentModel">
+                  <option value="small">small/fast</option>
+                  <option value="medium">medium</option>
+                  <option value="large">large/accurate</option>
+                </select>
+              </label>
+              <label class="control">Human review <output id="agentReviewOut">18%</output>
+                <input id="agentReview" type="range" min="0" max="70" value="18">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div>
+                <div class="viz-title"><span>Agent system path</span><span class="shape" id="agentShape"></span></div>
+                <canvas id="agentCanvas" width="760" height="520" aria-label="Large model and agent operations simulator"></canvas>
+                <div class="bars" id="agentBars"></div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Success rate</b><span id="agentSuccess"></span></div>
+                <div class="metric"><b>Latency p95</b><span id="agentLatency"></span></div>
+                <div class="metric"><b>Cost / 1k</b><span id="agentCost"></span></div>
+                <div class="metric"><b>Ops risk</b><span id="agentRisk"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="atlas">
+        <div class="inner">
+          <h2>6. MLOps Pattern Atlas</h2>
+          <p class="lead">Use this atlas to connect production problems to the right controls, metrics, and failure modes.</p>
+
+          <div class="atlas-tools">
+            <input id="patternSearch" type="search" placeholder="Search patterns, metrics, controls, risks" aria-label="Search MLOps patterns">
+            <select id="patternFamily" aria-label="Filter pattern family">
+              <option value="all">All families</option>
+            </select>
+            <div class="formula" id="patternCount">0 patterns</div>
+          </div>
+          <div class="card-list" id="patternList"></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="workflow">
+        <div class="inner">
+          <h2>7. Operating Model</h2>
+          <p class="lead">MLOps is partly tooling, but mostly operating discipline. Every production model needs owners, release gates, escalation paths, and feedback ownership.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Function</th>
+                <th>Responsibilities</th>
+                <th>Good evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Product owner</td>
+                <td>Defines the decision, risk tolerance, fallback, and business metric.</td>
+                <td>Clear launch criteria and rollback criteria.</td>
+              </tr>
+              <tr>
+                <td>Data owner</td>
+                <td>Maintains source definitions, schema changes, quality tests, and data access.</td>
+                <td>Passing data contracts, lineage, and freshness checks.</td>
+              </tr>
+              <tr>
+                <td>ML engineer</td>
+                <td>Builds training, evaluation, packaging, inference, and monitoring workflows.</td>
+                <td>Reproducible runs, versioned artifacts, deterministic release pipeline.</td>
+              </tr>
+              <tr>
+                <td>Reviewer or domain expert</td>
+                <td>Defines labels, audits examples, adjudicates ambiguity, and reviews failures.</td>
+                <td>Label guidelines, disagreement rates, sampled production reviews.</td>
+              </tr>
+              <tr>
+                <td>Operations owner</td>
+                <td>Handles alerts, incidents, capacity, latency, cost, and on-call procedures.</td>
+                <td>Dashboards, runbooks, SLOs, incident history, capacity plan.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Release checklist</h3>
+          <ul>
+            <li>Training data and evaluation data are versioned and reproducible.</li>
+            <li>The validation split matches the deployment risk: time, user, site, camera, document family, or session.</li>
+            <li>Metrics include slices, not only one aggregate score.</li>
+            <li>The package contains preprocessing and model code together.</li>
+            <li>Shadow or canary telemetry is compared against the current model.</li>
+            <li>Rollback, fallback, human review, and incident paths are written down.</li>
+            <li>Monitoring covers schema, missingness, drift, score distribution, latency, errors, and delayed labels.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="band" id="debugging">
+        <div class="inner">
+          <h2>8. Debugging Production ML</h2>
+          <p class="lead">Production failures are usually contract failures: the model sees different data, different labels, different users, different context, or different operational constraints than the evaluation assumed.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Symptom</th>
+                <th>Likely cause</th>
+                <th>Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Offline score is good, production score is bad</td>
+                <td>Training-serving skew, leakage, wrong split, changed population.</td>
+                <td>Replay production requests through training transforms and compare feature distributions.</td>
+              </tr>
+              <tr>
+                <td>Model decays slowly</td>
+                <td>Concept drift, user behavior shift, policy change, stale labels.</td>
+                <td>Monitor delayed labels by time, segment, source, and score band.</td>
+              </tr>
+              <tr>
+                <td>Canary looks unstable</td>
+                <td>Too little traffic, uneven routing, hidden dependency, latency tail.</td>
+                <td>Check sample size, request mix, p95/p99, dependency error rates.</td>
+              </tr>
+              <tr>
+                <td>RAG or LLM system gives unsupported answers</td>
+                <td>Retriever miss, stale index, bad chunking, prompt ignores evidence.</td>
+                <td>Log query, retrieved chunks, citations, answer, validator result, and user feedback.</td>
+              </tr>
+              <tr>
+                <td>Agent causes bad action</td>
+                <td>Tool permissions too broad, weak schema, no approval gate, hidden state.</td>
+                <td>Replay tool calls, validate arguments, add sandboxing and human approval for irreversible actions.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code># Production incident triage
+1. Freeze the affected model version and traffic window.
+2. Pull request logs, input features, model scores, outputs, and downstream decisions.
+3. Compare against the training/evaluation distribution.
+4. Slice failures by source, time, class, user segment, and confidence band.
+5. Decide: rollback, threshold change, fallback, hotfix, relabel, or retrain.
+6. Add a regression test or monitor so the same failure is caught earlier next time.</code></pre>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="inner">Standalone HTML/CSS/JS edition. All simulations run locally in the browser.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const COLORS = {
+      blue: "#1f6fb2",
+      green: "#2f7d57",
+      red: "#bd4b43",
+      amber: "#b87924",
+      violet: "#6b55a3",
+      cyan: "#147f87",
+      ink: "#17212a",
+      line: "#d8d0c2"
+    };
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const round = (value, places = 2) => Number.parseFloat(value).toFixed(places);
+    const sum = values => values.reduce((acc, value) => acc + value, 0);
+    const mean = values => sum(values) / values.length;
+    const unique = values => Array.from(new Set(values));
+
+    function lcg(seed) {
+      let state = seed >>> 0;
+      return () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 4294967296;
+      };
+    }
+
+    function gaussian(rand) {
+      const u = Math.max(rand(), 1e-6);
+      const v = Math.max(rand(), 1e-6);
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return ctx;
+    }
+
+    function renderBars(target, labels, values, options = {}) {
+      const root = typeof target === "string" ? document.getElementById(target) : target;
+      const max = Math.max(...values.map(value => Math.abs(value)), .001);
+      root.innerHTML = "";
+      labels.forEach((label, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const name = document.createElement("span");
+        name.textContent = label;
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.width = `${Math.round(Math.abs(values[index]) / max * 100)}%`;
+        if (values[index] < 0) fill.style.background = COLORS.red;
+        const value = document.createElement("span");
+        value.textContent = options.percent ? `${round(values[index] * 100, 1)}%` : round(values[index], options.places ?? 2);
+        track.appendChild(fill);
+        row.append(name, track, value);
+        root.appendChild(row);
+      });
+    }
+
+    function renderMatrix(target, rows) {
+      const root = document.getElementById(target);
+      root.innerHTML = "";
+      rows.forEach((row, rowIndex) => {
+        const line = document.createElement("div");
+        line.className = "matrix-row";
+        line.style.gridTemplateColumns = `repeat(${row.length}, minmax(58px, 1fr))`;
+        row.forEach((value, colIndex) => {
+          const cell = document.createElement("div");
+          cell.className = rowIndex === 0 || colIndex === 0 ? "cell header" : "cell";
+          cell.textContent = value.text ?? value;
+          if (value.bg) cell.style.background = value.bg;
+          if (value.color) cell.style.color = value.color;
+          line.appendChild(cell);
+        });
+        root.appendChild(line);
+      });
+    }
+
+    function metricCounts(preds, labels) {
+      let tp = 0, tn = 0, fp = 0, fn = 0;
+      preds.forEach((pred, index) => {
+        if (pred === 1 && labels[index] === 1) tp += 1;
+        else if (pred === 0 && labels[index] === 0) tn += 1;
+        else if (pred === 1 && labels[index] === 0) fp += 1;
+        else fn += 1;
+      });
+      const precision = tp / Math.max(tp + fp, 1);
+      const recall = tp / Math.max(tp + fn, 1);
+      const f1 = 2 * precision * recall / Math.max(precision + recall, 1e-6);
+      const accuracy = (tp + tn) / Math.max(preds.length, 1);
+      return { tp, tn, fp, fn, precision, recall, f1, accuracy };
+    }
+
+    function generatePoints(count, seed, drift = 0, rarity = .5) {
+      const rand = lcg(seed);
+      return Array.from({ length: count }, (_, i) => {
+        const positive = rand() < rarity;
+        const cx = positive ? .62 + drift * .34 : .34 + drift * .12;
+        const cy = positive ? .62 - drift * .12 : .36 + drift * .22;
+        const x = clamp(cx + gaussian(rand) * .13, .02, .98);
+        const y = clamp(cy + gaussian(rand) * .13, .02, .98);
+        const score = clamp((x + y) / 2 + (positive ? .12 : -.08) + gaussian(rand) * .06, 0, 1);
+        return { x, y, label: positive ? 1 : 0, score, risk: clamp(score * .7 + y * .3, 0, 1), id: i };
+      });
+    }
+
+    function drawScatter(canvas, points, options = {}) {
+      const ctx = clearCanvas(canvas);
+      ctx.strokeStyle = "rgba(23,33,42,.08)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= canvas.width; x += canvas.width / 8) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += canvas.height / 6) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      if (options.threshold !== undefined) {
+        const x1 = canvas.width * .08;
+        const y1 = canvas.height * (1 - clamp(options.threshold - .08, 0, 1));
+        const x2 = canvas.width * .92;
+        const y2 = canvas.height * (1 - clamp(options.threshold + .08, 0, 1));
+        ctx.strokeStyle = COLORS.ink;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+      points.forEach(point => {
+        const x = point.x * canvas.width;
+        const y = (1 - point.y) * canvas.height;
+        const selected = options.selected && options.selected.has(point.id);
+        ctx.fillStyle = selected ? COLORS.amber : point.label ? COLORS.blue : COLORS.green;
+        ctx.strokeStyle = selected ? COLORS.ink : "#fff";
+        ctx.lineWidth = selected ? 2.5 : 1.2;
+        ctx.beginPath();
+        ctx.arc(x, y, selected ? 7 : 4.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+    }
+
+    const pipelineState = { cycle: 0, labels: 80, last: null };
+
+    function computePipeline() {
+      const labels = pipelineState.labels;
+      const noise = Number(document.getElementById("pipeNoise").value) / 100;
+      const capacity = Number(document.getElementById("pipeCapacity").value) / 100;
+      const drift = Number(document.getElementById("pipeDrift").value) / 100;
+      const holdout = generatePoints(220, 21 + pipelineState.cycle, 0, .5);
+      const prod = generatePoints(220, 61 + pipelineState.cycle, drift, .5);
+      const learned = clamp(.42 + Math.log(labels) / 13 + capacity * .25 - noise * .8, .35, .86);
+      const threshold = clamp(.5 + (1 - capacity) * .08 + noise * .12, .35, .72);
+      const holdoutPreds = holdout.map(p => p.score + (learned - .6) * .26 > threshold ? 1 : 0);
+      const prodPreds = prod.map(p => p.score + (learned - .6) * .26 - drift * .24 > threshold ? 1 : 0);
+      const holdoutMetrics = metricCounts(holdoutPreds, holdout.map(p => p.label));
+      const prodMetrics = metricCounts(prodPreds, prod.map(p => p.label));
+      const psi = drift * 1.4 + noise * .18;
+      const release = holdoutMetrics.f1 > .72 && psi < .45 && prodMetrics.precision > .67 ? "promote" : psi > .45 ? "hold: drift" : "review";
+      return { labels, noise, capacity, drift, holdout, prod, holdoutMetrics, prodMetrics, psi, release, threshold, learned };
+    }
+
+    function renderTimeline(result) {
+      const stages = [
+        ["label", `${result.labels} labels, noise ${round(result.noise, 2)}`],
+        ["train", `capacity ${round(result.capacity, 2)}, learned signal ${round(result.learned, 2)}`],
+        ["evaluate", `holdout F1 ${round(result.holdoutMetrics.f1, 2)}`],
+        ["deploy", `threshold ${round(result.threshold, 2)}, state ${result.release}`],
+        ["monitor", `PSI ${round(result.psi, 2)}, prod precision ${round(result.prodMetrics.precision, 2)}`],
+        ["review", result.release === "promote" ? "sample feedback" : "route failures to review"]
+      ];
+      const root = document.getElementById("pipeTimeline");
+      root.innerHTML = "";
+      stages.forEach(([name, text], index) => {
+        const row = document.createElement("div");
+        row.className = "stage " + (result.release === "promote" ? "done" : index >= 3 ? "warn" : "done");
+        row.innerHTML = `<b>${name}</b><span>${text}</span><span>${index + 1}/6</span>`;
+        root.appendChild(row);
+      });
+    }
+
+    function renderArtifacts(result) {
+      const artifacts = [
+        ["dataset", `labels=${result.labels}, cycle=${pipelineState.cycle}`],
+        ["model", `capacity=${round(result.capacity, 2)}, threshold=${round(result.threshold, 2)}`],
+        ["eval", `F1=${round(result.holdoutMetrics.f1, 2)}, precision=${round(result.holdoutMetrics.precision, 2)}`],
+        ["monitor", `PSI=${round(result.psi, 2)}, release=${result.release}`]
+      ];
+      const root = document.getElementById("pipeArtifacts");
+      root.innerHTML = "";
+      artifacts.forEach(([name, text]) => {
+        const item = document.createElement("div");
+        item.className = "artifact";
+        item.innerHTML = `<b>${name}</b><span>${text}</span>`;
+        root.appendChild(item);
+      });
+    }
+
+    function updatePipeline(run = false) {
+      if (run) pipelineState.cycle += 1;
+      pipelineState.labels = Number(document.getElementById("pipeLabels").value);
+      const result = computePipeline();
+      pipelineState.last = result;
+      drawScatter(document.getElementById("pipeCanvas"), result.prod, { threshold: result.threshold });
+      renderTimeline(result);
+      renderArtifacts(result);
+      document.getElementById("pipeLabelsOut").textContent = String(pipelineState.labels);
+      document.getElementById("pipeNoiseOut").textContent = round(result.noise, 2);
+      document.getElementById("pipeCapacityOut").textContent = round(result.capacity, 2);
+      document.getElementById("pipeDriftOut").textContent = round(result.drift, 2);
+      document.getElementById("pipeShape").textContent = `cycle ${pipelineState.cycle}`;
+      document.getElementById("pipeF1").textContent = round(result.holdoutMetrics.f1, 3);
+      document.getElementById("pipePrecision").textContent = round(result.prodMetrics.precision, 3);
+      document.getElementById("pipePsi").textContent = round(result.psi, 3);
+      document.getElementById("pipeRelease").textContent = result.release;
+    }
+
+    function bindPipeline() {
+      ["pipeLabels", "pipeNoise", "pipeCapacity", "pipeDrift"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => updatePipeline(false));
+      });
+      document.getElementById("pipeRun").addEventListener("click", () => updatePipeline(true));
+      document.getElementById("pipeFeedback").addEventListener("click", () => {
+        const next = clamp(Number(document.getElementById("pipeLabels").value) + 24, 30, 220);
+        document.getElementById("pipeLabels").value = String(next);
+        updatePipeline(true);
+      });
+      updatePipeline(false);
+    }
+
+    const labelState = { reviewed: 0, seed: 100 };
+
+    function updateLabelQueue(review = false) {
+      const budget = Number(document.getElementById("labelBudget").value);
+      const rarity = Number(document.getElementById("labelRarity").value) / 100;
+      const reviewer = Number(document.getElementById("labelAccuracy").value) / 100;
+      const policy = document.getElementById("labelPolicy").value;
+      if (review) {
+        labelState.reviewed += budget;
+        labelState.seed += 1;
+      }
+      const points = generatePoints(260, labelState.seed, .12, rarity);
+      const scored = points.map(p => {
+        const uncertainty = 1 - Math.abs(p.score - .5) * 2;
+        const value = policy === "uncertain" ? uncertainty : policy === "risk" ? p.risk : lcg(p.id + 9)();
+        return { ...p, uncertainty, value };
+      }).sort((a, b) => b.value - a.value);
+      const selected = new Set(scored.slice(0, budget).map(p => p.id));
+      const useful = scored.slice(0, budget).filter(p => p.label === 1 || p.uncertainty > .62).length;
+      const gain = clamp((useful / budget) * reviewer * (policy === "random" ? .55 : 1), 0, 1);
+      const queueRisk = mean(scored.slice(0, budget).map(p => p.risk));
+      drawScatter(document.getElementById("labelCanvas"), points, { selected });
+      document.getElementById("labelBudgetOut").textContent = String(budget);
+      document.getElementById("labelRarityOut").textContent = round(rarity, 2);
+      document.getElementById("labelAccuracyOut").textContent = round(reviewer, 2);
+      document.getElementById("labelShape").textContent = `${budget} selected from ${points.length}`;
+      document.getElementById("labelReviewed").textContent = `${labelState.reviewed} total`;
+      document.getElementById("labelUseful").textContent = `${useful}/${budget}`;
+      document.getElementById("labelGain").textContent = `${round(gain * 100, 1)}%`;
+      document.getElementById("labelRisk").textContent = round(queueRisk, 2);
+      renderBars("labelBars", ["uncertain", "positive", "reviewer", "queue risk"], [
+        mean(scored.slice(0, budget).map(p => p.uncertainty)),
+        scored.slice(0, budget).filter(p => p.label === 1).length / budget,
+        reviewer,
+        queueRisk
+      ], { percent: true });
+    }
+
+    function bindLabelQueue() {
+      ["labelBudget", "labelPolicy", "labelRarity", "labelAccuracy"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => updateLabelQueue(false));
+      });
+      document.getElementById("labelReview").addEventListener("click", () => updateLabelQueue(true));
+      updateLabelQueue(false);
+    }
+
+    function drawSeries(canvas, series, colors) {
+      const ctx = clearCanvas(canvas);
+      ctx.strokeStyle = "rgba(23,33,42,.08)";
+      for (let y = 0; y <= canvas.height; y += canvas.height / 5) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      series.forEach((values, index) => {
+        ctx.strokeStyle = colors[index];
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        values.forEach((value, i) => {
+          const x = 36 + i * (canvas.width - 72) / (values.length - 1);
+          const y = canvas.height - 42 - clamp(value, 0, 1) * (canvas.height - 84);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      });
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 13px system-ui";
+      ctx.fillText("drift", 42, 30);
+      ctx.fillStyle = COLORS.blue;
+      ctx.fillText("feature", 42, 52);
+      ctx.fillStyle = COLORS.green;
+      ctx.fillText("score", 126, 52);
+      ctx.fillStyle = COLORS.red;
+      ctx.fillText("error", 196, 52);
+    }
+
+    function updateDrift() {
+      const feature = Number(document.getElementById("driftFeature").value) / 100;
+      const delay = Number(document.getElementById("driftDelay").value);
+      const traffic = Number(document.getElementById("driftTraffic").value) / 100;
+      const threshold = Number(document.getElementById("driftThreshold").value) / 100;
+      const days = Array.from({ length: 30 }, (_, i) => i);
+      const featureSeries = days.map(i => clamp(.08 + feature * (i / 29) + Math.sin(i * .7) * .025, 0, 1));
+      const scoreSeries = days.map(i => clamp(.10 + feature * .62 * (i / 29) + (traffic - 1) * .12 + Math.cos(i * .5) * .02, 0, 1));
+      const errorSeries = days.map(i => clamp(.08 + Math.max(0, i - delay) / 29 * feature * .85 + (traffic > 1.4 ? .05 : 0), 0, 1));
+      const psi = feature * 1.25 + Math.max(0, traffic - 1) * .15;
+      const scoreShift = scoreSeries[29] - scoreSeries[0];
+      const error = errorSeries[29];
+      const alert = psi > threshold || error > threshold * 1.3 ? "page owner" : psi > threshold * .7 ? "watch" : "normal";
+      drawSeries(document.getElementById("driftCanvas"), [featureSeries, scoreSeries, errorSeries], [COLORS.blue, COLORS.green, COLORS.red]);
+      document.getElementById("driftFeatureOut").textContent = round(feature, 2);
+      document.getElementById("driftDelayOut").textContent = String(delay);
+      document.getElementById("driftTrafficOut").textContent = round(traffic, 2);
+      document.getElementById("driftThresholdOut").textContent = round(threshold, 2);
+      document.getElementById("driftPsi").textContent = round(psi, 3);
+      document.getElementById("driftScore").textContent = round(scoreShift, 3);
+      document.getElementById("driftError").textContent = round(error, 3);
+      document.getElementById("driftAlert").textContent = alert;
+      renderBars("driftBars", ["feature PSI", "score shift", "error", "traffic"], [psi, scoreShift, error, traffic - 1], { percent: false });
+    }
+
+    function bindDrift() {
+      ["driftFeature", "driftDelay", "driftTraffic", "driftThreshold"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateDrift);
+      });
+      updateDrift();
+    }
+
+    function updateDeploy() {
+      const lift = Number(document.getElementById("deployLift").value) / 100;
+      const traffic = Number(document.getElementById("deployTraffic").value) / 100;
+      const latencyOverhead = Number(document.getElementById("deployLatency").value);
+      const costOverhead = Number(document.getElementById("deployCost").value) / 100;
+      const oldQuality = .78;
+      const newQuality = clamp(oldQuality + lift, .4, .96);
+      const oldLatency = 92;
+      const newLatency = oldLatency + latencyOverhead;
+      const blendedQuality = oldQuality * (1 - traffic) + newQuality * traffic;
+      const blendedLatency = oldLatency * (1 - traffic) + newLatency * traffic;
+      const blendedCost = 1 * (1 - traffic) + (1 + costOverhead) * traffic;
+      const decision = lift < .015 ? "rollback or keep shadow" : blendedLatency > 150 ? "hold: latency" : blendedCost > 1.35 ? "hold: cost" : traffic < .5 ? "increase canary" : "promote";
+      document.getElementById("deployLiftOut").textContent = round(lift, 2);
+      document.getElementById("deployTrafficOut").textContent = `${Math.round(traffic * 100)}%`;
+      document.getElementById("deployLatencyOut").textContent = `${latencyOverhead} ms`;
+      document.getElementById("deployCostOut").textContent = `${Math.round(costOverhead * 100)}%`;
+      document.getElementById("deployShape").textContent = `${Math.round(traffic * 100)}% canary`;
+      document.getElementById("deployQuality").textContent = `+${round(blendedQuality - oldQuality, 3)}`;
+      document.getElementById("deployP95").textContent = `${round(blendedLatency, 0)} ms`;
+      document.getElementById("deployCostMetric").textContent = `${round(blendedCost, 2)}x`;
+      document.getElementById("deployDecision").textContent = decision;
+      renderMatrix("deployMatrix", [
+        ["metric", "current", "new", "blended"],
+        ["quality", round(oldQuality, 3), round(newQuality, 3), round(blendedQuality, 3)],
+        ["latency", `${oldLatency}ms`, `${newLatency}ms`, `${round(blendedLatency, 0)}ms`],
+        ["cost", "1.00x", `${round(1 + costOverhead, 2)}x`, `${round(blendedCost, 2)}x`],
+        ["traffic", `${Math.round((1 - traffic) * 100)}%`, `${Math.round(traffic * 100)}%`, "100%"]
+      ]);
+      renderBars("deployBars", ["quality", "latency risk", "cost risk", "traffic"], [
+        blendedQuality,
+        clamp(blendedLatency / 180, 0, 1),
+        clamp((blendedCost - 1) / .6, 0, 1),
+        traffic
+      ], { percent: true });
+    }
+
+    function bindDeploy() {
+      ["deployLift", "deployTraffic", "deployLatency", "deployCost"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateDeploy);
+      });
+      updateDeploy();
+    }
+
+    function updateAgent() {
+      const type = document.getElementById("agentType").value;
+      const context = Number(document.getElementById("agentContext").value);
+      const retrieval = Number(document.getElementById("agentRetrieval").value) / 100;
+      const tools = Number(document.getElementById("agentTools").value) / 100;
+      const conc = Number(document.getElementById("agentConc").value);
+      const safety = document.getElementById("agentSafety").value;
+      const model = document.getElementById("agentModel").value;
+      const review = Number(document.getElementById("agentReview").value) / 100;
+      const modelFactor = model === "large" ? 1.35 : model === "medium" ? 1.08 : .82;
+      const typeFactor = type === "agent" ? 1.25 : type === "vlm" ? 1.18 : 1;
+      const safetyPenalty = safety === "strict" ? .06 : safety === "balanced" ? .02 : -.03;
+      const safetyBenefit = safety === "strict" ? .12 : safety === "balanced" ? .06 : -.04;
+      const success = clamp(.42 + retrieval * .24 + tools * (type === "agent" ? .24 : .1) + review * .16 + (modelFactor - 1) * .14 - safetyPenalty, 0, .98);
+      const latency = (420 + context * .055 + conc * 14) * modelFactor * typeFactor * (safety === "strict" ? 1.12 : 1);
+      const cost = (context / 1000 * .014 + conc * .012) * modelFactor * typeFactor * (1 + review * .35);
+      const risk = clamp(.55 - retrieval * .16 - tools * .12 - safetyBenefit - review * .18 + conc / 180 + (type === "agent" ? .13 : 0), 0, 1);
+      drawAgent(document.getElementById("agentCanvas"), { type, retrieval, tools, safety, review, success, risk });
+      document.getElementById("agentContextOut").textContent = String(context);
+      document.getElementById("agentRetrievalOut").textContent = round(retrieval, 2);
+      document.getElementById("agentToolsOut").textContent = round(tools, 2);
+      document.getElementById("agentConcOut").textContent = String(conc);
+      document.getElementById("agentReviewOut").textContent = `${Math.round(review * 100)}%`;
+      document.getElementById("agentShape").textContent = `${type}, ${model}`;
+      document.getElementById("agentSuccess").textContent = `${round(success * 100, 1)}%`;
+      document.getElementById("agentLatency").textContent = `${round(latency, 0)} ms`;
+      document.getElementById("agentCost").textContent = `$${round(cost, 2)}`;
+      document.getElementById("agentRisk").textContent = risk > .55 ? "high" : risk > .32 ? "medium" : "controlled";
+      renderBars("agentBars", ["success", "retrieval", "tool health", "ops risk"], [success, retrieval, tools, risk], { percent: true });
+    }
+
+    function drawAgent(canvas, state) {
+      const ctx = clearCanvas(canvas);
+      const nodes = [
+        ["request", 95, 110, COLORS.blue],
+        [state.type === "vlm" ? "image+text" : "prompt", 230, 110, COLORS.cyan],
+        ["retrieval", 365, 110, COLORS.green],
+        [state.type === "agent" ? "tools" : "model", 500, 110, COLORS.violet],
+        ["validator", 365, 270, COLORS.amber],
+        ["human review", 500, 270, COLORS.red],
+        ["answer/action", 635, 190, COLORS.blue]
+      ];
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(23,33,42,.22)";
+      [[0,1],[1,2],[2,3],[3,6],[3,4],[4,6],[4,5],[5,6]].forEach(([a, b]) => {
+        ctx.beginPath();
+        ctx.moveTo(nodes[a][1] + 45, nodes[a][2] + 24);
+        ctx.lineTo(nodes[b][1] + 45, nodes[b][2] + 24);
+        ctx.stroke();
+      });
+      nodes.forEach(([name, x, y, color], index) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 90, 48);
+        ctx.fillStyle = "#fff";
+        ctx.font = "700 12px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(name, x + 45, y + 29);
+        const value = index === 2 ? state.retrieval : index === 3 ? state.tools : index === 4 ? 1 - state.risk : index === 5 ? state.review : state.success;
+        ctx.fillStyle = "rgba(255,255,255,.26)";
+        ctx.fillRect(x, y + 40, 90 * clamp(value, 0, 1), 8);
+      });
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 14px system-ui";
+      ctx.textAlign = "left";
+      ctx.fillText(`safety: ${state.safety}`, 42, 430);
+      ctx.fillText(`success: ${round(state.success * 100, 1)}%`, 42, 456);
+      ctx.fillText(`risk: ${round(state.risk * 100, 1)}%`, 42, 482);
+    }
+
+    function bindAgent() {
+      ["agentType", "agentContext", "agentRetrieval", "agentTools", "agentConc", "agentSafety", "agentModel", "agentReview"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateAgent);
+      });
+      updateAgent();
+    }
+
+    const patterns = [
+      { family: "Data", name: "Data Contract", task: "Schema and source control", metric: "Freshness, null rate, row count", pitfall: "Silent source changes break production features.", use: "Protect training and inference from unexpected input changes." },
+      { family: "Labels", name: "Human Review Queue", task: "Feedback collection", metric: "Disagreement, label latency, review yield", pitfall: "Only reviewing easy cases produces biased labels.", use: "Close the loop for drift, hard examples, and high-risk decisions." },
+      { family: "Training", name: "Experiment Tracking", task: "Reproducibility", metric: "Run lineage, artifact hash, metric deltas", pitfall: "Cannot explain why a deployed model changed.", use: "Compare models and reproduce releases." },
+      { family: "Evaluation", name: "Slice Evaluation", task: "Risk-aware validation", metric: "Per-segment precision, recall, calibration", pitfall: "Aggregate score hides a harmful subgroup failure.", use: "Catch failures by source, class, geography, device, or prompt type." },
+      { family: "Deployment", name: "Shadow Deployment", task: "Pre-release telemetry", metric: "Prediction delta, latency, errors", pitfall: "No user impact but no causal business metric either.", use: "Check production compatibility before routing decisions." },
+      { family: "Deployment", name: "Canary Release", task: "Progressive rollout", metric: "Quality, latency, cost, incidents", pitfall: "Too little traffic gives noisy conclusions.", use: "Limit blast radius while measuring real behavior." },
+      { family: "Monitoring", name: "Drift Monitoring", task: "Distribution change", metric: "PSI, KS, embedding distance, score shift", pitfall: "Drift does not always mean performance changed.", use: "Detect changing input before labels arrive." },
+      { family: "Monitoring", name: "Delayed Label Monitor", task: "Ground-truth feedback", metric: "Precision, recall, error by time", pitfall: "Labels arrive too late to catch active incidents.", use: "Measure actual production quality when outcomes mature." },
+      { family: "LLM", name: "RAG Evaluation", task: "Grounded generation", metric: "Recall@k, citation support, answer correctness", pitfall: "Good answer style hides missing evidence.", use: "Operate retrieval-augmented assistants and document agents." },
+      { family: "LLM", name: "Tool-Call Guardrails", task: "Agent safety", metric: "Schema validity, tool success, approval rate", pitfall: "Agent receives permissions wider than its evaluation coverage.", use: "Control workflows that call APIs, code, or business systems." },
+      { family: "VLLM", name: "Vision-Language Review", task: "Multimodal decisions", metric: "Policy recall, reviewer disagreement, appeal rate", pitfall: "Text-only evals miss visual context failures.", use: "Moderation, inspection, document QA, robotics, and safety review." },
+      { family: "Ops", name: "Rollback Runbook", task: "Incident response", metric: "Time to detect, time to rollback", pitfall: "Rollback path is untested until an incident.", use: "Make ML releases operationally reversible." }
+    ];
+
+    function bindPatternAtlas() {
+      const select = document.getElementById("patternFamily");
+      unique(patterns.map(item => item.family)).forEach(family => {
+        const option = document.createElement("option");
+        option.value = family;
+        option.textContent = family;
+        select.appendChild(option);
+      });
+      function render() {
+        const search = document.getElementById("patternSearch").value.trim().toLowerCase();
+        const family = select.value;
+        const filtered = patterns.filter(item => {
+          const text = `${item.family} ${item.name} ${item.task} ${item.metric} ${item.pitfall} ${item.use}`.toLowerCase();
+          return (family === "all" || item.family === family) && (!search || text.includes(search));
+        });
+        document.getElementById("patternCount").textContent = `${filtered.length} of ${patterns.length} patterns`;
+        const root = document.getElementById("patternList");
+        root.innerHTML = "";
+        filtered.forEach(item => {
+          const card = document.createElement("article");
+          card.className = "card";
+          const left = document.createElement("div");
+          left.innerHTML = `<div class="card-name">${item.name}</div><span class="tag">${item.family}</span>`;
+          const right = document.createElement("div");
+          const p = document.createElement("p");
+          p.textContent = item.use;
+          const meta = document.createElement("div");
+          meta.className = "card-meta";
+          meta.innerHTML = `<div><b>Task</b><br>${item.task}</div><div><b>Metric</b><br>${item.metric}</div><div><b>Pitfall</b><br>${item.pitfall}</div>`;
+          right.append(p, meta);
+          card.append(left, right);
+          root.appendChild(card);
+        });
+      }
+      document.getElementById("patternSearch").addEventListener("input", render);
+      select.addEventListener("input", render);
+      render();
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      const stages = ["data", "labels", "train", "eval", "deploy", "monitor", "review"];
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#17212a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255,255,255,.08)";
+        for (let x = 0; x <= canvas.width; x += 48) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= canvas.height; y += 48) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const radius = 175;
+        stages.forEach((stage, index) => {
+          const angle = -Math.PI / 2 + index / stages.length * Math.PI * 2;
+          const x = cx + Math.cos(angle) * radius;
+          const y = cy + Math.sin(angle) * radius;
+          const nextAngle = -Math.PI / 2 + ((index + 1) % stages.length) / stages.length * Math.PI * 2;
+          const nx = cx + Math.cos(nextAngle) * radius;
+          const ny = cy + Math.sin(nextAngle) * radius;
+          ctx.strokeStyle = "rgba(255,255,255,.38)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(nx, ny);
+          ctx.stroke();
+          const active = index === Math.floor(frame / 32) % stages.length;
+          ctx.fillStyle = active ? COLORS.amber : index < 3 ? COLORS.blue : index < 5 ? COLORS.green : COLORS.red;
+          ctx.beginPath();
+          ctx.arc(x, y, active ? 31 : 25, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.font = "700 12px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(stage, x, y + 4);
+        });
+        for (let i = 0; i < 42; i += 1) {
+          const angle = i * .58 + frame * .018;
+          const rr = 30 + (i % 9) * 8;
+          const x = cx + Math.cos(angle) * rr;
+          const y = cy + Math.sin(angle) * rr;
+          ctx.fillStyle = i % 3 === 0 ? COLORS.blue : i % 3 === 1 ? COLORS.green : COLORS.violet;
+          ctx.beginPath();
+          ctx.arc(x, y, 3 + (i % 4), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = "#faf7ef";
+        ctx.font = "800 18px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("production loop", cx, cy + 5);
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      bindPipeline();
+      bindLabelQueue();
+      bindDrift();
+      bindDeploy();
+      bindAgent();
+      bindPatternAtlas();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

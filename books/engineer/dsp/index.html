@@ -1,0 +1,2854 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSP Book: Signals, Convolution, Filters, and Audio Techniques</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f3ed;
+      --ink: #17212a;
+      --muted: #5f6d77;
+      --line: #d8d0c2;
+      --panel: #ffffff;
+      --nav: #fbfaf7;
+      --soft: #eee8dd;
+      --blue: #1f6fb2;
+      --green: #2f7d57;
+      --red: #bd4b43;
+      --amber: #b87924;
+      --violet: #6b55a3;
+      --cyan: #147f87;
+      --shadow: 0 18px 48px rgba(23, 33, 42, .12);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: var(--blue);
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #edf5ff;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    code {
+      border-radius: 4px;
+      background: #ede7dc;
+      padding: 1px 5px;
+      font-size: .92em;
+    }
+
+    pre {
+      overflow: auto;
+      white-space: pre-wrap;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #f8f4ed;
+      color: #203645;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--nav);
+      padding: 28px 22px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .book-home {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--blue);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc-title {
+      margin-bottom: 18px;
+      color: #203645;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .toc a {
+      display: block;
+      color: #364650;
+      text-decoration: none;
+      padding: 7px 0;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero,
+    .chapter,
+    .band {
+      padding: 54px 0;
+    }
+
+    .inner {
+      width: min(1140px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 94vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.9), rgba(255,255,255,.58)),
+        repeating-linear-gradient(0deg, rgba(31,111,178,.08), rgba(31,111,178,.08) 1px, transparent 1px, transparent 32px),
+        repeating-linear-gradient(90deg, rgba(47,125,87,.08), rgba(47,125,87,.08) 1px, transparent 1px, transparent 32px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(330px, .74fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--blue);
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 920px;
+      font-size: 64px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 42px;
+    }
+
+    h3 {
+      margin: 34px 0 10px;
+      font-size: 28px;
+    }
+
+    h4 {
+      margin: 24px 0 8px;
+      font-size: 21px;
+    }
+
+    .subtitle {
+      max-width: 790px;
+      margin: 18px 0 26px;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .lead {
+      max-width: 900px;
+      color: #2c3942;
+      font-size: 21px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      font: 14px/1.45 var(--sans);
+    }
+
+    .point {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.76);
+      padding: 12px;
+    }
+
+    .point:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .point:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .hero-visual,
+    .simulation {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.95);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid #e5ded3;
+      background: #fff;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font: 13px/1.35 var(--sans);
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .note {
+      margin: 22px 0;
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+      padding: 16px 18px;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff5e3;
+    }
+
+    .formula {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1ebe0;
+      color: #243643;
+      padding: 14px;
+      font-family: var(--mono);
+    }
+
+    .math-block {
+      overflow: auto;
+      margin: 18px 0;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--blue);
+      border-radius: 8px;
+      background: #fbfaf7;
+      padding: 16px 18px;
+      color: #203645;
+      font: 20px/1.65 Georgia, "Times New Roman", serif;
+    }
+
+    .math-block .line {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .math-block small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font: 13px/1.4 var(--sans);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #ede7dc;
+      color: #203645;
+    }
+
+    .simulation {
+      margin: 24px 0;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sim-header h3 {
+      margin-top: 0;
+    }
+
+    .sim-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font: 14px/1.45 var(--sans);
+    }
+
+    .sim-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(126px, 1fr));
+      gap: 12px;
+      margin: 16px 0 18px;
+      font: 14px/1.3 var(--sans);
+    }
+
+    .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    .control input,
+    .control select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 5px 8px;
+    }
+
+    .control output {
+      color: var(--blue);
+      font-family: var(--mono);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 292px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .canvas-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .canvas-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .quad-view {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .viz-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      color: #203645;
+      font: 700 14px/1.2 var(--sans);
+    }
+
+    .shape {
+      color: var(--muted);
+      font: 12px/1.2 var(--mono);
+      font-weight: 500;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .metric {
+      min-height: 78px;
+      border-top: 3px solid var(--cyan);
+      background: #f8f4ed;
+      padding: 10px;
+    }
+
+    .metric:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .metric:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .metric:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .metric b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font: 13px/1.2 var(--mono);
+    }
+
+    .bars {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr) 60px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .bar-track {
+      height: 18px;
+      overflow: hidden;
+      background: #eee7db;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 64px;
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    @media (max-width: 1060px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .toc nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .hero-grid,
+      .split,
+      .sim-grid,
+      .canvas-pair,
+      .quad-view {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1140px);
+      }
+
+      .hero,
+      .chapter,
+      .band {
+        padding: 34px 0;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-points,
+      .sim-controls,
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sim-header {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <a class="book-home" href="#preface">DSP Book</a>
+      <div class="toc-title">Signals and Filters</div>
+      <nav>
+        <a href="#preface">Preface</a>
+        <a href="#signals">Signals</a>
+        <a href="#sampling">Sampling</a>
+        <a href="#convolution">1D convolution</a>
+        <a href="#filters">Filters</a>
+        <a href="#zplane">Z-plane</a>
+        <a href="#transforms">DFT and spectrograms</a>
+        <a href="#techniques">DSP techniques</a>
+        <a href="#simulators">Simulators</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="preface">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Engineering Book | DSP Section</p>
+            <h1>DSP Basics: Signals, Convolution, Filters, and Audio Techniques</h1>
+            <p class="subtitle">A practical, visual introduction to digital signal processing with audio-oriented simulations for waveforms, spectra, sampling, convolution, FIR/IIR filters, poles and zeros, spectrograms, modulation, and quantization.</p>
+            <div class="hero-points">
+              <div class="point"><b>Signals first.</b><br>Work with time, frequency, phase, amplitude, energy, and sample rate.</div>
+              <div class="point"><b>Filters as systems.</b><br>Connect impulse response, convolution, frequency response, and stability.</div>
+              <div class="point"><b>Audio mechanics.</b><br>Synthesize, filter, resample, modulate, quantize, and inspect sound.</div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <canvas id="heroCanvas" width="720" height="520" aria-label="Animated DSP signal visual"></canvas>
+            <div class="legend">
+              <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>time signal</span>
+              <span class="legend-chip"><i class="swatch" style="background:#2f7d57"></i>spectrum</span>
+              <span class="legend-chip"><i class="swatch" style="background:#bd4b43"></i>filter response</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="signals">
+        <div class="inner">
+          <p class="lead">DSP studies signals as sequences of numbers and systems as transformations of those sequences. For audio, a signal is pressure variation over time sampled into a stream such as 48,000 numbers per second.</p>
+
+          <h2>1. Signals</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Concept</th>
+                <th>Meaning</th>
+                <th>Audio example</th>
+                <th>Common mistake</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Amplitude</td>
+                <td>Instantaneous signal value.</td>
+                <td>Normalized samples in <code>[-1, 1]</code>.</td>
+                <td>Clipping when values exceed the output range.</td>
+              </tr>
+              <tr>
+                <td>Frequency</td>
+                <td>Cycles per second, measured in hertz.</td>
+                <td>440 Hz is the A above middle C.</td>
+                <td>Confusing angular frequency <code>rad/sample</code> with <code>Hz</code>.</td>
+              </tr>
+              <tr>
+                <td>Phase</td>
+                <td>Position within a cycle.</td>
+                <td>Phase shifts alter waveform alignment and transients.</td>
+                <td>Ignoring phase when summing correlated signals.</td>
+              </tr>
+              <tr>
+                <td>Energy and power</td>
+                <td>Magnitude accumulated over time or averaged over time.</td>
+                <td>RMS loudness proxy.</td>
+                <td>Using peak level as the only loudness statistic.</td>
+              </tr>
+              <tr>
+                <td>Noise</td>
+                <td>Random or unwanted signal component.</td>
+                <td>Hiss, hum, quantization noise, sensor noise.</td>
+                <td>Filtering noise without checking whether signal shares the same band.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <b>DSP contract:</b> a digital signal is usually <code>x[n]</code>, a sequence indexed by integer sample number. Time in seconds is <code>t = n / sample_rate</code>. Frequency in Hz maps to digital radian frequency as <code>omega = 2*pi*f/sample_rate</code>.
+          </div>
+
+          <h3>Signals, systems, and linear time invariance</h3>
+          <p>A system maps an input signal to an output signal. A linear system respects scaling and addition. A time-invariant system behaves the same way regardless of when the input occurs. Linear time-invariant systems are special because they are completely described by their impulse response and can be analyzed by convolution and frequency response.</p>
+
+          <h3>Three useful signal views</h3>
+          <p>A waveform shows what happens over time, but it does not directly tell you which frequencies are present. A spectrum shows frequency content, but it hides when events happen. A spectrogram compromises by showing short-time spectra across time. Audio DSP usually moves between all three views: waveform for transients and clipping, spectrum for tone and filtering, and spectrogram for changing sounds such as speech, drums, chirps, and musical notes.</p>
+
+          <div class="math-block">
+            <span class="line">x(t) = A cos(2&pi; f t + &phi;)</span>
+            <span class="line">x[n] = A cos(2&pi; f n / f<sub>s</sub> + &phi;)</span>
+            <small>The first line is a continuous-time sinusoid. The second is the sampled version at sample rate f<sub>s</sub>.</small>
+          </div>
+
+          <p>Complex sinusoids are the mathematical atoms of DSP. They are useful because linear time-invariant systems do not change their frequency, only their amplitude and phase. This is why the frequency response of a filter is so powerful: it says how every sinusoidal component is scaled and shifted.</p>
+        </div>
+      </section>
+
+      <section class="band" id="sampling">
+        <div class="inner">
+          <h2>2. Sampling and Aliasing</h2>
+          <p class="lead">Sampling converts a continuous-time signal into a sequence. If the sampling rate is too low, high frequencies fold into lower frequencies as aliases.</p>
+
+          <div class="split">
+            <div>
+              <h3>Nyquist rule</h3>
+              <p>To represent a sinusoid of frequency <code>f</code>, the sample rate must be greater than <code>2f</code>. Real audio systems use anti-aliasing filters before sampling because real signals contain many frequencies.</p>
+              <div class="formula">Nyquist frequency = sample_rate / 2
+alias(f, fs) = abs(((f + fs/2) mod fs) - fs/2)</div>
+            </div>
+            <div>
+              <h3>Important consequences</h3>
+              <ul>
+                <li>44.1 kHz audio can represent frequencies up to about 22.05 kHz.</li>
+                <li>Downsampling requires lowpass filtering first.</li>
+                <li>Aliasing is not just loss of quality. It creates new wrong frequencies.</li>
+                <li>Oversampling pushes artifacts higher, where they can be filtered more easily.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="convolution">
+        <div class="inner">
+          <h2>3. 1D Convolution</h2>
+          <p class="lead">Convolution combines a signal with an impulse response. In audio, convolution can implement tone controls, echoes, room reverbs, moving averages, and many other linear effects.</p>
+
+          <div class="math-block">
+            <span class="line">Continuous time: &nbsp; y(t) = (x * h)(t) = &int;<sub>-&infin;</sub><sup>&infin;</sup> x(&tau;) h(t - &tau;) d&tau;</span>
+            <span class="line">Discrete time: &nbsp;&nbsp;&nbsp;&nbsp; y[n] = (x * h)[n] = &sum;<sub>k=-&infin;</sub><sup>&infin;</sup> x[k] h[n - k]</span>
+            <small>Both formulas say the same thing: the output is built by sliding one signal across another, multiplying overlap, and accumulating the result.</small>
+          </div>
+
+          <h3>What convolution means</h3>
+          <p>Imagine sending a very short impulse into a system and recording the output. That output is the impulse response. Any signal can be decomposed into shifted, scaled impulses. Convolution reconstructs the system output by adding shifted copies of the impulse response, each scaled by the input value at that shift.</p>
+
+          <p>In continuous time, the integral adds infinitely many shifted copies. In discrete time, the summation adds sample-spaced copies. The concept is identical, but digital audio works with finite buffers, so real implementations use finite sums, block processing, or FFT convolution for long impulse responses.</p>
+
+          <h3>Why convolution is central</h3>
+          <p>Convolution is the bridge between time-domain behavior and frequency-domain behavior. A filter's impulse response explains what the filter does to impulses, transients, echoes, and ringing. The Fourier transform of that impulse response explains what the filter does to sinusoidal components.</p>
+
+          <div class="math-block">
+            <span class="line">If &nbsp; y(t) = x(t) * h(t), &nbsp; then &nbsp; Y(f) = X(f) H(f)</span>
+            <span class="line">If &nbsp; y[n] = x[n] * h[n], &nbsp; then &nbsp; Y(e<sup>j&omega;</sup>) = X(e<sup>j&omega;</sup>) H(e<sup>j&omega;</sup>)</span>
+            <small>Convolution in time becomes multiplication in frequency. This is the reason filtering can be understood as spectral shaping.</small>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Impulse response</th>
+                <th>Effect</th>
+                <th>Audio meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>[1]</code></td>
+                <td>Identity</td>
+                <td>Output equals input.</td>
+              </tr>
+              <tr>
+                <td><code>[1, 0.6, 0.3]</code></td>
+                <td>Echo taps</td>
+                <td>Delayed repeats.</td>
+              </tr>
+              <tr>
+                <td>Moving average</td>
+                <td>Lowpass smoothing</td>
+                <td>Reduces high-frequency detail.</td>
+              </tr>
+              <tr>
+                <td>Windowed sinc</td>
+                <td>FIR frequency-selective filter</td>
+                <td>Designed lowpass, highpass, or bandpass.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Properties worth memorizing</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Math-style statement</th>
+                <th>DSP consequence</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Commutative</td>
+                <td><code>x * h = h * x</code></td>
+                <td>The sliding interpretation can flip either signal; the result is the same.</td>
+              </tr>
+              <tr>
+                <td>Associative</td>
+                <td><code>(x * h1) * h2 = x * (h1 * h2)</code></td>
+                <td>Cascaded LTI filters have an equivalent single impulse response.</td>
+              </tr>
+              <tr>
+                <td>Distributive</td>
+                <td><code>x * (h1 + h2) = x * h1 + x * h2</code></td>
+                <td>Parallel filters can be analyzed as summed impulse responses.</td>
+              </tr>
+              <tr>
+                <td>Identity</td>
+                <td><code>x * delta = x</code></td>
+                <td>The impulse is the neutral element of convolution.</td>
+              </tr>
+              <tr>
+                <td>Delay</td>
+                <td><code>x[n] * delta[n - D] = x[n - D]</code></td>
+                <td>A shifted impulse response delays the signal.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="warning note">
+            <b>Implementation warning:</b> the mathematical formulas assume infinite signals. Real code must choose boundary handling: zero padding, circular convolution, overlap-add, overlap-save, or stateful streaming. Many audio clicks and FFT artifacts come from using the wrong boundary model.
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="filters">
+        <div class="inner">
+          <h2>4. Analog and Digital Filters</h2>
+          <p class="lead">Filters reshape spectra. Analog filters are described in continuous time, often with the Laplace variable <code>s</code>. Digital filters are described in discrete time, often with <code>z</code> transforms or difference equations.</p>
+
+          <div class="split">
+            <div>
+              <h3>Analog intuition</h3>
+              <p>Analog filters are built from components such as resistors, capacitors, inductors, and op amps. A simple RC lowpass has a smooth rolloff and a cutoff controlled by the time constant.</p>
+              <div class="formula">RC lowpass:
+H(s) = 1 / (1 + sRC)
+cutoff fc = 1 / (2*pi*RC)</div>
+            </div>
+            <div>
+              <h3>Digital implementation</h3>
+              <p>Digital filters run on samples. FIR filters use only input samples. IIR filters use input samples and previous output samples, which gives feedback and can create efficient resonant responses.</p>
+              <div class="formula">FIR:
+y[n] = b0*x[n] + b1*x[n-1] + ... + bM*x[n-M]
+
+IIR:
+y[n] = b0*x[n] + ... + bM*x[n-M]
+     - a1*y[n-1] - ... - aN*y[n-N]</div>
+            </div>
+          </div>
+
+          <h3>FIR versus IIR</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Filter type</th>
+                <th>Strength</th>
+                <th>Risk</th>
+                <th>Typical uses</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>FIR</td>
+                <td>Always stable, can be linear phase.</td>
+                <td>May need many taps for sharp transitions.</td>
+                <td>Equalization, resampling, linear-phase audio filters.</td>
+              </tr>
+              <tr>
+                <td>IIR</td>
+                <td>Efficient sharp responses and resonances.</td>
+                <td>Can become unstable if poles leave the unit circle.</td>
+                <td>Audio EQ biquads, analog-style filters, control systems.</td>
+              </tr>
+              <tr>
+                <td>Analog prototype</td>
+                <td>Continuous-time physical model.</td>
+                <td>Needs discretization for digital processing.</td>
+                <td>Butterworth, Chebyshev, Bessel designs before bilinear transform.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Magnitude, phase, and delay</h3>
+          <p>A filter is not only a magnitude curve. It also has a phase response. Magnitude tells which frequencies get louder or quieter. Phase tells how sinusoidal components are shifted in time. Group delay describes how much delay a narrow frequency band experiences. This matters for transients, stereo imaging, crossover design, and any situation where multiple filtered paths are mixed back together.</p>
+
+          <div class="math-block">
+            <span class="line">H(e<sup>j&omega;</sup>) = |H(e<sup>j&omega;</sup>)| e<sup>j&phi;(&omega;)</sup></span>
+            <span class="line">Group delay: &nbsp; &tau;<sub>g</sub>(&omega;) = - d&phi;(&omega;) / d&omega;</span>
+            <small>Linear-phase FIR filters keep group delay nearly constant. IIR filters are efficient, but their phase is usually nonlinear.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="zplane">
+        <div class="inner">
+          <h2>5. The Z-plane</h2>
+          <p class="lead">The z-plane gives a geometric view of digital filters. Zeros reduce response near their angles. Poles increase response near their angles. Stability requires all poles to be inside the unit circle.</p>
+
+          <div class="formula">H(z) = (b0 + b1*z^-1 + ... + bM*z^-M) /
+       (1  + a1*z^-1 + ... + aN*z^-N)</div>
+
+          <div class="split">
+            <div>
+              <h3>How to read it</h3>
+              <ul>
+                <li>The unit circle corresponds to frequency response.</li>
+                <li>Angle maps to digital frequency.</li>
+                <li>Radius of a pole controls decay time and resonance strength.</li>
+                <li>A pole near the unit circle creates a narrow peak.</li>
+                <li>A zero on the unit circle creates a deep notch.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Stability and causality</h3>
+              <p>A causal IIR filter is stable when every pole is strictly inside the unit circle. Poles close to the unit circle can ring for a long time. Poles outside the unit circle grow, which can blow up audio or numeric state.</p>
+            </div>
+          </div>
+
+          <h3>Poles and zeros as sound design controls</h3>
+          <p>A zero near the unit circle removes energy at its angle, creating a notch or cancellation. A pole near the unit circle reinforces energy at its angle, creating resonance. Moving a pole outward narrows the bandwidth and lengthens ringing. Moving it inward shortens the decay and broadens the peak. Many familiar audio EQ sections are controlled pole-zero patterns packaged behind frequency, gain, and Q knobs.</p>
+        </div>
+      </section>
+
+      <section class="band" id="transforms">
+        <div class="inner">
+          <h2>6. DFT, FFT, Windows, and Spectrograms</h2>
+          <p class="lead">The discrete Fourier transform expresses a finite signal as a weighted sum of complex sinusoids. The FFT is a fast algorithm for computing the same transform.</p>
+
+          <h3>Fourier idea in one sentence</h3>
+          <p>Fourier analysis asks how much of each sinusoidal frequency is present in a signal. A single sinusoid is simple in frequency and repetitive in time. A short click is simple in time and broad in frequency. Most real audio sits between those extremes.</p>
+
+          <div class="math-block">
+            <span class="line">Continuous Fourier transform: &nbsp; X(f) = &int;<sub>-&infin;</sub><sup>&infin;</sup> x(t) e<sup>-j2&pi;ft</sup> dt</span>
+            <span class="line">Inverse transform: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x(t) = &int;<sub>-&infin;</sub><sup>&infin;</sup> X(f) e<sup>j2&pi;ft</sup> df</span>
+            <small>The transform measures correlation with complex sinusoids. The inverse rebuilds the signal by adding those sinusoids back together.</small>
+          </div>
+
+          <p>For discrete-time signals, the frequency variable is periodic. Frequencies separated by one full turn around the unit circle are equivalent. This is why digital frequency is often written as <code>&omega;</code> radians per sample and why the z-plane unit circle matters.</p>
+
+          <div class="math-block">
+            <span class="line">DTFT: &nbsp; X(e<sup>j&omega;</sup>) = &sum;<sub>n=-&infin;</sub><sup>&infin;</sup> x[n] e<sup>-j&omega;n</sup></span>
+            <span class="line">Inverse: &nbsp; x[n] = (1 / 2&pi;) &int;<sub>-&pi;</sub><sup>&pi;</sup> X(e<sup>j&omega;</sup>) e<sup>j&omega;n</sup> d&omega;</span>
+            <small>The DTFT is continuous in frequency but periodic every 2&pi; radians/sample.</small>
+          </div>
+
+          <div class="split">
+            <div>
+              <h3>DFT contract</h3>
+              <div class="math-block">
+                <span class="line">DFT: &nbsp;&nbsp; X[k] = &sum;<sub>n=0</sub><sup>N-1</sup> x[n] e<sup>-j2&pi;kn/N</sup>, &nbsp; k = 0, ..., N - 1</span>
+                <span class="line">IDFT: &nbsp; x[n] = (1/N) &sum;<sub>k=0</sub><sup>N-1</sup> X[k] e<sup>j2&pi;kn/N</sup></span>
+                <span class="line">Bin frequency: &nbsp; f<sub>k</sub> = k f<sub>s</sub> / N</span>
+              </div>
+              <p>A longer window gives finer frequency resolution but poorer time localization. A shorter window tracks transients better but spreads frequency estimates.</p>
+            </div>
+            <div>
+              <h3>Windowing</h3>
+              <p>The DFT assumes the analyzed frame repeats periodically. If the frame edges do not match, spectral leakage appears. Window functions such as Hann, Hamming, and Blackman taper the edges to reduce leakage.</p>
+              <ul>
+                <li><b>Rectangular:</b> sharpest main lobe, highest leakage.</li>
+                <li><b>Hann:</b> good general-purpose audio analysis window.</li>
+                <li><b>Blackman:</b> lower sidelobes, wider main lobe.</li>
+              </ul>
+            </div>
+          </div>
+
+          <h3>DFT as a matrix</h3>
+          <p>The DFT can be written as a matrix multiplication. Every output bin is an inner product between the signal and one complex sinusoid. Direct DFT therefore costs about <code>N^2</code> complex multiply-adds. That is acceptable for tiny signals but expensive for long audio windows.</p>
+
+          <div class="math-block">
+            <span class="line">W<sub>N</sub> = e<sup>-j2&pi;/N</sup></span>
+            <span class="line">X[k] = &sum;<sub>n=0</sub><sup>N-1</sup> x[n] W<sub>N</sub><sup>kn</sup></span>
+            <span class="line">X = F<sub>N</sub> x, where F<sub>N</sub>[k,n] = W<sub>N</sub><sup>kn</sup></span>
+            <small>The DFT basis vectors are rotating arrows. Magnitude says how strongly the signal matches a basis frequency; phase says the alignment.</small>
+          </div>
+
+          <h3>FFT algorithm</h3>
+          <p>The fast Fourier transform is not a different transform. It is a faster way to compute the same DFT by exploiting symmetry and periodicity in the complex roots of unity. The most common radix-2 Cooley-Tukey FFT splits the signal into even-indexed and odd-indexed samples, recursively transforms each half, then combines them with twiddle factors.</p>
+
+          <div class="math-block">
+            <span class="line">X[k] = E[k] + W<sub>N</sub><sup>k</sup> O[k]</span>
+            <span class="line">X[k + N/2] = E[k] - W<sub>N</sub><sup>k</sup> O[k]</span>
+            <small>E is the DFT of even samples. O is the DFT of odd samples. Reusing them reduces cost from O(N^2) to O(N log N).</small>
+          </div>
+
+          <pre><code>radix2_fft(x):
+    if length(x) == 1:
+        return x
+    E = radix2_fft(even-indexed samples of x)
+    O = radix2_fft(odd-indexed samples of x)
+    for k in 0 .. N/2 - 1:
+        t = exp(-j*2*pi*k/N) * O[k]
+        X[k]       = E[k] + t
+        X[k + N/2] = E[k] - t
+    return X</code></pre>
+
+          <h3>Block processing and FFT convolution</h3>
+          <p>Real-time DSP rarely processes an infinite signal at once. Audio arrives in blocks, such as 64, 128, or 512 samples. Short FIR filters are often cheaper in direct time-domain form. Long convolution, such as cabinet simulation or room reverb, is usually cheaper in the frequency domain by overlap-add or overlap-save.</p>
+
+          <div class="math-block">
+            <span class="line">Time-domain direct convolution cost grows like &nbsp; N M</span>
+            <span class="line">FFT convolution cost grows roughly like &nbsp; N log<sub>2</sub> N</span>
+            <small>For long impulse responses, transforming blocks to frequency space, multiplying spectra, and transforming back can be much faster.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="techniques">
+        <div class="inner">
+          <h2>7. Interesting DSP Techniques</h2>
+          <p class="lead">Many practical audio effects are combinations of delays, filters, nonlinearities, modulation, transforms, and time-varying parameters.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Technique</th>
+                <th>Core operation</th>
+                <th>Audio use</th>
+                <th>Watch out for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Delay and echo</td>
+                <td>Add delayed copies of a signal.</td>
+                <td>Echo, slapback, comb filtering.</td>
+                <td>Feedback can grow if gain is too high.</td>
+              </tr>
+              <tr>
+                <td>Reverb</td>
+                <td>Dense delay network or convolution with room impulse response.</td>
+                <td>Room and space simulation.</td>
+                <td>Long impulse responses can be expensive without FFT convolution.</td>
+              </tr>
+              <tr>
+                <td>Dynamic range compression</td>
+                <td>Time-varying gain from envelope follower.</td>
+                <td>Loudness control, vocals, drums, mastering.</td>
+                <td>Attack and release artifacts.</td>
+              </tr>
+              <tr>
+                <td>Modulation</td>
+                <td>Multiply by or vary with a low-frequency oscillator.</td>
+                <td>Tremolo, vibrato, ring modulation, AM synthesis.</td>
+                <td>Sidebands and aliasing if modulation is too fast.</td>
+              </tr>
+              <tr>
+                <td>Quantization and dither</td>
+                <td>Round samples to discrete levels; optionally add small noise.</td>
+                <td>Bit depth reduction, digital storage.</td>
+                <td>Quantization distortion without dither.</td>
+              </tr>
+              <tr>
+                <td>Resampling</td>
+                <td>Lowpass, interpolate, and decimate.</td>
+                <td>Changing sample rate.</td>
+                <td>Aliasing if anti-aliasing filter is skipped.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Linear, nonlinear, and time-varying systems</h3>
+          <p>Convolution exactly describes linear time-invariant systems. Many musical effects are not fully LTI. Distortion is nonlinear, so it creates new frequencies. Tremolo, chorus, flanging, and phasing are time-varying, so their behavior changes over time. Compressors are nonlinear and time-varying because their gain depends on the recent signal envelope. LTI analysis is still useful, but it is not the whole story.</p>
+
+          <div class="math-block">
+            <span class="line">LTI filter: &nbsp; y = x * h</span>
+            <span class="line">Nonlinear shaper: &nbsp; y(t) = tanh(g x(t))</span>
+            <span class="line">Time-varying gain: &nbsp; y(t) = a(t) x(t)</span>
+            <small>Nonlinear and time-varying systems can create sidebands, harmonics, clicks, and aliasing that do not appear in ordinary LTI convolution.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="simulators">
+        <div class="inner">
+          <h2>8. Interactive Simulators</h2>
+          <p class="lead">The demos synthesize signals, compute real transforms and filters in JavaScript, and draw the results. Audio playback uses browser-generated buffers.</p>
+
+          <div class="simulation" id="signalLab">
+            <div class="sim-header">
+              <div>
+                <h3>Audio Signal Lab</h3>
+                <p>Build synthesized audio from oscillators, chords, FM, vowel formants, drums, and noise. Inspect waveform, spectrum, phase portrait, and short-time spectrum, then play it.</p>
+              </div>
+              <div class="sim-actions">
+                <button type="button" id="signalPlay">Play signal</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Wave
+                <select id="signalWave">
+                  <option value="sine">sine</option>
+                  <option value="square">square</option>
+                  <option value="saw">saw</option>
+                  <option value="triangle">triangle</option>
+                  <option value="chirp">chirp</option>
+                  <option value="chord">minor chord</option>
+                  <option value="fm">FM bell</option>
+                  <option value="vowel">vowel formants</option>
+                  <option value="drum">drum hit</option>
+                  <option value="noiseBurst">noise burst</option>
+                </select>
+              </label>
+              <label class="control">Frequency <output id="signalFreqOut">440 Hz</output>
+                <input id="signalFreq" type="range" min="80" max="1800" value="440">
+              </label>
+              <label class="control">Noise <output id="signalNoiseOut">0.05</output>
+                <input id="signalNoise" type="range" min="0" max="50" value="5">
+              </label>
+              <label class="control">Envelope
+                <select id="signalEnv">
+                  <option value="pluck">pluck</option>
+                  <option value="pad">pad</option>
+                  <option value="flat">flat</option>
+                </select>
+              </label>
+              <label class="control">Color / modulation <output id="signalColorOut">0.35</output>
+                <input id="signalColor" type="range" min="0" max="100" value="35">
+              </label>
+              <label class="control">Detune / spread <output id="signalSpreadOut">0.20</output>
+                <input id="signalSpread" type="range" min="0" max="100" value="20">
+              </label>
+              <label class="control">View window <output id="signalViewOut">75 ms</output>
+                <input id="signalView" type="range" min="20" max="280" value="75">
+              </label>
+              <label class="control">Analysis
+                <select id="signalAnalysis">
+                  <option value="hann">Hann spectrum</option>
+                  <option value="rect">raw spectrum</option>
+                  <option value="log">log spectrum</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="quad-view">
+                <div>
+                  <div class="viz-title"><span>Waveform</span><span class="shape">time domain</span></div>
+                  <canvas id="signalWaveCanvas" width="760" height="260" aria-label="Signal waveform"></canvas>
+                </div>
+                <div>
+                  <div class="viz-title"><span>Spectrum</span><span class="shape">magnitude DFT</span></div>
+                  <canvas id="signalSpectrumCanvas" width="760" height="260" aria-label="Signal spectrum"></canvas>
+                </div>
+                <div>
+                  <div class="viz-title"><span>Phase portrait</span><span class="shape">x[n] vs x[n-delay]</span></div>
+                  <canvas id="signalPhaseCanvas" width="760" height="260" aria-label="Signal phase portrait"></canvas>
+                </div>
+                <div>
+                  <div class="viz-title"><span>Mini spectrogram</span><span class="shape">short-time spectrum</span></div>
+                  <canvas id="signalMiniSpecCanvas" width="760" height="260" aria-label="Signal mini spectrogram"></canvas>
+                </div>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>RMS</b><span id="signalRms"></span></div>
+                  <div class="metric"><b>Peak</b><span id="signalPeak"></span></div>
+                  <div class="metric"><b>Centroid</b><span id="signalCentroid"></span></div>
+                  <div class="metric"><b>Duration</b><span id="signalDuration"></span></div>
+                </div>
+                <div class="bars" id="signalBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="samplingLab">
+            <div class="sim-header">
+              <div>
+                <h3>Sampling and Aliasing</h3>
+                <p>Sample a continuous-looking sine. Frequencies above Nyquist fold back as aliases.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Tone frequency <output id="sampleToneOut">1200 Hz</output>
+                <input id="sampleTone" type="range" min="100" max="9500" value="1200">
+              </label>
+              <label class="control">Sample rate <output id="sampleRateOut">8000 Hz</output>
+                <input id="sampleRate" type="range" min="1000" max="16000" value="8000">
+              </label>
+              <label class="control">Display cycles <output id="sampleCyclesOut">4</output>
+                <input id="sampleCycles" type="range" min="1" max="10" value="4">
+              </label>
+              <label class="control">Reconstruction
+                <select id="sampleRecon">
+                  <option value="hold">sample hold</option>
+                  <option value="linear">linear</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="samplingCanvas" width="760" height="520" aria-label="Sampling and aliasing simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>Nyquist</b><span id="sampleNyquist"></span></div>
+                <div class="metric"><b>Alias</b><span id="sampleAlias"></span></div>
+                <div class="metric"><b>Samples shown</b><span id="sampleCount"></span></div>
+                <div class="metric"><b>Status</b><span id="sampleStatus"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="convolutionLab">
+            <div class="sim-header">
+              <div>
+                <h3>1D Convolution Workbench</h3>
+                <p>Move through a signal while a kernel contributes shifted weighted copies to the output.</p>
+              </div>
+              <div class="sim-actions">
+                <button type="button" id="convStep">Step</button>
+                <button type="button" id="convPlay" aria-pressed="false">Play</button>
+                <button type="button" id="convPlayInput">Play input</button>
+                <button type="button" id="convPlayOutput">Play convolved</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Input
+                <select id="convSignal">
+                  <option value="impulses">impulses</option>
+                  <option value="speechy">speech-like</option>
+                  <option value="beat">beat</option>
+                </select>
+              </label>
+              <label class="control">Kernel
+                <select id="convKernel">
+                  <option value="echo">echo taps</option>
+                  <option value="moving">moving average</option>
+                  <option value="edge">difference</option>
+                  <option value="reverb">small reverb</option>
+                </select>
+              </label>
+              <label class="control">Position <output id="convPosOut">0</output>
+                <input id="convPos" type="range" min="0" max="80" value="0">
+              </label>
+              <label class="control">Normalize
+                <select id="convNormalize">
+                  <option value="on">on</option>
+                  <option value="off">off</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="convCanvas" width="760" height="520" aria-label="Convolution simulator"></canvas>
+              <div class="metric-grid">
+                <div class="metric"><b>Input energy</b><span id="convInputEnergy"></span></div>
+                <div class="metric"><b>Kernel sum</b><span id="convKernelSum"></span></div>
+                <div class="metric"><b>Output energy</b><span id="convOutputEnergy"></span></div>
+                <div class="metric"><b>Output length</b><span id="convLength"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="firLab">
+            <div class="sim-header">
+              <div>
+                <h3>FIR Filter Designer</h3>
+                <p>Design a windowed-sinc FIR filter and apply it to a harmonic audio signal.</p>
+              </div>
+              <div class="sim-actions">
+                <button type="button" id="firPlayOriginal">Play input</button>
+                <button type="button" id="firPlayFiltered">Play filtered</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Type
+                <select id="firType">
+                  <option value="lowpass">lowpass</option>
+                  <option value="highpass">highpass</option>
+                  <option value="bandpass">bandpass</option>
+                </select>
+              </label>
+              <label class="control">Cutoff 1 <output id="firCut1Out">1200 Hz</output>
+                <input id="firCut1" type="range" min="100" max="6500" value="1200">
+              </label>
+              <label class="control">Cutoff 2 <output id="firCut2Out">3600 Hz</output>
+                <input id="firCut2" type="range" min="200" max="7600" value="3600">
+              </label>
+              <label class="control">Taps <output id="firTapsOut">41</output>
+                <input id="firTaps" type="range" min="9" max="101" step="2" value="41">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-stack">
+                <canvas id="firImpulseCanvas" width="760" height="250" aria-label="FIR impulse response"></canvas>
+                <canvas id="firResponseCanvas" width="760" height="250" aria-label="FIR frequency response"></canvas>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>DC gain</b><span id="firDc"></span></div>
+                <div class="metric"><b>Peak gain</b><span id="firPeak"></span></div>
+                <div class="metric"><b>Delay</b><span id="firDelay"></span></div>
+                <div class="metric"><b>Output RMS</b><span id="firRms"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="iirLab">
+            <div class="sim-header">
+              <div>
+                <h3>IIR Biquad and Z-plane</h3>
+                <p>Place poles and zeros through a common biquad design. The z-plane, frequency response, and stability update together.</p>
+              </div>
+              <div class="sim-actions">
+                <button type="button" id="iirPlay">Play filtered tone</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Mode
+                <select id="iirMode">
+                  <option value="lowpass">lowpass</option>
+                  <option value="highpass">highpass</option>
+                  <option value="notch">notch</option>
+                  <option value="bandpass">bandpass</option>
+                </select>
+              </label>
+              <label class="control">Frequency <output id="iirFreqOut">1200 Hz</output>
+                <input id="iirFreq" type="range" min="80" max="7600" value="1200">
+              </label>
+              <label class="control">Q <output id="iirQOut">1.20</output>
+                <input id="iirQ" type="range" min="25" max="1200" value="120">
+              </label>
+              <label class="control">Input
+                <select id="iirInput">
+                  <option value="harmonic">harmonic</option>
+                  <option value="noise">noise burst</option>
+                  <option value="chirp">chirp</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-pair">
+                <canvas id="zCanvas" width="370" height="370" aria-label="Z-plane"></canvas>
+                <canvas id="iirResponseCanvas" width="370" height="370" aria-label="IIR frequency response"></canvas>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Stability</b><span id="iirStability"></span></div>
+                <div class="metric"><b>Pole radius</b><span id="iirPoleRadius"></span></div>
+                <div class="metric"><b>Peak gain</b><span id="iirPeak"></span></div>
+                <div class="metric"><b>Coefficients</b><span id="iirCoeffs"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="spectrogramLab">
+            <div class="sim-header">
+              <div>
+                <h3>STFT Spectrogram</h3>
+                <p>Short-time Fourier transforms trade time resolution against frequency resolution.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Signal
+                <select id="specSignal">
+                  <option value="chirp">chirp</option>
+                  <option value="vowels">vowel-like tones</option>
+                  <option value="drums">percussive hits</option>
+                </select>
+              </label>
+              <label class="control">Window size <output id="specWindowOut">256</output>
+                <input id="specWindow" type="range" min="64" max="512" step="64" value="256">
+              </label>
+              <label class="control">Hop <output id="specHopOut">64</output>
+                <input id="specHop" type="range" min="16" max="192" step="16" value="64">
+              </label>
+              <label class="control">Window
+                <select id="specWindowType">
+                  <option value="hann">Hann</option>
+                  <option value="rect">rectangular</option>
+                  <option value="blackman">Blackman</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-stack">
+                <canvas id="specWaveCanvas" width="760" height="190" aria-label="Spectrogram waveform"></canvas>
+                <canvas id="specCanvas" width="760" height="330" aria-label="Spectrogram"></canvas>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Frames</b><span id="specFrames"></span></div>
+                <div class="metric"><b>Bin width</b><span id="specBinWidth"></span></div>
+                <div class="metric"><b>Time step</b><span id="specTimeStep"></span></div>
+                <div class="metric"><b>Tradeoff</b><span id="specTradeoff"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="dftLab">
+            <div class="sim-header">
+              <div>
+                <h3>DFT Basis Explorer</h3>
+                <p>Inspect one DFT bin as a rotating complex sinusoid. The selected bin's real and imaginary correlations are computed directly.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Signal
+                <select id="dftSignal">
+                  <option value="twoTone">two tones</option>
+                  <option value="square">square wave</option>
+                  <option value="impulse">impulse</option>
+                  <option value="offbin">off-bin tone</option>
+                </select>
+              </label>
+              <label class="control">N <output id="dftNOut">32</output>
+                <input id="dftN" type="range" min="16" max="64" step="16" value="32">
+              </label>
+              <label class="control">Bin k <output id="dftBinOut">4</output>
+                <input id="dftBin" type="range" min="0" max="31" value="4">
+              </label>
+              <label class="control">Window
+                <select id="dftWindow">
+                  <option value="rect">rectangular</option>
+                  <option value="hann">Hann</option>
+                  <option value="blackman">Blackman</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-pair">
+                <canvas id="dftTimeCanvas" width="370" height="370" aria-label="DFT time basis"></canvas>
+                <canvas id="dftComplexCanvas" width="370" height="370" aria-label="DFT complex plane"></canvas>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Magnitude</b><span id="dftMagnitudeOut"></span></div>
+                <div class="metric"><b>Phase</b><span id="dftPhaseOut"></span></div>
+                <div class="metric"><b>Real / imag</b><span id="dftRealImagOut"></span></div>
+                <div class="metric"><b>Bin frequency</b><span id="dftFreqOut"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="fftLab">
+            <div class="sim-header">
+              <div>
+                <h3>FFT Butterfly and Spectrum</h3>
+                <p>Compare direct DFT cost with radix-2 FFT cost and see the butterfly stages that reuse even and odd transforms.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Signal
+                <select id="fftSignal">
+                  <option value="twoTone">two tones</option>
+                  <option value="chirp">short chirp</option>
+                  <option value="noise">noise plus tone</option>
+                </select>
+              </label>
+              <label class="control">FFT size <output id="fftSizeOut">64</output>
+                <select id="fftSize">
+                  <option value="16">16</option>
+                  <option value="32">32</option>
+                  <option value="64" selected>64</option>
+                  <option value="128">128</option>
+                </select>
+              </label>
+              <label class="control">Stage <output id="fftStageOut">3</output>
+                <input id="fftStage" type="range" min="1" max="6" value="3">
+              </label>
+              <label class="control">Display
+                <select id="fftDisplay">
+                  <option value="magnitude">magnitude</option>
+                  <option value="phase">phase</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-stack">
+                <canvas id="fftButterflyCanvas" width="760" height="250" aria-label="FFT butterfly stages"></canvas>
+                <canvas id="fftSpectrumCanvas" width="760" height="250" aria-label="FFT spectrum"></canvas>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Direct DFT ops</b><span id="fftDirectOps"></span></div>
+                <div class="metric"><b>FFT ops</b><span id="fftFastOps"></span></div>
+                <div class="metric"><b>Speedup</b><span id="fftSpeedup"></span></div>
+                <div class="metric"><b>Peak bin</b><span id="fftPeakBin"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="effectsLab">
+            <div class="sim-header">
+              <div>
+                <h3>Modulation, Delay, and Quantization</h3>
+                <p>Apply classic audio DSP effects and inspect waveform, spectrum, and numeric artifacts.</p>
+              </div>
+              <div class="sim-actions">
+                <button type="button" id="effectsPlayInput">Play dry</button>
+                <button type="button" id="effectsPlayOutput">Play wet</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Effect
+                <select id="effectsType">
+                  <option value="tremolo">tremolo</option>
+                  <option value="ring">ring modulation</option>
+                  <option value="delay">feedback delay</option>
+                  <option value="quantize">bit crusher</option>
+                </select>
+              </label>
+              <label class="control">Rate / delay <output id="effectsRateOut">6.0</output>
+                <input id="effectsRate" type="range" min="1" max="80" value="6">
+              </label>
+              <label class="control">Depth / feedback <output id="effectsDepthOut">0.50</output>
+                <input id="effectsDepth" type="range" min="0" max="95" value="50">
+              </label>
+              <label class="control">Bits <output id="effectsBitsOut">6</output>
+                <input id="effectsBits" type="range" min="2" max="16" value="6">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-stack">
+                <canvas id="effectsWaveCanvas" width="760" height="250" aria-label="Effects waveform"></canvas>
+                <canvas id="effectsSpectrumCanvas" width="760" height="250" aria-label="Effects spectrum"></canvas>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><b>Dry RMS</b><span id="effectsDryRms"></span></div>
+                <div class="metric"><b>Wet RMS</b><span id="effectsWetRms"></span></div>
+                <div class="metric"><b>Peak</b><span id="effectsPeak"></span></div>
+                <div class="metric"><b>Artifact</b><span id="effectsArtifact"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="debugging">
+        <div class="inner">
+          <h2>9. Debugging DSP Systems</h2>
+          <p class="lead">DSP bugs usually show up as clipping, aliasing, instability, phase cancellation, latency, or state discontinuities. Draw and listen before guessing.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Symptom</th>
+                <th>Likely cause</th>
+                <th>Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Harsh new tones after downsampling</td>
+                <td>Aliasing.</td>
+                <td>Lowpass before decimation and inspect spectrum.</td>
+              </tr>
+              <tr>
+                <td>Output explodes or becomes NaN</td>
+                <td>IIR instability or feedback gain too high.</td>
+                <td>Check pole radii, coefficient signs, and internal state.</td>
+              </tr>
+              <tr>
+                <td>Filtered sound is delayed</td>
+                <td>FIR group delay or lookahead processing.</td>
+                <td>Measure impulse response peak and compensate latency.</td>
+              </tr>
+              <tr>
+                <td>Comb filtering when mixing channels</td>
+                <td>Delayed copy or phase mismatch.</td>
+                <td>Inspect phase and delay alignment.</td>
+              </tr>
+              <tr>
+                <td>Clicks at block boundaries</td>
+                <td>Discontinuous state, parameter jumps, or buffer splice.</td>
+                <td>Preserve filter state and smooth parameters.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code># Practical DSP sanity checks
+assert max(abs(x)) <= 1.0       # avoid clipping before output
+plot_waveform(x)
+plot_spectrum(x, sample_rate)
+impulse = [1, 0, 0, ...]
+plot_waveform(system(impulse))  # inspect impulse response
+plot_spectrum(system(impulse))  # inspect frequency response</code></pre>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="inner">DSP basics book. All simulations run locally in the browser with generated signals.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const COLORS = {
+      blue: "#1f6fb2",
+      green: "#2f7d57",
+      red: "#bd4b43",
+      amber: "#b87924",
+      violet: "#6b55a3",
+      cyan: "#147f87",
+      ink: "#17212a",
+      muted: "#5f6d77",
+      line: "#d8d0c2"
+    };
+
+    const SAMPLE_RATE = 16000;
+    const TWO_PI = Math.PI * 2;
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const round = (value, places = 2) => Number.parseFloat(value).toFixed(places);
+    const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const rms = values => Math.sqrt(mean(values.map(value => value * value)));
+    const peak = values => Math.max(...values.map(value => Math.abs(value)));
+    const energy = values => values.reduce((sum, value) => sum + value * value, 0);
+
+    function lcg(seed) {
+      let state = seed >>> 0;
+      return () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 4294967296;
+      };
+    }
+
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return ctx;
+    }
+
+    function drawGrid(ctx, canvas) {
+      ctx.strokeStyle = "#ece5da";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= canvas.width; x += canvas.width / 8) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += canvas.height / 4) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawWave(canvas, data, options = {}) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const start = options.start || 0;
+      const length = options.length || data.length;
+      const end = Math.min(data.length, start + length);
+      const slice = data.slice(start, end);
+      const maxAbs = Math.max(.001, options.maxAbs || peak(slice));
+      const mid = canvas.height / 2;
+      ctx.strokeStyle = options.color || COLORS.blue;
+      ctx.lineWidth = options.width || 2.5;
+      ctx.beginPath();
+      slice.forEach((value, i) => {
+        const x = i / Math.max(1, slice.length - 1) * canvas.width;
+        const y = mid - value / maxAbs * (canvas.height * .42);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.strokeStyle = COLORS.line;
+      ctx.beginPath();
+      ctx.moveTo(0, mid);
+      ctx.lineTo(canvas.width, mid);
+      ctx.stroke();
+    }
+
+    function drawSpectrum(canvas, mags, sampleRate = SAMPLE_RATE, options = {}) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const maxHz = options.maxHz || sampleRate / 2;
+      const maxBin = Math.min(mags.length, Math.floor(maxHz / (sampleRate / (mags.length * 2))));
+      const maxMag = Math.max(1e-9, ...mags.slice(0, maxBin));
+      ctx.fillStyle = options.color || COLORS.green;
+      for (let i = 0; i < maxBin; i += 1) {
+        const x = i / maxBin * canvas.width;
+        const normalized = mags[i] / maxMag;
+        const h = options.scale === "linear" ? normalized * canvas.height : Math.log10(1 + normalized * 99) / 2 * canvas.height;
+        ctx.fillRect(x, canvas.height - h, Math.max(1, canvas.width / maxBin), h);
+      }
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText(`0 Hz`, 8, 18);
+      ctx.fillText(`${Math.round(maxHz)} Hz`, canvas.width - 86, 18);
+    }
+
+    function dftMagnitude(data, bins = 256, windowType = "hann") {
+      const N = Math.min(data.length, bins * 2);
+      const windowed = data.slice(0, N);
+      const window = makeWindow(N, windowType);
+      const mags = [];
+      for (let k = 0; k < bins; k += 1) {
+        let re = 0;
+        let im = 0;
+        for (let n = 0; n < N; n += 1) {
+          const angle = -TWO_PI * k * n / N;
+          const w = window[n];
+          re += windowed[n] * w * Math.cos(angle);
+          im += windowed[n] * w * Math.sin(angle);
+        }
+        mags.push(Math.sqrt(re * re + im * im) / N);
+      }
+      return mags;
+    }
+
+    function dftComplex(data, windowType = "rect") {
+      const N = data.length;
+      const window = makeWindow(N, windowType);
+      const out = [];
+      for (let k = 0; k < N; k += 1) {
+        let re = 0;
+        let im = 0;
+        for (let n = 0; n < N; n += 1) {
+          const angle = -TWO_PI * k * n / N;
+          const value = data[n] * window[n];
+          re += value * Math.cos(angle);
+          im += value * Math.sin(angle);
+        }
+        out.push({ re, im });
+      }
+      return out;
+    }
+
+    function fftComplex(input) {
+      const N = input.length;
+      if (N === 1) return [{ re: input[0].re, im: input[0].im }];
+      const even = fftComplex(input.filter((_, index) => index % 2 === 0));
+      const odd = fftComplex(input.filter((_, index) => index % 2 === 1));
+      const out = new Array(N);
+      for (let k = 0; k < N / 2; k += 1) {
+        const angle = -TWO_PI * k / N;
+        const twiddle = { re: Math.cos(angle), im: Math.sin(angle) };
+        const t = {
+          re: twiddle.re * odd[k].re - twiddle.im * odd[k].im,
+          im: twiddle.re * odd[k].im + twiddle.im * odd[k].re
+        };
+        out[k] = { re: even[k].re + t.re, im: even[k].im + t.im };
+        out[k + N / 2] = { re: even[k].re - t.re, im: even[k].im - t.im };
+      }
+      return out;
+    }
+
+    function complexMag(value) {
+      return Math.sqrt(value.re * value.re + value.im * value.im);
+    }
+
+    function complexPhase(value) {
+      return Math.atan2(value.im, value.re);
+    }
+
+    function makeEnvelope(i, n, type) {
+      const t = i / Math.max(1, n - 1);
+      if (type === "pluck") return Math.exp(-5.5 * t);
+      if (type === "pad") return Math.min(1, t * 5) * Math.min(1, (1 - t) * 4);
+      return 1;
+    }
+
+    function waveformValue(type, phase) {
+      const p = ((phase / TWO_PI) % 1 + 1) % 1;
+      if (type === "square") return p < .5 ? 1 : -1;
+      if (type === "saw") return 2 * p - 1;
+      if (type === "triangle") return 1 - 4 * Math.abs(p - .5);
+      return Math.sin(phase);
+    }
+
+    function synthSignal(options = {}) {
+      const sr = options.sampleRate || SAMPLE_RATE;
+      const duration = options.duration || .8;
+      const n = Math.floor(sr * duration);
+      const freq = options.freq || 440;
+      const wave = options.wave || "sine";
+      const env = options.env || "flat";
+      const noise = options.noise || 0;
+      const color = options.color || 0;
+      const spread = options.spread || 0;
+      const rand = lcg(options.seed || 12);
+      const data = new Array(n);
+      let phase = 0;
+      let modPhase = 0;
+      for (let i = 0; i < n; i += 1) {
+        const t = i / sr;
+        const f = wave === "chirp" ? freq * (1 + 5 * t / duration) : freq;
+        phase += TWO_PI * f / sr;
+        modPhase += TWO_PI * (freq * (.45 + color * 2.5)) / sr;
+        let value;
+        if (wave === "sine" || wave === "chirp") {
+          value = Math.sin(phase);
+        } else if (wave === "chord") {
+          const ratios = [1, 6 / 5, 3 / 2, 2];
+          value = ratios.reduce((sum, ratio, index) => {
+            const detune = 1 + (index - 1.5) * spread * .012;
+            return sum + Math.sin(TWO_PI * freq * ratio * detune * t) * (index === 0 ? .48 : .25);
+          }, 0);
+        } else if (wave === "fm") {
+          const index = .5 + color * 9;
+          value = Math.sin(phase + index * Math.sin(modPhase)) * Math.exp(-2.2 * t);
+        } else if (wave === "vowel") {
+          const formantsA = [700, 1220, 2600];
+          const formantsB = [350, 1900, 2700];
+          value = 0;
+          for (let harmonic = 1; harmonic <= 36; harmonic += 1) {
+            const hf = freq * harmonic * (1 + spread * .002 * Math.sin(harmonic));
+            const gainA = formantsA.reduce((sum, formant) => sum + Math.exp(-(((hf - formant) / 260) ** 2)), 0);
+            const gainB = formantsB.reduce((sum, formant) => sum + Math.exp(-(((hf - formant) / 300) ** 2)), 0);
+            const gain = ((1 - color) * gainA + color * gainB + .05) / harmonic;
+            value += Math.sin(TWO_PI * hf * t) * gain;
+          }
+          value *= .65;
+        } else if (wave === "drum") {
+          const drop = freq * (.28 + .72 * Math.exp(-32 * t));
+          const body = Math.sin(TWO_PI * drop * t) * Math.exp(-9 * t);
+          const snap = (rand() * 2 - 1) * Math.exp(-70 * t) * (1 + color * 2);
+          value = body + snap;
+        } else if (wave === "noiseBurst") {
+          const tone = Math.sin(phase) * .15 * color;
+          value = (rand() * 2 - 1) * Math.exp(-4.5 * t) * (.4 + spread) + tone;
+        } else if (wave === "square") {
+          value = waveformValue("square", phase) * (.55 + color * .25) + Math.sin(phase * 3) * .18 + Math.sin(phase * 5) * .08;
+        } else if (wave === "saw") {
+          value = waveformValue("saw", phase) * (.5 + color * .3);
+        } else {
+          value = waveformValue("triangle", phase) * .8;
+        }
+        value += (rand() * 2 - 1) * noise;
+        data[i] = value * makeEnvelope(i, n, env) * .8;
+      }
+      const maxAbs = Math.max(1, peak(data));
+      return data.map(value => value / maxAbs * .92);
+    }
+
+    function playBuffer(data, sampleRate = SAMPLE_RATE) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      const context = new AudioContextClass();
+      const buffer = context.createBuffer(1, data.length, sampleRate);
+      const channel = buffer.getChannelData(0);
+      const maxAbs = Math.max(1, peak(data));
+      data.forEach((value, i) => {
+        channel[i] = clamp(value / maxAbs * .85, -1, 1);
+      });
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      gain.gain.value = .8;
+      source.buffer = buffer;
+      source.connect(gain);
+      gain.connect(context.destination);
+      source.start();
+      source.onended = () => context.close();
+    }
+
+    function spectralCentroid(mags, sampleRate = SAMPLE_RATE) {
+      const total = mags.reduce((sum, value) => sum + value, 0);
+      if (total <= 1e-12) return 0;
+      return mags.reduce((sum, value, i) => sum + value * i * sampleRate / (mags.length * 2), 0) / total;
+    }
+
+    function renderBars(target, labels, values, max = 1) {
+      target.innerHTML = "";
+      values.forEach((value, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const label = document.createElement("span");
+        label.textContent = labels[index];
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.width = `${clamp(value / max, 0, 1) * 100}%`;
+        fill.style.background = index === 0 ? COLORS.blue : index === 1 ? COLORS.green : COLORS.amber;
+        track.appendChild(fill);
+        const number = document.createElement("span");
+        number.textContent = round(value, 2);
+        row.append(label, track, number);
+        target.appendChild(row);
+      });
+    }
+
+    function drawPhasePortrait(canvas, data, lag = 42) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const maxAbs = Math.max(.001, peak(data));
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const scale = Math.min(canvas.width, canvas.height) * .4;
+      ctx.strokeStyle = COLORS.line;
+      ctx.beginPath();
+      ctx.moveTo(cx, 0);
+      ctx.lineTo(cx, canvas.height);
+      ctx.moveTo(0, cy);
+      ctx.lineTo(canvas.width, cy);
+      ctx.stroke();
+      ctx.strokeStyle = COLORS.violet;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      const limit = Math.min(data.length - lag, 2600);
+      for (let i = 0; i < limit; i += 1) {
+        const x = cx + data[i] / maxAbs * scale;
+        const y = cy - data[i + lag] / maxAbs * scale;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText(`lag ${lag} samples`, 10, 18);
+    }
+
+    function drawMiniSpectrogram(canvas, data, windowSize = 192, hop = 48) {
+      const ctx = clearCanvas(canvas);
+      const frames = [];
+      for (let start = 0; start + windowSize <= data.length && frames.length < 80; start += hop) {
+        frames.push(dftMagnitude(data.slice(start, start + windowSize), Math.floor(windowSize / 2), "hann"));
+      }
+      const maxMag = Math.max(1e-9, ...frames.flat());
+      frames.forEach((mags, frameIndex) => {
+        const x = frameIndex / Math.max(1, frames.length) * canvas.width;
+        const w = Math.ceil(canvas.width / Math.max(1, frames.length));
+        mags.forEach((mag, bin) => {
+          const y = canvas.height - (bin + 1) / mags.length * canvas.height;
+          const h = Math.ceil(canvas.height / mags.length);
+          const p = Math.log10(1 + mag / maxMag * 99) / 2;
+          const r = Math.round(25 + p * 190);
+          const g = Math.round(80 + p * 110);
+          const b = Math.round(115 + p * 30);
+          ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          ctx.fillRect(x, y, w, h);
+        });
+      });
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText("time ->", 10, 18);
+      ctx.fillText("frequency", canvas.width - 76, canvas.height - 10);
+    }
+
+    let currentSignal = [];
+    function updateSignalLab() {
+      const wave = document.getElementById("signalWave").value;
+      const freq = Number(document.getElementById("signalFreq").value);
+      const noise = Number(document.getElementById("signalNoise").value) / 100;
+      const env = document.getElementById("signalEnv").value;
+      const color = Number(document.getElementById("signalColor").value) / 100;
+      const spread = Number(document.getElementById("signalSpread").value) / 100;
+      const viewMs = Number(document.getElementById("signalView").value);
+      const analysis = document.getElementById("signalAnalysis").value;
+      currentSignal = synthSignal({ wave, freq, noise, env, color, spread, duration: 1.05, seed: 5 });
+      const windowType = analysis === "rect" ? "rect" : "hann";
+      const mags = dftMagnitude(currentSignal, 384, windowType);
+      drawWave(document.getElementById("signalWaveCanvas"), currentSignal, { length: Math.min(currentSignal.length, Math.floor(SAMPLE_RATE * viewMs / 1000)) });
+      drawSpectrum(document.getElementById("signalSpectrumCanvas"), mags, SAMPLE_RATE, { scale: analysis === "rect" ? "linear" : "log" });
+      drawPhasePortrait(document.getElementById("signalPhaseCanvas"), currentSignal, Math.max(1, Math.floor(SAMPLE_RATE / Math.max(80, freq) / 4)));
+      drawMiniSpectrogram(document.getElementById("signalMiniSpecCanvas"), currentSignal);
+      document.getElementById("signalFreqOut").textContent = `${freq} Hz`;
+      document.getElementById("signalNoiseOut").textContent = round(noise, 2);
+      document.getElementById("signalColorOut").textContent = round(color, 2);
+      document.getElementById("signalSpreadOut").textContent = round(spread, 2);
+      document.getElementById("signalViewOut").textContent = `${viewMs} ms`;
+      document.getElementById("signalRms").textContent = round(rms(currentSignal), 3);
+      document.getElementById("signalPeak").textContent = round(peak(currentSignal), 3);
+      document.getElementById("signalCentroid").textContent = `${Math.round(spectralCentroid(mags))} Hz`;
+      document.getElementById("signalDuration").textContent = `${round(currentSignal.length / SAMPLE_RATE, 2)} s`;
+      const bands = [
+        mags.slice(0, 24).reduce((a, b) => a + b, 0),
+        mags.slice(24, 96).reduce((a, b) => a + b, 0),
+        mags.slice(96, 220).reduce((a, b) => a + b, 0)
+      ];
+      renderBars(document.getElementById("signalBars"), ["low", "mid", "high"], bands, Math.max(...bands, 1e-6));
+    }
+
+    function bindSignalLab() {
+      ["signalWave", "signalFreq", "signalNoise", "signalEnv", "signalColor", "signalSpread", "signalView", "signalAnalysis"].forEach(id => document.getElementById(id).addEventListener("input", updateSignalLab));
+      document.getElementById("signalPlay").addEventListener("click", () => playBuffer(currentSignal));
+      updateSignalLab();
+    }
+
+    function aliasFrequency(freq, sampleRate) {
+      return Math.abs((((freq + sampleRate / 2) % sampleRate) + sampleRate) % sampleRate - sampleRate / 2);
+    }
+
+    function updateSamplingLab() {
+      const canvas = document.getElementById("samplingCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const freq = Number(document.getElementById("sampleTone").value);
+      const sr = Number(document.getElementById("sampleRate").value);
+      const cycles = Number(document.getElementById("sampleCycles").value);
+      const recon = document.getElementById("sampleRecon").value;
+      const duration = cycles / freq;
+      const continuousCount = 900;
+      const yScale = canvas.height * .34;
+      const yMid = canvas.height / 2;
+      ctx.strokeStyle = COLORS.blue;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i = 0; i < continuousCount; i += 1) {
+        const t = i / (continuousCount - 1) * duration;
+        const x = i / (continuousCount - 1) * canvas.width;
+        const y = yMid - Math.sin(TWO_PI * freq * t) * yScale;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      const sampleCount = Math.max(2, Math.floor(duration * sr));
+      const samples = [];
+      for (let n = 0; n <= sampleCount; n += 1) {
+        const t = n / sr;
+        samples.push({ t, v: Math.sin(TWO_PI * freq * t) });
+      }
+      ctx.strokeStyle = COLORS.red;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      samples.forEach((sample, i) => {
+        const x = sample.t / duration * canvas.width;
+        const y = yMid - sample.v * yScale;
+        if (i === 0) ctx.moveTo(x, y);
+        else if (recon === "hold") {
+          const prev = samples[i - 1];
+          const px = prev.t / duration * canvas.width;
+          const py = yMid - prev.v * yScale;
+          ctx.lineTo(x, py);
+          ctx.lineTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+      samples.forEach(sample => {
+        const x = sample.t / duration * canvas.width;
+        const y = yMid - sample.v * yScale;
+        ctx.fillStyle = COLORS.red;
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, TWO_PI);
+        ctx.fill();
+      });
+      const alias = aliasFrequency(freq, sr);
+      document.getElementById("sampleToneOut").textContent = `${freq} Hz`;
+      document.getElementById("sampleRateOut").textContent = `${sr} Hz`;
+      document.getElementById("sampleCyclesOut").textContent = String(cycles);
+      document.getElementById("sampleNyquist").textContent = `${round(sr / 2, 1)} Hz`;
+      document.getElementById("sampleAlias").textContent = `${round(alias, 1)} Hz`;
+      document.getElementById("sampleCount").textContent = String(sampleCount + 1);
+      document.getElementById("sampleStatus").textContent = freq <= sr / 2 ? "no alias" : "aliased";
+    }
+
+    function bindSamplingLab() {
+      ["sampleTone", "sampleRate", "sampleCycles", "sampleRecon"].forEach(id => document.getElementById(id).addEventListener("input", updateSamplingLab));
+      updateSamplingLab();
+    }
+
+    function makeFourierDemoSignal(kind, N) {
+      const rand = lcg(909);
+      return Array.from({ length: N }, (_, n) => {
+        if (kind === "impulse") return n === Math.floor(N / 5) ? 1 : 0;
+        if (kind === "square") return Math.sin(TWO_PI * 4 * n / N) >= 0 ? 1 : -1;
+        if (kind === "offbin") return Math.sin(TWO_PI * 5.6 * n / N);
+        if (kind === "noise") return Math.sin(TWO_PI * 7 * n / N) * .7 + (rand() * 2 - 1) * .22;
+        if (kind === "chirp") {
+          const t = n / N;
+          return Math.sin(TWO_PI * (2 + 14 * t) * t);
+        }
+        return Math.sin(TWO_PI * 4 * n / N) * .75 + Math.sin(TWO_PI * 11 * n / N + .6) * .42;
+      });
+    }
+
+    function drawDftTime(canvas, data, bin, windowType) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const N = data.length;
+      const window = makeWindow(N, windowType);
+      const mid = canvas.height / 2;
+      const maxAbs = Math.max(.001, peak(data));
+      ctx.strokeStyle = COLORS.blue;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      data.forEach((value, n) => {
+        const x = n / (N - 1) * canvas.width;
+        const y = mid - value / maxAbs * canvas.height * .26;
+        if (n === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.strokeStyle = COLORS.red;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let n = 0; n < N; n += 1) {
+        const basis = Math.cos(TWO_PI * bin * n / N) * window[n];
+        const x = n / (N - 1) * canvas.width;
+        const y = mid - basis * canvas.height * .2;
+        if (n === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText("blue: x[n], red: cos basis", 10, 18);
+    }
+
+    function drawDftComplex(canvas, data, bin, result) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) * .38;
+      ctx.strokeStyle = COLORS.line;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TWO_PI);
+      ctx.moveTo(cx - radius * 1.15, cy);
+      ctx.lineTo(cx + radius * 1.15, cy);
+      ctx.moveTo(cx, cy - radius * 1.15);
+      ctx.lineTo(cx, cy + radius * 1.15);
+      ctx.stroke();
+      const N = data.length;
+      let sum = { re: 0, im: 0 };
+      for (let n = 0; n < N; n += 1) {
+        const angle = -TWO_PI * bin * n / N;
+        const v = data[n] / Math.max(.001, peak(data));
+        const point = {
+          re: v * Math.cos(angle),
+          im: v * Math.sin(angle)
+        };
+        const a = { x: cx + sum.re * radius * .42, y: cy - sum.im * radius * .42 };
+        sum.re += point.re;
+        sum.im += point.im;
+        const b = { x: cx + sum.re * radius * .42, y: cy - sum.im * radius * .42 };
+        ctx.strokeStyle = n % 2 ? "rgba(31,111,178,.32)" : "rgba(47,125,87,.32)";
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+      const scale = radius / Math.max(1, data.length / 3);
+      ctx.strokeStyle = COLORS.red;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + result.re * scale, cy - result.im * scale);
+      ctx.stroke();
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText("vector sum for selected bin", 10, 18);
+    }
+
+    function updateDftLab() {
+      const kind = document.getElementById("dftSignal").value;
+      const N = Number(document.getElementById("dftN").value);
+      const binInput = document.getElementById("dftBin");
+      binInput.max = String(N - 1);
+      const bin = clamp(Number(binInput.value), 0, N - 1);
+      binInput.value = String(bin);
+      const windowType = document.getElementById("dftWindow").value;
+      const data = makeFourierDemoSignal(kind, N);
+      const spectrum = dftComplex(data, windowType);
+      const selected = spectrum[bin];
+      drawDftTime(document.getElementById("dftTimeCanvas"), data, bin, windowType);
+      drawDftComplex(document.getElementById("dftComplexCanvas"), data, bin, selected);
+      document.getElementById("dftNOut").textContent = String(N);
+      document.getElementById("dftBinOut").textContent = String(bin);
+      document.getElementById("dftMagnitudeOut").textContent = round(complexMag(selected), 3);
+      document.getElementById("dftPhaseOut").textContent = `${round(complexPhase(selected), 3)} rad`;
+      document.getElementById("dftRealImagOut").textContent = `${round(selected.re, 2)} / ${round(selected.im, 2)}`;
+      document.getElementById("dftFreqOut").textContent = `${round(bin * SAMPLE_RATE / N, 1)} Hz`;
+    }
+
+    function drawButterfly(canvas, N, stage) {
+      const ctx = clearCanvas(canvas);
+      const stages = Math.log2(N);
+      const visibleStage = clamp(stage, 1, stages);
+      const left = 50;
+      const right = canvas.width - 50;
+      const top = 24;
+      const bottom = canvas.height - 26;
+      const xStep = (right - left) / stages;
+      for (let s = 0; s <= stages; s += 1) {
+        const x = left + s * xStep;
+        ctx.fillStyle = COLORS.muted;
+        ctx.font = "12px ui-monospace, monospace";
+        ctx.fillText(`s${s}`, x - 8, 16);
+      }
+      for (let i = 0; i < N; i += 1) {
+        const y = top + i / Math.max(1, N - 1) * (bottom - top);
+        ctx.fillStyle = i % 2 ? COLORS.green : COLORS.blue;
+        ctx.beginPath();
+        ctx.arc(left, y, 3, 0, TWO_PI);
+        ctx.fill();
+      }
+      for (let s = 1; s <= visibleStage; s += 1) {
+        const span = 2 ** s;
+        const half = span / 2;
+        const x0 = left + (s - 1) * xStep;
+        const x1 = left + s * xStep;
+        for (let group = 0; group < N; group += span) {
+          for (let j = 0; j < half; j += 1) {
+            const a = group + j;
+            const b = group + j + half;
+            const ya = top + a / Math.max(1, N - 1) * (bottom - top);
+            const yb = top + b / Math.max(1, N - 1) * (bottom - top);
+            ctx.strokeStyle = s === visibleStage ? COLORS.red : "rgba(23,33,42,.18)";
+            ctx.lineWidth = s === visibleStage ? 2 : 1;
+            ctx.beginPath();
+            ctx.moveTo(x0, ya);
+            ctx.lineTo(x1, ya);
+            ctx.lineTo(x0, yb);
+            ctx.moveTo(x0, yb);
+            ctx.lineTo(x1, yb);
+            ctx.lineTo(x0, ya);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 13px Inter, system-ui, sans-serif";
+      ctx.fillText(`radix-2 butterflies, N=${N}`, 14, canvas.height - 8);
+    }
+
+    function drawFftSpectrum(canvas, spectrum, display) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const half = Math.floor(spectrum.length / 2);
+      if (display === "phase") {
+        ctx.strokeStyle = COLORS.violet;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let k = 0; k < half; k += 1) {
+          const phase = complexPhase(spectrum[k]) / Math.PI;
+          const x = k / Math.max(1, half - 1) * canvas.width;
+          const y = canvas.height / 2 - phase * canvas.height * .38;
+          if (k === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      } else {
+        const mags = spectrum.slice(0, half).map(complexMag);
+        drawSpectrum(canvas, mags, SAMPLE_RATE, { color: COLORS.green, maxHz: SAMPLE_RATE / 2 });
+      }
+    }
+
+    function updateFftLab() {
+      const kind = document.getElementById("fftSignal").value;
+      const N = Number(document.getElementById("fftSize").value);
+      const stageInput = document.getElementById("fftStage");
+      const maxStage = Math.log2(N);
+      stageInput.max = String(maxStage);
+      const stage = clamp(Number(stageInput.value), 1, maxStage);
+      stageInput.value = String(stage);
+      const display = document.getElementById("fftDisplay").value;
+      const data = makeFourierDemoSignal(kind, N);
+      const spectrum = fftComplex(data.map(value => ({ re: value, im: 0 })));
+      drawButterfly(document.getElementById("fftButterflyCanvas"), N, stage);
+      drawFftSpectrum(document.getElementById("fftSpectrumCanvas"), spectrum, display);
+      const direct = N * N;
+      const fast = Math.round(N * Math.log2(N));
+      const mags = spectrum.map(complexMag);
+      const peakBin = mags.slice(0, N / 2).reduce((best, value, index, arr) => value > arr[best] ? index : best, 0);
+      document.getElementById("fftSizeOut").textContent = String(N);
+      document.getElementById("fftStageOut").textContent = String(stage);
+      document.getElementById("fftDirectOps").textContent = `~${direct}`;
+      document.getElementById("fftFastOps").textContent = `~${fast}`;
+      document.getElementById("fftSpeedup").textContent = `${round(direct / fast, 1)}x`;
+      document.getElementById("fftPeakBin").textContent = `${peakBin} (${round(peakBin * SAMPLE_RATE / N, 1)} Hz)`;
+    }
+
+    function bindFourierLabs() {
+      ["dftSignal", "dftN", "dftBin", "dftWindow"].forEach(id => document.getElementById(id).addEventListener("input", updateDftLab));
+      ["fftSignal", "fftSize", "fftStage", "fftDisplay"].forEach(id => document.getElementById(id).addEventListener("input", updateFftLab));
+      updateDftLab();
+      updateFftLab();
+    }
+
+    function makeConvSignal(kind) {
+      const n = 84;
+      const x = new Array(n).fill(0);
+      if (kind === "impulses") {
+        x[8] = 1;
+        x[20] = .7;
+        x[37] = - .6;
+        x[58] = .9;
+      } else if (kind === "beat") {
+        [8, 12, 24, 36, 40, 55, 68].forEach((i, idx) => { x[i] = idx % 2 ? .55 : 1; });
+      } else {
+        for (let i = 0; i < n; i += 1) {
+          x[i] = Math.sin(i * .42) * Math.exp(-i / 90) + .25 * Math.sin(i * 1.6);
+        }
+      }
+      return x;
+    }
+
+    function makeKernel(kind) {
+      if (kind === "moving") return new Array(9).fill(1 / 9);
+      if (kind === "edge") return [-1, 0, 1];
+      if (kind === "reverb") return [1, 0, 0, .55, 0, .32, 0, .2, 0, .12];
+      return [1, 0, 0, .6, 0, 0, .32];
+    }
+
+    function convolve(x, h) {
+      const y = new Array(x.length + h.length - 1).fill(0);
+      for (let i = 0; i < x.length; i += 1) {
+        for (let k = 0; k < h.length; k += 1) {
+          y[i + k] += x[i] * h[k];
+        }
+      }
+      return y;
+    }
+
+    const convState = { timer: null, inputAudio: [], outputAudio: [] };
+
+    function stemsToAudio(values, stride = 560) {
+      const tail = 900;
+      const out = new Array(values.length * stride + tail).fill(0);
+      values.forEach((value, index) => {
+        const start = index * stride;
+        for (let i = 0; i < tail; i += 1) {
+          const env = Math.exp(-i / 260);
+          const tone = Math.sin(TWO_PI * 260 * i / SAMPLE_RATE) * .65 + Math.sin(TWO_PI * 520 * i / SAMPLE_RATE) * .25;
+          out[start + i] += value * tone * env;
+        }
+      });
+      const maxAbs = Math.max(1, peak(out));
+      return out.map(value => value / maxAbs * .9);
+    }
+
+    function drawStemPlot(ctx, values, x, y, w, h, color, active = -1) {
+      const maxAbs = Math.max(.001, peak(values));
+      ctx.strokeStyle = COLORS.line;
+      ctx.beginPath();
+      ctx.moveTo(x, y + h / 2);
+      ctx.lineTo(x + w, y + h / 2);
+      ctx.stroke();
+      values.forEach((value, i) => {
+        const px = x + i / Math.max(1, values.length - 1) * w;
+        const py = y + h / 2 - value / maxAbs * h * .42;
+        ctx.strokeStyle = i === active ? COLORS.red : color;
+        ctx.lineWidth = i === active ? 3 : 2;
+        ctx.beginPath();
+        ctx.moveTo(px, y + h / 2);
+        ctx.lineTo(px, py);
+        ctx.stroke();
+        ctx.fillStyle = i === active ? COLORS.red : color;
+        ctx.beginPath();
+        ctx.arc(px, py, i === active ? 5 : 3, 0, TWO_PI);
+        ctx.fill();
+      });
+    }
+
+    function updateConvolutionLab() {
+      const kind = document.getElementById("convSignal").value;
+      const kernelKind = document.getElementById("convKernel").value;
+      const normalize = document.getElementById("convNormalize").value === "on";
+      const x = makeConvSignal(kind);
+      let h = makeKernel(kernelKind);
+      if (normalize) {
+        const sumAbs = h.reduce((sum, v) => sum + Math.abs(v), 0);
+        if (sumAbs > 1 && kernelKind !== "edge") h = h.map(v => v / sumAbs);
+      }
+      const y = convolve(x, h);
+      convState.inputAudio = stemsToAudio(x);
+      convState.outputAudio = stemsToAudio(y);
+      const posInput = document.getElementById("convPos");
+      posInput.max = String(y.length - 1);
+      const pos = clamp(Number(posInput.value), 0, y.length - 1);
+      posInput.value = String(pos);
+      const canvas = document.getElementById("convCanvas");
+      const ctx = clearCanvas(canvas);
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 16px Georgia";
+      ctx.fillText("input x[n]", 28, 32);
+      ctx.fillText("kernel h[k]", 28, 196);
+      ctx.fillText("output y[n]", 28, 360);
+      drawStemPlot(ctx, x, 40, 48, 680, 110, COLORS.blue, pos < x.length ? pos : -1);
+      drawStemPlot(ctx, h, 40, 212, 260, 90, COLORS.green);
+      drawStemPlot(ctx, y, 40, 376, 680, 110, COLORS.amber, pos);
+      ctx.strokeStyle = COLORS.red;
+      ctx.lineWidth = 2;
+      const markerX = 40 + pos / Math.max(1, y.length - 1) * 680;
+      ctx.beginPath();
+      ctx.moveTo(markerX, 46);
+      ctx.lineTo(markerX, 492);
+      ctx.stroke();
+      document.getElementById("convPosOut").textContent = String(pos);
+      document.getElementById("convInputEnergy").textContent = round(energy(x), 3);
+      document.getElementById("convKernelSum").textContent = round(h.reduce((a, b) => a + b, 0), 3);
+      document.getElementById("convOutputEnergy").textContent = round(energy(y), 3);
+      document.getElementById("convLength").textContent = String(y.length);
+    }
+
+    function bindConvolutionLab() {
+      ["convSignal", "convKernel", "convPos", "convNormalize"].forEach(id => document.getElementById(id).addEventListener("input", updateConvolutionLab));
+      document.getElementById("convStep").addEventListener("click", () => {
+        const pos = document.getElementById("convPos");
+        pos.value = String((Number(pos.value) + 1) % (Number(pos.max) + 1));
+        updateConvolutionLab();
+      });
+      document.getElementById("convPlay").addEventListener("click", event => {
+        const button = event.currentTarget;
+        const playing = button.getAttribute("aria-pressed") === "true";
+        button.setAttribute("aria-pressed", String(!playing));
+        button.textContent = playing ? "Play" : "Pause";
+        if (playing) {
+          clearInterval(convState.timer);
+          convState.timer = null;
+        } else {
+          convState.timer = setInterval(() => document.getElementById("convStep").click(), 180);
+        }
+      });
+      document.getElementById("convPlayInput").addEventListener("click", () => playBuffer(convState.inputAudio));
+      document.getElementById("convPlayOutput").addEventListener("click", () => playBuffer(convState.outputAudio));
+      updateConvolutionLab();
+    }
+
+    function sinc(x) {
+      return Math.abs(x) < 1e-8 ? 1 : Math.sin(Math.PI * x) / (Math.PI * x);
+    }
+
+    function designLowpass(cutoff, taps, sampleRate = SAMPLE_RATE) {
+      const fc = cutoff / sampleRate;
+      const mid = (taps - 1) / 2;
+      const h = [];
+      for (let n = 0; n < taps; n += 1) {
+        const m = n - mid;
+        const win = .5 - .5 * Math.cos(TWO_PI * n / (taps - 1));
+        h.push(2 * fc * sinc(2 * fc * m) * win);
+      }
+      const sum = h.reduce((a, b) => a + b, 0);
+      return h.map(v => v / sum);
+    }
+
+    function designFir(type, cut1, cut2, taps) {
+      if (type === "lowpass") return designLowpass(cut1, taps);
+      const low = designLowpass(Math.min(cut1, cut2), taps);
+      if (type === "highpass") {
+        const mid = (taps - 1) / 2;
+        return low.map((v, i) => (i === mid ? 1 : 0) - v);
+      }
+      const high = designLowpass(Math.max(cut1, cut2), taps);
+      return high.map((v, i) => v - low[i]);
+    }
+
+    function firResponse(h, bins = 256) {
+      const mags = [];
+      for (let k = 0; k < bins; k += 1) {
+        let re = 0;
+        let im = 0;
+        const omega = Math.PI * k / bins;
+        for (let n = 0; n < h.length; n += 1) {
+          re += h[n] * Math.cos(-omega * n);
+          im += h[n] * Math.sin(-omega * n);
+        }
+        mags.push(Math.sqrt(re * re + im * im));
+      }
+      return mags;
+    }
+
+    function drawFirImpulse(canvas, h) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      drawStemPlot(ctx, h, 32, 32, canvas.width - 64, canvas.height - 64, COLORS.blue);
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText("impulse response h[n]", 12, 18);
+    }
+
+    function applyFirSignal(signal, h) {
+      return convolve(signal, h).slice(0, signal.length);
+    }
+
+    let firInput = [];
+    let firOutput = [];
+    function updateFirLab() {
+      const type = document.getElementById("firType").value;
+      const cut1 = Number(document.getElementById("firCut1").value);
+      const cut2 = Number(document.getElementById("firCut2").value);
+      const taps = Number(document.getElementById("firTaps").value);
+      const h = designFir(type, cut1, cut2, taps);
+      const response = firResponse(h);
+      firInput = synthSignal({ wave: "saw", freq: 180, noise: .03, env: "pad", duration: .9, seed: 44 });
+      firOutput = applyFirSignal(firInput, h);
+      drawFirImpulse(document.getElementById("firImpulseCanvas"), h);
+      drawSpectrum(document.getElementById("firResponseCanvas"), response, SAMPLE_RATE, { color: COLORS.red });
+      document.getElementById("firCut1Out").textContent = `${cut1} Hz`;
+      document.getElementById("firCut2Out").textContent = `${cut2} Hz`;
+      document.getElementById("firTapsOut").textContent = String(taps);
+      document.getElementById("firDc").textContent = round(response[0], 3);
+      document.getElementById("firPeak").textContent = round(Math.max(...response), 3);
+      document.getElementById("firDelay").textContent = `${round((taps - 1) / 2 / SAMPLE_RATE * 1000, 2)} ms`;
+      document.getElementById("firRms").textContent = round(rms(firOutput), 3);
+    }
+
+    function bindFirLab() {
+      ["firType", "firCut1", "firCut2", "firTaps"].forEach(id => document.getElementById(id).addEventListener("input", updateFirLab));
+      document.getElementById("firPlayOriginal").addEventListener("click", () => playBuffer(firInput));
+      document.getElementById("firPlayFiltered").addEventListener("click", () => playBuffer(firOutput));
+      updateFirLab();
+    }
+
+    function biquad(mode, freq, q, sampleRate = SAMPLE_RATE) {
+      const w0 = TWO_PI * freq / sampleRate;
+      const c = Math.cos(w0);
+      const s = Math.sin(w0);
+      const alpha = s / (2 * q);
+      let b0, b1, b2, a0, a1, a2;
+      if (mode === "highpass") {
+        b0 = (1 + c) / 2; b1 = -(1 + c); b2 = (1 + c) / 2;
+        a0 = 1 + alpha; a1 = -2 * c; a2 = 1 - alpha;
+      } else if (mode === "notch") {
+        b0 = 1; b1 = -2 * c; b2 = 1;
+        a0 = 1 + alpha; a1 = -2 * c; a2 = 1 - alpha;
+      } else if (mode === "bandpass") {
+        b0 = alpha; b1 = 0; b2 = -alpha;
+        a0 = 1 + alpha; a1 = -2 * c; a2 = 1 - alpha;
+      } else {
+        b0 = (1 - c) / 2; b1 = 1 - c; b2 = (1 - c) / 2;
+        a0 = 1 + alpha; a1 = -2 * c; a2 = 1 - alpha;
+      }
+      return { b: [b0 / a0, b1 / a0, b2 / a0], a: [1, a1 / a0, a2 / a0] };
+    }
+
+    function applyBiquad(x, coeffs) {
+      const y = new Array(x.length).fill(0);
+      let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      const [b0, b1, b2] = coeffs.b;
+      const [, a1, a2] = coeffs.a;
+      for (let i = 0; i < x.length; i += 1) {
+        const value = b0 * x[i] + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+        y[i] = value;
+        x2 = x1; x1 = x[i]; y2 = y1; y1 = value;
+      }
+      return y;
+    }
+
+    function quadraticRoots(a, b, c) {
+      const disc = b * b - 4 * a * c;
+      if (disc >= 0) {
+        const root = Math.sqrt(disc);
+        return [{ re: (-b + root) / (2 * a), im: 0 }, { re: (-b - root) / (2 * a), im: 0 }];
+      }
+      const root = Math.sqrt(-disc);
+      return [{ re: -b / (2 * a), im: root / (2 * a) }, { re: -b / (2 * a), im: -root / (2 * a) }];
+    }
+
+    function biquadResponse(coeffs, bins = 256) {
+      const mags = [];
+      for (let k = 0; k < bins; k += 1) {
+        const omega = Math.PI * k / bins;
+        const z1 = { re: Math.cos(-omega), im: Math.sin(-omega) };
+        const z2 = { re: Math.cos(-2 * omega), im: Math.sin(-2 * omega) };
+        const num = {
+          re: coeffs.b[0] + coeffs.b[1] * z1.re + coeffs.b[2] * z2.re,
+          im: coeffs.b[1] * z1.im + coeffs.b[2] * z2.im
+        };
+        const den = {
+          re: 1 + coeffs.a[1] * z1.re + coeffs.a[2] * z2.re,
+          im: coeffs.a[1] * z1.im + coeffs.a[2] * z2.im
+        };
+        mags.push(Math.sqrt((num.re * num.re + num.im * num.im) / Math.max(1e-12, den.re * den.re + den.im * den.im)));
+      }
+      return mags;
+    }
+
+    function drawZPlane(canvas, zeros, poles) {
+      const ctx = clearCanvas(canvas);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const r = Math.min(canvas.width, canvas.height) * .38;
+      drawGrid(ctx, canvas);
+      ctx.strokeStyle = COLORS.ink;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, TWO_PI);
+      ctx.stroke();
+      ctx.strokeStyle = COLORS.line;
+      ctx.beginPath();
+      ctx.moveTo(cx - r * 1.2, cy);
+      ctx.lineTo(cx + r * 1.2, cy);
+      ctx.moveTo(cx, cy - r * 1.2);
+      ctx.lineTo(cx, cy + r * 1.2);
+      ctx.stroke();
+      zeros.forEach(z => {
+        const x = cx + z.re * r;
+        const y = cy - z.im * r;
+        ctx.strokeStyle = COLORS.blue;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, TWO_PI);
+        ctx.stroke();
+      });
+      poles.forEach(p => {
+        const x = cx + p.re * r;
+        const y = cy - p.im * r;
+        ctx.strokeStyle = COLORS.red;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x - 8, y - 8);
+        ctx.lineTo(x + 8, y + 8);
+        ctx.moveTo(x + 8, y - 8);
+        ctx.lineTo(x - 8, y + 8);
+        ctx.stroke();
+      });
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText("unit circle", 12, 18);
+    }
+
+    let iirOutput = [];
+    function updateIirLab() {
+      const mode = document.getElementById("iirMode").value;
+      const freq = Number(document.getElementById("iirFreq").value);
+      const q = Number(document.getElementById("iirQ").value) / 100;
+      const inputType = document.getElementById("iirInput").value;
+      const coeffs = biquad(mode, freq, q);
+      const zeros = quadraticRoots(coeffs.b[0], coeffs.b[1], coeffs.b[2]);
+      const poles = quadraticRoots(1, coeffs.a[1], coeffs.a[2]);
+      const response = biquadResponse(coeffs);
+      const input = inputType === "noise"
+        ? synthSignal({ wave: "sine", freq: 600, noise: .7, env: "pluck", duration: .8, seed: 88 })
+        : inputType === "chirp"
+          ? synthSignal({ wave: "chirp", freq: 110, noise: .02, env: "pad", duration: .9, seed: 89 })
+          : synthSignal({ wave: "saw", freq: 220, noise: .02, env: "pad", duration: .8, seed: 90 });
+      iirOutput = applyBiquad(input, coeffs);
+      drawZPlane(document.getElementById("zCanvas"), zeros, poles);
+      drawSpectrum(document.getElementById("iirResponseCanvas"), response, SAMPLE_RATE, { color: COLORS.red });
+      const maxRadius = Math.max(...poles.map(p => Math.sqrt(p.re * p.re + p.im * p.im)));
+      document.getElementById("iirFreqOut").textContent = `${freq} Hz`;
+      document.getElementById("iirQOut").textContent = round(q, 2);
+      document.getElementById("iirStability").textContent = maxRadius < 1 ? "stable" : "unstable";
+      document.getElementById("iirPoleRadius").textContent = round(maxRadius, 4);
+      document.getElementById("iirPeak").textContent = round(Math.max(...response), 3);
+      document.getElementById("iirCoeffs").textContent = `b0 ${round(coeffs.b[0], 2)}, a1 ${round(coeffs.a[1], 2)}`;
+    }
+
+    function bindIirLab() {
+      ["iirMode", "iirFreq", "iirQ", "iirInput"].forEach(id => document.getElementById(id).addEventListener("input", updateIirLab));
+      document.getElementById("iirPlay").addEventListener("click", () => playBuffer(iirOutput));
+      updateIirLab();
+    }
+
+    function makeWindow(n, type) {
+      const w = [];
+      for (let i = 0; i < n; i += 1) {
+        if (type === "rect") w.push(1);
+        else if (type === "blackman") w.push(.42 - .5 * Math.cos(TWO_PI * i / (n - 1)) + .08 * Math.cos(2 * TWO_PI * i / (n - 1)));
+        else w.push(.5 - .5 * Math.cos(TWO_PI * i / (n - 1)));
+      }
+      return w;
+    }
+
+    function synthSpectrogramSignal(kind) {
+      const n = SAMPLE_RATE;
+      const data = new Array(n).fill(0);
+      const rand = lcg(101);
+      for (let i = 0; i < n; i += 1) {
+        const t = i / SAMPLE_RATE;
+        if (kind === "drums") {
+          const hits = [0.08, .22, .44, .6, .78];
+          data[i] = hits.reduce((sum, hit, idx) => {
+            const dt = t - hit;
+            return dt >= 0 ? sum + Math.sin(TWO_PI * (90 + idx * 45) * dt) * Math.exp(-dt * (24 + idx * 5)) : sum;
+          }, 0) + (rand() * 2 - 1) * .02;
+        } else if (kind === "vowels") {
+          data[i] = Math.sin(TWO_PI * 160 * t) * .45 + Math.sin(TWO_PI * 720 * t) * .28 + Math.sin(TWO_PI * 1300 * t) * .18 + Math.sin(TWO_PI * 2400 * t) * .08;
+        } else {
+          const f = 120 + 3600 * t;
+          data[i] = Math.sin(TWO_PI * f * t) * .75;
+        }
+      }
+      return data;
+    }
+
+    function drawSpectrogram() {
+      const waveCanvas = document.getElementById("specWaveCanvas");
+      const specCanvas = document.getElementById("specCanvas");
+      const kind = document.getElementById("specSignal").value;
+      const winSize = Number(document.getElementById("specWindow").value);
+      const hop = Number(document.getElementById("specHop").value);
+      const winType = document.getElementById("specWindowType").value;
+      const data = synthSpectrogramSignal(kind);
+      drawWave(waveCanvas, data, { length: data.length, color: COLORS.blue });
+      const ctx = clearCanvas(specCanvas);
+      const win = makeWindow(winSize, winType);
+      const frames = [];
+      for (let start = 0; start + winSize <= data.length; start += hop) {
+        const frame = data.slice(start, start + winSize).map((v, i) => v * win[i]);
+        frames.push(dftMagnitude(frame, Math.floor(winSize / 2)));
+      }
+      const maxMag = Math.max(1e-9, ...frames.flat());
+      frames.forEach((mags, frameIndex) => {
+        const x = frameIndex / frames.length * specCanvas.width;
+        const w = Math.ceil(specCanvas.width / frames.length);
+        mags.forEach((mag, bin) => {
+          const y = specCanvas.height - (bin + 1) / mags.length * specCanvas.height;
+          const h = Math.ceil(specCanvas.height / mags.length);
+          const p = Math.log10(1 + mag / maxMag * 99) / 2;
+          const r = Math.round(31 + p * 180);
+          const g = Math.round(55 + p * 90);
+          const b = Math.round(96 + p * 40);
+          ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          ctx.fillRect(x, y, w, h);
+        });
+      });
+      document.getElementById("specWindowOut").textContent = String(winSize);
+      document.getElementById("specHopOut").textContent = String(hop);
+      document.getElementById("specFrames").textContent = String(frames.length);
+      document.getElementById("specBinWidth").textContent = `${round(SAMPLE_RATE / winSize, 1)} Hz`;
+      document.getElementById("specTimeStep").textContent = `${round(hop / SAMPLE_RATE * 1000, 1)} ms`;
+      document.getElementById("specTradeoff").textContent = winSize >= 256 ? "better frequency" : "better time";
+    }
+
+    function bindSpectrogramLab() {
+      ["specSignal", "specWindow", "specHop", "specWindowType"].forEach(id => document.getElementById(id).addEventListener("input", drawSpectrogram));
+      drawSpectrogram();
+    }
+
+    let effectsInput = [];
+    let effectsOutput = [];
+    function applyEffect(input, type, rate, depth, bits) {
+      const output = new Array(input.length).fill(0);
+      if (type === "delay") {
+        const delay = Math.floor(SAMPLE_RATE * rate / 1000);
+        for (let i = 0; i < input.length; i += 1) {
+          output[i] = input[i] + (i >= delay ? output[i - delay] * depth : 0);
+        }
+      } else if (type === "ring") {
+        for (let i = 0; i < input.length; i += 1) output[i] = input[i] * Math.sin(TWO_PI * rate * i / SAMPLE_RATE);
+      } else if (type === "quantize") {
+        const levels = 2 ** bits;
+        for (let i = 0; i < input.length; i += 1) output[i] = Math.round(input[i] * levels / 2) / (levels / 2);
+      } else {
+        for (let i = 0; i < input.length; i += 1) {
+          const lfo = (1 - depth) + depth * (.5 + .5 * Math.sin(TWO_PI * rate * i / SAMPLE_RATE));
+          output[i] = input[i] * lfo;
+        }
+      }
+      return output;
+    }
+
+    function updateEffectsLab() {
+      const type = document.getElementById("effectsType").value;
+      const rateRaw = Number(document.getElementById("effectsRate").value);
+      const depth = Number(document.getElementById("effectsDepth").value) / 100;
+      const bits = Number(document.getElementById("effectsBits").value);
+      const rate = type === "delay" ? rateRaw * 8 : rateRaw;
+      effectsInput = synthSignal({ wave: "triangle", freq: 220, noise: .01, env: "pad", duration: .9, seed: 112 });
+      effectsOutput = applyEffect(effectsInput, type, rate, depth, bits);
+      drawWave(document.getElementById("effectsWaveCanvas"), effectsOutput, { length: 1700, color: COLORS.red });
+      drawSpectrum(document.getElementById("effectsSpectrumCanvas"), dftMagnitude(effectsOutput, 256), SAMPLE_RATE, { color: COLORS.violet });
+      document.getElementById("effectsRateOut").textContent = type === "delay" ? `${Math.round(rate)} ms` : round(rate, 1);
+      document.getElementById("effectsDepthOut").textContent = round(depth, 2);
+      document.getElementById("effectsBitsOut").textContent = String(bits);
+      document.getElementById("effectsDryRms").textContent = round(rms(effectsInput), 3);
+      document.getElementById("effectsWetRms").textContent = round(rms(effectsOutput), 3);
+      document.getElementById("effectsPeak").textContent = round(peak(effectsOutput), 3);
+      document.getElementById("effectsArtifact").textContent = type === "quantize" ? `${2 ** bits} levels` : type === "delay" ? "echo tail" : "sidebands";
+    }
+
+    function bindEffectsLab() {
+      ["effectsType", "effectsRate", "effectsDepth", "effectsBits"].forEach(id => document.getElementById(id).addEventListener("input", updateEffectsLab));
+      document.getElementById("effectsPlayInput").addEventListener("click", () => playBuffer(effectsInput));
+      document.getElementById("effectsPlayOutput").addEventListener("click", () => playBuffer(effectsOutput));
+      updateEffectsLab();
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawGrid(ctx, canvas);
+        ctx.fillStyle = COLORS.ink;
+        ctx.font = "700 24px Georgia";
+        ctx.fillText("Time domain and frequency domain", 32, 48);
+        ctx.font = "14px ui-monospace, monospace";
+        ctx.fillStyle = COLORS.muted;
+        ctx.fillText("x[n] -> filter h[n] -> y[n] -> spectrum", 34, 80);
+        const mid = 180;
+        ctx.strokeStyle = COLORS.blue;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        for (let i = 0; i < 540; i += 1) {
+          const x = 70 + i;
+          const y = mid + Math.sin(i * .045 + frame * .03) * 42 + Math.sin(i * .13) * 15;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.strokeStyle = COLORS.red;
+        ctx.beginPath();
+        for (let i = 0; i < 540; i += 1) {
+          const x = 70 + i;
+          const y = 318 + Math.sin(i * .045 + frame * .03) * 20;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = COLORS.green;
+        for (let i = 0; i < 44; i += 1) {
+          const h = Math.exp(-i / 11) * (130 + Math.sin(frame * .04 + i) * 18);
+          ctx.fillRect(75 + i * 13, 470 - h, 8, h);
+        }
+        ctx.fillStyle = COLORS.ink;
+        ctx.font = "700 15px Inter, system-ui, sans-serif";
+        ctx.fillText("filtered waveform", 70, 356);
+        ctx.fillText("spectrum", 70, 488);
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      bindSignalLab();
+      bindSamplingLab();
+      bindConvolutionLab();
+      bindFirLab();
+      bindIirLab();
+      bindSpectrogramLab();
+      bindFourierLabs();
+      bindEffectsLab();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

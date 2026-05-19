@@ -1,0 +1,2229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deep ML: CNNs and Torch Layer Mechanics</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f4ee;
+      --ink: #172026;
+      --muted: #5b646b;
+      --line: #d8d0c2;
+      --panel: #ffffff;
+      --soft: #ece7dd;
+      --deep: #203445;
+      --blue: #2364aa;
+      --green: #2d7d55;
+      --red: #b4463a;
+      --amber: #b47423;
+      --violet: #6750a4;
+      --cyan: #0f7c80;
+      --shadow: 0 18px 48px rgba(32, 52, 69, .12);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--deep);
+      background: #edf3f7;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: #fbfaf7;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .toc-title {
+      font-weight: 800;
+      font-size: 15px;
+      margin-bottom: 18px;
+      color: var(--deep);
+    }
+
+    .breadcrumbs {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      font: 800 13px/1.25 var(--sans);
+    }
+
+    .toc .breadcrumbs a {
+      color: var(--blue);
+      text-decoration: none;
+      padding: 0;
+    }
+
+    .toc a {
+      display: block;
+      color: #38444d;
+      text-decoration: none;
+      padding: 7px 0;
+      border-bottom: 1px solid transparent;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+      border-bottom-color: var(--line);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero,
+    .chapter,
+    .band {
+      padding: 54px 0;
+    }
+
+    .inner {
+      width: min(1120px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 94vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.86), rgba(255,255,255,.58)),
+        repeating-linear-gradient(0deg, rgba(35,100,170,.08), rgba(35,100,170,.08) 1px, transparent 1px, transparent 34px),
+        repeating-linear-gradient(90deg, rgba(45,125,85,.08), rgba(45,125,85,.08) 1px, transparent 1px, transparent 34px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(320px, .72fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+      color: var(--blue);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 64px;
+      max-width: 880px;
+    }
+
+    h2 {
+      font-size: 42px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 27px;
+      margin: 34px 0 10px;
+    }
+
+    h4 {
+      font-size: 21px;
+      margin: 24px 0 8px;
+    }
+
+    .subtitle {
+      max-width: 790px;
+      color: var(--muted);
+      font-size: 22px;
+      margin: 18px 0 26px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .point {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.72);
+      padding: 12px;
+    }
+
+    .point:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .point:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .hero-visual {
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .hero-visual canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fff;
+      border: 1px solid #e4ded4;
+    }
+
+    .hero-legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      font: 13px/1.35 var(--sans);
+      color: var(--muted);
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(0,0,0,.18);
+      display: inline-block;
+    }
+
+    .lead {
+      font-size: 21px;
+      color: #2e3941;
+      max-width: 870px;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    code {
+      background: #efe9de;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: .92em;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow: auto;
+      border: 1px solid var(--line);
+      background: #f8f4ed;
+      color: #203645;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .band {
+      background: #fff;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .note {
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+      padding: 16px 18px;
+      margin: 22px 0;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff4e1;
+    }
+
+    .formula {
+      font-family: var(--mono);
+      color: #21313d;
+      background: #f0ece5;
+      border: 1px solid var(--line);
+      padding: 14px;
+      border-radius: 8px;
+      overflow: auto;
+    }
+
+    .simulation {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 28px rgba(32, 52, 69, .08);
+      padding: 18px;
+      margin: 24px 0;
+    }
+
+    .simulation h3,
+    .simulation h4 {
+      margin-top: 0;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sim-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+      margin: 16px 0 20px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    .control input,
+    .control select {
+      width: 100%;
+      min-height: 34px;
+    }
+
+    .control output {
+      font-family: var(--mono);
+      color: var(--blue);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sim-grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .viz-block {
+      min-width: 0;
+    }
+
+    .viz-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      font: 700 14px/1.2 var(--sans);
+      margin-bottom: 8px;
+      color: var(--deep);
+    }
+
+    .shape {
+      font: 12px/1.2 var(--mono);
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .matrix {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e5ded2;
+      padding: 4px;
+      border: 1px solid var(--line);
+    }
+
+    .cell {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+      color: #101820;
+      font: 11px/1 var(--mono);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    .cell.active {
+      outline: 3px solid var(--red);
+      outline-offset: -3px;
+    }
+
+    .cell.kernel {
+      outline: 2px solid var(--blue);
+      outline-offset: -2px;
+    }
+
+    .bars {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      min-height: 188px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) 58px;
+      gap: 8px;
+      align-items: center;
+      font: 12px/1 var(--mono);
+    }
+
+    .bar-track {
+      height: 18px;
+      background: #eee8df;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--blue);
+      transform-origin: left;
+    }
+
+    .bar-fill.negative {
+      background: var(--red);
+    }
+
+    .curve {
+      width: 100%;
+      height: auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      font-family: var(--sans);
+    }
+
+    .stat {
+      border-top: 3px solid var(--cyan);
+      background: #f7fbfb;
+      padding: 10px;
+      min-height: 70px;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      font: 13px/1.2 var(--mono);
+      color: var(--muted);
+    }
+
+    .atlas-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, .45fr) minmax(240px, .35fr) minmax(0, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+      font-family: var(--sans);
+    }
+
+    .atlas-tools input,
+    .atlas-tools select {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .layer-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .layer-item {
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 14px;
+      display: grid;
+      grid-template-columns: minmax(160px, .3fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .layer-name {
+      font: 800 15px/1.25 var(--sans);
+      color: var(--deep);
+      margin-bottom: 6px;
+    }
+
+    .layer-family {
+      display: inline-block;
+      font: 12px/1 var(--sans);
+      color: #fff;
+      background: var(--violet);
+      padding: 5px 7px;
+      border-radius: 6px;
+    }
+
+    .layer-item p {
+      margin-bottom: 8px;
+    }
+
+    .layer-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      font: 12px/1.35 var(--sans);
+      color: var(--muted);
+    }
+
+    .layer-meta div {
+      background: #f6f2eb;
+      padding: 8px;
+      border-left: 3px solid var(--blue);
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .stage {
+      border-top: 4px solid var(--blue);
+      background: #fff;
+      padding: 12px;
+      min-height: 150px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .stage:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .stage:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .stage:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .stage:nth-child(5) {
+      border-top-color: var(--violet);
+    }
+
+    .stage b {
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .stage small {
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .mini-matrix {
+      display: grid;
+      gap: 2px;
+      width: 100%;
+      aspect-ratio: 1;
+      align-self: center;
+    }
+
+    .mini-cell {
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid rgba(0,0,0,.06);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+    }
+
+    th {
+      background: #ede8df;
+      color: var(--deep);
+    }
+
+    .two-col-list {
+      columns: 2;
+      column-gap: 34px;
+    }
+
+    .token-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 0 14px;
+      font-family: var(--sans);
+    }
+
+    .token {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 7px 9px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .token.active {
+      background: #e7f2ff;
+      border-color: var(--blue);
+      color: #173a5c;
+    }
+
+    .svg-frame {
+      background: #fff;
+      border: 1px solid var(--line);
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .footer {
+      padding: 36px 0 64px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    @media (max-width: 1040px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .toc nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .toc a {
+        border-bottom: 0;
+      }
+
+      .hero-grid,
+      .split,
+      .sim-grid,
+      .sim-grid.two,
+      .atlas-tools,
+      .layer-item {
+        grid-template-columns: 1fr;
+      }
+
+      .pipeline {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1120px);
+      }
+
+      .hero,
+      .chapter,
+      .band {
+        padding: 34px 0;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-points,
+      .sim-controls,
+      .stats,
+      .layer-meta,
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      .two-col-list {
+        columns: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Book breadcrumbs">
+        <a href="index.html">Home</a>
+        <a href="computer_vision_ml_book.html">Prev: CV</a>
+        <a href="index.html#future">Next: Future Pages</a>
+      </nav>
+      <div class="toc-title">Deep ML Book</div>
+      <nav>
+        <a href="#preface">Preface</a>
+        <a href="#tensor-contracts">Tensor contracts</a>
+        <a href="#cnn">CNN mechanics</a>
+        <a href="#simulators">Layer simulators</a>
+        <a href="#atlas">Torch layer atlas</a>
+        <a href="#architectures">CNN architectures</a>
+        <a href="#training">Training stack</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="preface">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | Section 03</p>
+            <h1>Deep ML: CNNs and Torch Layer Mechanics</h1>
+            <p class="subtitle">A practical book on tensors, convolutional networks, and the base layer families in <code>torch.nn</code>, with live input/output simulations that expose shape, parameters, and numerical behavior.</p>
+            <div class="hero-points">
+              <div class="point"><b>Convolution first.</b><br>Follow kernels across images, channels, stride, padding, dilation, and groups.</div>
+              <div class="point"><b>Layer contracts.</b><br>Every layer is described as a mapping from input shape to output shape.</div>
+              <div class="point"><b>Runnable intuition.</b><br>Small JavaScript demos compute real numeric outputs directly in the page.</div>
+            </div>
+          </div>
+          <div class="hero-visual" aria-label="Animated convolution pipeline">
+            <canvas id="heroCanvas" width="720" height="520"></canvas>
+            <div class="hero-legend">
+              <span class="legend-chip"><i class="swatch" style="background:#2364aa"></i>input</span>
+              <span class="legend-chip"><i class="swatch" style="background:#2d7d55"></i>kernel window</span>
+              <span class="legend-chip"><i class="swatch" style="background:#b4463a"></i>feature response</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="tensor-contracts">
+        <div class="inner">
+          <p class="lead">Deep learning code becomes readable when each module is treated as a contract: it accepts a tensor of a known rank, changes a predictable set of dimensions, and preserves the rest.</p>
+
+          <h2>1. Tensor Contracts</h2>
+          <p>A tensor is not just a multidimensional array. In a model it carries semantics: batch, channel, time, height, width, embedding dimension, head, class, sequence position. Most model bugs are contract bugs: the values may be legal floating point numbers, but the axes no longer mean what the next layer expects.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Domain</th>
+                <th>Common shape</th>
+                <th>Meaning</th>
+                <th>Typical layers</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Tabular</td>
+                <td><code>[N, F]</code></td>
+                <td><code>N</code> examples, <code>F</code> features.</td>
+                <td><code>Linear</code>, <code>BatchNorm1d</code>, activations, dropout.</td>
+              </tr>
+              <tr>
+                <td>Images</td>
+                <td><code>[N, C, H, W]</code></td>
+                <td>Batch, channels, height, width. PyTorch is channel-first by default.</td>
+                <td><code>Conv2d</code>, <code>BatchNorm2d</code>, pooling, <code>AdaptiveAvgPool2d</code>.</td>
+              </tr>
+              <tr>
+                <td>Audio / signals</td>
+                <td><code>[N, C, L]</code></td>
+                <td>Batch, channels, sequence length.</td>
+                <td><code>Conv1d</code>, <code>MaxPool1d</code>, <code>LayerNorm</code>, RNNs.</td>
+              </tr>
+              <tr>
+                <td>Volumes</td>
+                <td><code>[N, C, D, H, W]</code></td>
+                <td>Batch, channels, depth, height, width.</td>
+                <td><code>Conv3d</code>, <code>InstanceNorm3d</code>, <code>MaxPool3d</code>.</td>
+              </tr>
+              <tr>
+                <td>Text tokens</td>
+                <td><code>[N, T]</code> then <code>[N, T, E]</code></td>
+                <td>Token ids become embedding vectors.</td>
+                <td><code>Embedding</code>, <code>MultiheadAttention</code>, <code>TransformerEncoderLayer</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <b>Rule of thumb:</b> write the shape above every block before writing code. If a dimension changes, name the operator responsible for changing it. If no operator owns the change, you have a hidden bug.
+          </div>
+
+          <h3>The module view</h3>
+          <p><code>torch.nn.Module</code> gives layers two essential responsibilities: store learnable parameters and define a forward mapping. Some modules have weights, such as <code>Linear</code>, <code>Conv2d</code>, <code>Embedding</code>, and <code>BatchNorm2d</code>. Others are deterministic transforms, such as <code>Flatten</code>, <code>ReLU</code>, <code>MaxPool2d</code>, and <code>Softmax</code>. Both types are layers because both shape the computation graph.</p>
+
+          <pre><code>class SmallCNN(nn.Module):
+    def __init__(self, classes=10):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),   # [N, 3, H, W] -> [N, 32, H, W]
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),                              # [N, 32, H/2, W/2]
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.AdaptiveAvgPool2d((1, 1)),                 # [N, 64, 1, 1]
+        )
+        self.classifier = nn.Linear(64, classes)
+
+    def forward(self, x):
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        return self.classifier(x)</code></pre>
+        </div>
+      </section>
+
+      <section class="band" id="cnn">
+        <div class="inner">
+          <h2>2. CNN Mechanics</h2>
+          <p class="lead">A convolutional neural network learns local filters. A filter slides across spatial positions, takes dot products with local input patches, and produces feature maps. Stacking these maps lets the network build edges, textures, parts, and object-level evidence.</p>
+
+          <div class="split">
+            <div>
+              <h3>Convolution as local weight sharing</h3>
+              <p>In a dense layer, every output unit receives every input feature with its own weight. In a convolution, the same small kernel is reused at every location. This makes the model translation-aware and parameter-efficient.</p>
+              <div class="formula">out[n, c_out, y, x] = bias[c_out] +
+sum over c_in, ky, kx:
+    weight[c_out, c_in, ky, kx] *
+    input[n, c_in, y * stride_y + ky * dilation_y - pad_y,
+                 x * stride_x + kx * dilation_x - pad_x]</div>
+              <p>The output spatial size for one dimension is:</p>
+              <div class="formula">L_out = floor((L_in + 2*padding - dilation*(kernel_size - 1) - 1) / stride + 1)</div>
+            </div>
+            <div>
+              <h3>What the hyperparameters do</h3>
+              <ul>
+                <li><code>kernel_size</code> controls the local receptive field.</li>
+                <li><code>stride</code> skips positions and usually reduces spatial resolution.</li>
+                <li><code>padding</code> adds boundary values so edge pixels can participate.</li>
+                <li><code>dilation</code> spaces kernel taps apart, increasing receptive field without more parameters.</li>
+                <li><code>groups</code> splits channels. <code>groups=in_channels</code> creates depthwise convolution.</li>
+                <li><code>bias</code> adds one scalar per output channel unless disabled.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="simulation" id="convSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Convolution Simulator</h3>
+                <p>Values are computed as real dot products. The highlighted input window corresponds to the selected output cell.</p>
+              </div>
+              <button type="button" id="convPlay" aria-pressed="false">Play</button>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Kernel
+                <select id="convKernel">
+                  <option value="edge">edge</option>
+                  <option value="blur">blur</option>
+                  <option value="sharpen">sharpen</option>
+                  <option value="emboss">emboss</option>
+                </select>
+              </label>
+              <label class="control">Stride <output id="strideOut">1</output>
+                <input id="convStride" type="range" min="1" max="3" value="1">
+              </label>
+              <label class="control">Padding <output id="padOut">1</output>
+                <input id="convPad" type="range" min="0" max="3" value="1">
+              </label>
+              <label class="control">Dilation <output id="dilationOut">1</output>
+                <input id="convDilation" type="range" min="1" max="3" value="1">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="viz-block">
+                <div class="viz-title"><span>Input</span><span class="shape" id="convInputShape"></span></div>
+                <div class="matrix" id="convInput"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Kernel</span><span class="shape">[1, 1, 3, 3]</span></div>
+                <div class="matrix" id="convKernelGrid"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Output</span><span class="shape" id="convOutputShape"></span></div>
+                <div class="matrix" id="convOutput"></div>
+              </div>
+            </div>
+          </div>
+
+          <h3>Channels, filters, and feature maps</h3>
+          <p>A color image with shape <code>[N, 3, H, W]</code> has three input channels. A <code>Conv2d(3, 32, 3)</code> layer has 32 output filters. Each filter owns a <code>[3, 3, 3]</code> block of weights, one 3 by 3 kernel per input channel. The layer sums across the channel dimension and produces <code>32</code> feature maps.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Convolution type</th>
+                <th>Meaning</th>
+                <th>Parameter count without bias</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Standard</td>
+                <td>Every output channel sees every input channel.</td>
+                <td><code>out_channels * in_channels * kH * kW</code></td>
+              </tr>
+              <tr>
+                <td>Grouped</td>
+                <td>Input and output channels are split into independent groups.</td>
+                <td><code>out_channels * (in_channels / groups) * kH * kW</code></td>
+              </tr>
+              <tr>
+                <td>Depthwise</td>
+                <td>One spatial filter per input channel, usually followed by a <code>1x1</code> pointwise convolution.</td>
+                <td><code>in_channels * depth_multiplier * kH * kW</code></td>
+              </tr>
+              <tr>
+                <td>Transposed</td>
+                <td>Learns an upsampling-like mapping by spreading input values across a larger output grid.</td>
+                <td><code>in_channels * out_channels/groups * kH * kW</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>3. Layer Input/Output Simulators</h2>
+          <p class="lead">The following tools compute miniature versions of common layers. They are intentionally small so the numbers stay visible.</p>
+
+          <div class="simulation" id="poolSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Pooling</h3>
+                <p>Pooling reduces a neighborhood to a summary statistic. Max pooling keeps the strongest response; average pooling smooths the region.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Mode
+                <select id="poolMode">
+                  <option value="max">max</option>
+                  <option value="avg">average</option>
+                </select>
+              </label>
+              <label class="control">Window <output id="poolWindowOut">2</output>
+                <input id="poolWindow" type="range" min="2" max="3" value="2">
+              </label>
+              <label class="control">Stride <output id="poolStrideOut">2</output>
+                <input id="poolStride" type="range" min="1" max="3" value="2">
+              </label>
+            </div>
+            <div class="sim-grid two">
+              <div class="viz-block">
+                <div class="viz-title"><span>Input</span><span class="shape">[1, 1, 6, 6]</span></div>
+                <div class="matrix" id="poolInput"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Output</span><span class="shape" id="poolOutputShape"></span></div>
+                <div class="matrix" id="poolOutput"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="activationSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Activations</h3>
+                <p>Activations add nonlinearity. Without them, stacked linear and convolution layers collapse into one linear mapping.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Activation
+                <select id="activationKind">
+                  <option value="relu">ReLU</option>
+                  <option value="gelu">GELU</option>
+                  <option value="silu">SiLU</option>
+                  <option value="tanh">Tanh</option>
+                  <option value="sigmoid">Sigmoid</option>
+                  <option value="leaky">LeakyReLU</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="viz-block">
+                <div class="viz-title"><span>Input values</span><span class="shape">[-3, 3]</span></div>
+                <div class="bars" id="activationInputBars"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Curve</span><span class="shape">y = f(x)</span></div>
+                <canvas class="curve" id="activationCurve" width="420" height="260"></canvas>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Output values</span><span class="shape">same shape</span></div>
+                <div class="bars" id="activationOutputBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="linearSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Linear Layer</h3>
+                <p><code>Linear(in_features, out_features)</code> multiplies the last dimension by a weight matrix and adds a bias.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Input scale <output id="linearScaleOut">1.0</output>
+                <input id="linearScale" type="range" min="0" max="200" value="100">
+              </label>
+              <label class="control">Bias
+                <select id="linearBias">
+                  <option value="on">on</option>
+                  <option value="off">off</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="viz-block">
+                <div class="viz-title"><span>Input vector</span><span class="shape">[5]</span></div>
+                <div class="bars" id="linearInput"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Weights</span><span class="shape">[4, 5]</span></div>
+                <div class="matrix" id="linearWeights"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Output vector</span><span class="shape">[4]</span></div>
+                <div class="bars" id="linearOutput"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="normSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Normalization and Dropout</h3>
+                <p>Normalization changes the distribution of activations. Dropout randomly masks activations during training and leaves them unchanged during evaluation.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Layer
+                <select id="normKind">
+                  <option value="batch">BatchNorm-style</option>
+                  <option value="layer">LayerNorm-style</option>
+                  <option value="group">GroupNorm-style</option>
+                  <option value="dropout">Dropout</option>
+                </select>
+              </label>
+              <label class="control">Dropout p <output id="dropoutOut">0.30</output>
+                <input id="dropoutP" type="range" min="0" max="80" value="30">
+              </label>
+            </div>
+            <div class="sim-grid two">
+              <div class="viz-block">
+                <div class="viz-title"><span>Input activations</span><span class="shape">[2, 4, 4]</span></div>
+                <div class="bars" id="normInputBars"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Output activations</span><span class="shape">same shape</span></div>
+                <div class="bars" id="normOutputBars"></div>
+              </div>
+            </div>
+            <div class="stats">
+              <div class="stat"><b>Input mean</b><span id="inputMean"></span></div>
+              <div class="stat"><b>Input std</b><span id="inputStd"></span></div>
+              <div class="stat"><b>Output mean</b><span id="outputMean"></span></div>
+              <div class="stat"><b>Output std</b><span id="outputStd"></span></div>
+            </div>
+          </div>
+
+          <div class="simulation" id="embeddingSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Embedding</h3>
+                <p><code>Embedding(num_embeddings, embedding_dim)</code> is a lookup table. Token ids select rows; gradients update only the rows used by the batch.</p>
+              </div>
+            </div>
+            <div class="token-row" id="tokenRow"></div>
+            <div class="sim-grid">
+              <div class="viz-block">
+                <div class="viz-title"><span>Token ids</span><span class="shape">[T]</span></div>
+                <div class="bars" id="tokenIds"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Embedding table</span><span class="shape">[8, 5]</span></div>
+                <div class="matrix" id="embeddingTable"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Selected vectors</span><span class="shape" id="embeddingOutputShape"></span></div>
+                <div class="matrix" id="embeddingOutput"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="attentionSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Multihead Attention, One Head Shown</h3>
+                <p>Attention builds a weighted mixture of value vectors. Query-key dot products create scores; softmax turns scores into weights.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Focus token
+                <select id="attentionFocus">
+                  <option value="0">conv</option>
+                  <option value="1">learns</option>
+                  <option value="2">local</option>
+                  <option value="3">features</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="viz-block">
+                <div class="viz-title"><span>Attention weights</span><span class="shape">softmax(QK^T)</span></div>
+                <div class="matrix" id="attentionWeights"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Value vectors</span><span class="shape">[4, 4]</span></div>
+                <div class="matrix" id="attentionValues"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Context output</span><span class="shape">[4]</span></div>
+                <div class="bars" id="attentionOutput"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="upsampleSimulator">
+            <div class="sim-header">
+              <div>
+                <h3>Upsample and Transposed Convolution</h3>
+                <p>Upsampling changes resolution without learned weights. Transposed convolution learns how each input value contributes to a larger output grid.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Mode
+                <select id="upsampleMode">
+                  <option value="nearest">nearest</option>
+                  <option value="bilinear">bilinear-ish</option>
+                  <option value="transposed">transposed conv</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid two">
+              <div class="viz-block">
+                <div class="viz-title"><span>Input</span><span class="shape">[1, 1, 4, 4]</span></div>
+                <div class="matrix" id="upsampleInput"></div>
+              </div>
+              <div class="viz-block">
+                <div class="viz-title"><span>Output</span><span class="shape" id="upsampleOutputShape"></span></div>
+                <div class="matrix" id="upsampleOutput"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="atlas">
+        <div class="inner">
+          <h2>4. Torch Layer Atlas</h2>
+          <p class="lead">This atlas covers the main <code>torch.nn</code> layer families used in modern models. The examples focus on contracts and when to reach for each layer.</p>
+
+          <div class="atlas-tools">
+            <input id="layerSearch" type="search" placeholder="Search layers, shapes, or uses" aria-label="Search layer atlas">
+            <select id="layerFamily" aria-label="Filter by family">
+              <option value="all">All families</option>
+            </select>
+            <div class="formula" id="layerCount">0 layers</div>
+          </div>
+          <div class="layer-list" id="layerList"></div>
+
+          <h3>Layer family notes</h3>
+          <h4>Containers and shape tools</h4>
+          <p><code>Sequential</code> is appropriate when each module has exactly one input and one output. <code>ModuleList</code> and <code>ModuleDict</code> register submodules without defining a forward path, which is useful when the forward pass branches, loops, or chooses layers dynamically. <code>Flatten</code>, <code>Unflatten</code>, <code>Identity</code>, <code>LazyLinear</code>, and lazy convolution layers are contract-management helpers.</p>
+
+          <h4>Dense layers</h4>
+          <p><code>Linear</code> acts on the last dimension. If the input is <code>[N, T, E]</code>, <code>Linear(E, M)</code> returns <code>[N, T, M]</code>. This behavior is why transformers use linear projections for queries, keys, values, feed-forward blocks, and classifiers without flattening the sequence dimension.</p>
+
+          <h4>Convolutions</h4>
+          <p><code>Conv1d</code>, <code>Conv2d</code>, and <code>Conv3d</code> are the same idea applied to different spatial ranks. <code>ConvTranspose*</code> layers are not inverse convolutions in the algebraic sense, but they correspond to the transpose of the matrix that would implement convolution. They are common in decoders, segmentation heads, and generative models.</p>
+
+          <h4>Pooling</h4>
+          <p>Fixed pooling uses a local window. Adaptive pooling chooses the kernel and stride needed to hit a target output size. That makes <code>AdaptiveAvgPool2d((1, 1))</code> a common bridge from variable-size feature maps to a fixed-size classifier.</p>
+
+          <h4>Normalization</h4>
+          <p><code>BatchNorm</code> uses batch statistics during training and running estimates during evaluation. <code>LayerNorm</code> normalizes within each sample and is stable for sequence models and small batches. <code>GroupNorm</code> is a strong CNN choice when batch size is too small for reliable batch statistics. <code>InstanceNorm</code> normalizes each sample and channel independently, often in style transfer and image generation.</p>
+
+          <h4>Activations</h4>
+          <p>ReLU is cheap and sparse. GELU and SiLU are smooth and common in transformers and efficient CNNs. Sigmoid and Tanh saturate, so they are more often used for gates or bounded outputs than as default hidden activations.</p>
+
+          <h4>Embeddings, recurrent layers, and attention</h4>
+          <p><code>Embedding</code> turns integer ids into vectors. RNN, GRU, and LSTM scan sequences with hidden state. <code>MultiheadAttention</code> lets every position read from every other position through learned similarity, and <code>TransformerEncoderLayer</code> packages attention, feed-forward layers, normalization, residual paths, and dropout.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="architectures">
+        <div class="inner">
+          <h2>5. Building CNN Architectures</h2>
+          <p class="lead">A CNN architecture is a sequence of resolution changes and channel changes. Good designs state both clearly.</p>
+
+          <div class="simulation">
+            <div class="sim-header">
+              <div>
+                <h3>Mini CNN Pipeline</h3>
+                <p>The same input flows through convolution, activation, pooling, flattening, and a classifier head.</p>
+              </div>
+              <button type="button" id="pipelineRefresh">Refresh input</button>
+            </div>
+            <div class="pipeline" id="pipeline"></div>
+          </div>
+
+          <h3>Canonical blocks</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Block</th>
+                <th>Typical code</th>
+                <th>Why it works</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Conv-BN-ReLU</td>
+                <td><code>Conv2d -> BatchNorm2d -> ReLU</code></td>
+                <td>Convolution extracts local features, normalization stabilizes scale, activation adds nonlinearity.</td>
+              </tr>
+              <tr>
+                <td>Downsample</td>
+                <td><code>stride=2</code> conv or <code>MaxPool2d(2)</code></td>
+                <td>Reduces spatial cost while increasing receptive field.</td>
+              </tr>
+              <tr>
+                <td>Residual</td>
+                <td><code>y = block(x) + shortcut(x)</code></td>
+                <td>Preserves an easy gradient path and lets blocks learn refinements.</td>
+              </tr>
+              <tr>
+                <td>Depthwise separable</td>
+                <td><code>groups=in_channels</code> then <code>1x1 Conv2d</code></td>
+                <td>Separates spatial filtering from channel mixing, reducing parameters and compute.</td>
+              </tr>
+              <tr>
+                <td>Global pooling head</td>
+                <td><code>AdaptiveAvgPool2d(1) -> Flatten -> Linear</code></td>
+                <td>Accepts flexible image sizes and avoids a large fully connected tail.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Shape walkthrough</h3>
+          <pre><code>x:                 [N, 3, 224, 224]
+Conv2d(3, 32, 3, padding=1)
+BatchNorm2d(32)
+ReLU              [N, 32, 224, 224]
+MaxPool2d(2)      [N, 32, 112, 112]
+Conv2d(32, 64, 3, stride=2, padding=1)
+ReLU              [N, 64, 56, 56]
+Conv2d(64, 128, 3, stride=2, padding=1)
+ReLU              [N, 128, 28, 28]
+AdaptiveAvgPool2d((1, 1))
+Flatten(1)        [N, 128]
+Linear(128, K)    [N, K]</code></pre>
+
+          <div class="warning note">
+            <b>Common CNN failure:</b> flattening too early. A fully connected layer after a large feature map can dominate parameter count. Prefer several convolutional blocks followed by global pooling unless the task truly needs location-specific dense weights.
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="training">
+        <div class="inner">
+          <h2>6. Training Stack</h2>
+          <p class="lead">Layers define the forward computation. Training adds data, loss, optimizer, precision policy, initialization, regularization, and evaluation mode.</p>
+
+          <div class="split">
+            <div>
+              <h3>Loss modules</h3>
+              <p>Losses in <code>torch.nn</code> are modules too. They consume predictions and targets, then return a scalar or per-example tensor.</p>
+              <ul class="two-col-list">
+                <li><code>CrossEntropyLoss</code>: multiclass logits plus integer class targets.</li>
+                <li><code>BCEWithLogitsLoss</code>: binary or multilabel logits.</li>
+                <li><code>MSELoss</code>: regression with squared error.</li>
+                <li><code>L1Loss</code> and <code>SmoothL1Loss</code>: robust regression.</li>
+                <li><code>NLLLoss</code>: log probabilities, often after <code>LogSoftmax</code>.</li>
+                <li><code>KLDivLoss</code>: distribution matching.</li>
+                <li><code>TripletMarginLoss</code>: metric learning.</li>
+                <li><code>CTCLoss</code>: unaligned sequence labeling.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Training and eval mode</h3>
+              <p><code>model.train()</code> enables training behavior for layers such as dropout and batch normalization. <code>model.eval()</code> disables dropout and makes batch normalization use running estimates. It does not disable gradients; use <code>torch.no_grad()</code> or <code>torch.inference_mode()</code> for evaluation without gradient tracking.</p>
+              <pre><code>model.train()
+for x, y in loader:
+    optimizer.zero_grad(set_to_none=True)
+    logits = model(x)
+    loss = criterion(logits, y)
+    loss.backward()
+    optimizer.step()</code></pre>
+            </div>
+          </div>
+
+          <h3>Initialization</h3>
+          <p>Initialization controls signal scale before learning starts. ReLU-like networks usually pair well with Kaiming initialization. Tanh-like networks often use Xavier initialization. PyTorch layers have sensible defaults, but explicit initialization is useful when building unusual residual, attention, or normalization-free networks.</p>
+
+          <h3>Regularization</h3>
+          <p>Regularization limits overfitting. CNNs often combine data augmentation, weight decay, dropout in classifier heads, label smoothing, early stopping, and stochastic depth in deep residual families. Normalization layers are not regularizers by definition, but their statistical effects often improve optimization and generalization.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="debugging">
+        <div class="inner">
+          <h2>7. Debugging Deep Models</h2>
+          <p class="lead">Debugging is faster when you inspect contracts, values, and training state separately.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Symptom</th>
+                <th>Likely cause</th>
+                <th>Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Shape mismatch at <code>Linear</code></td>
+                <td>Flattened feature count changed after convolution or pooling.</td>
+                <td>Print <code>x.shape</code> before <code>Flatten</code>, or use <code>AdaptiveAvgPool2d</code>.</td>
+              </tr>
+              <tr>
+                <td>Loss is <code>nan</code></td>
+                <td>Too high learning rate, unstable logits, bad normalization, invalid targets.</td>
+                <td>Check input scale, target range, gradient norm, mixed precision scaler.</td>
+              </tr>
+              <tr>
+                <td>Accuracy stuck at chance</td>
+                <td>Labels misaligned, wrong loss, final activation mismatch, model in eval mode.</td>
+                <td>Overfit one small batch. It should reach near-zero loss.</td>
+              </tr>
+              <tr>
+                <td>Train good, validation poor</td>
+                <td>Overfitting or data split mismatch.</td>
+                <td>Add augmentation, weight decay, simpler head, inspect split leakage.</td>
+              </tr>
+              <tr>
+                <td>BatchNorm unstable</td>
+                <td>Small batches or distribution shift.</td>
+                <td>Try GroupNorm, freeze BatchNorm, or accumulate larger batches.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Forward hooks for inspection</h3>
+          <pre><code>def hook(name):
+    def fn(module, inputs, output):
+        x = output if torch.is_tensor(output) else output[0]
+        print(name, tuple(x.shape), x.detach().mean().item(), x.detach().std().item())
+    return fn
+
+for name, module in model.named_modules():
+    if isinstance(module, (nn.Conv2d, nn.Linear, nn.BatchNorm2d)):
+        module.register_forward_hook(hook(name))</code></pre>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="inner">Standalone HTML/CSS/JS edition. All simulations run locally in the browser.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const round = (value, places = 2) => Number.parseFloat(value).toFixed(places);
+    const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const std = values => {
+      const m = mean(values);
+      return Math.sqrt(values.reduce((sum, value) => sum + (value - m) ** 2, 0) / values.length);
+    };
+
+    function colorFor(value, min = -2, max = 2) {
+      const t = clamp((value - min) / (max - min), 0, 1);
+      const stops = [
+        [37, 99, 170],
+        [245, 243, 236],
+        [180, 70, 58]
+      ];
+      const left = t < .5 ? stops[0] : stops[1];
+      const right = t < .5 ? stops[1] : stops[2];
+      const local = t < .5 ? t * 2 : (t - .5) * 2;
+      const rgb = left.map((channel, index) => Math.round(channel + (right[index] - channel) * local));
+      return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+    }
+
+    function makeMatrix(rows, cols, fn) {
+      return Array.from({ length: rows }, (_, y) => Array.from({ length: cols }, (_, x) => fn(y, x)));
+    }
+
+    function baseMatrix(rows, cols, seed = 0) {
+      return makeMatrix(rows, cols, (y, x) => {
+        const wave = Math.sin((x + 1 + seed) * .85) + Math.cos((y + 2) * .72) + Math.sin((x - y + seed) * .45);
+        return wave / 2;
+      });
+    }
+
+    function flatten(matrix) {
+      return matrix.flat ? matrix.flat() : [].concat(...matrix);
+    }
+
+    function renderMatrix(target, matrix, options = {}) {
+      const rows = matrix.length;
+      const cols = matrix[0] ? matrix[0].length : 0;
+      const values = flatten(matrix);
+      const min = options.min ?? Math.min(...values, -1);
+      const max = options.max ?? Math.max(...values, 1);
+      const active = new Set((options.active || []).map(([y, x]) => `${y}:${x}`));
+      const kernel = new Set((options.kernel || []).map(([y, x]) => `${y}:${x}`));
+      target.innerHTML = "";
+      target.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      target.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+      matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          if (active.has(`${y}:${x}`)) cell.classList.add("active");
+          if (kernel.has(`${y}:${x}`)) cell.classList.add("kernel");
+          cell.style.background = colorFor(value, min, max);
+          cell.textContent = options.integer ? Math.round(value) : round(value, options.places ?? 1);
+          target.appendChild(cell);
+        });
+      });
+    }
+
+    function renderBars(target, values, options = {}) {
+      const maxAbs = Math.max(.001, ...values.map(value => Math.abs(value)), options.maxAbs || 0);
+      target.innerHTML = "";
+      values.forEach((value, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const label = document.createElement("span");
+        label.textContent = options.labels ? options.labels[index] : `x${index}`;
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        if (value < 0) fill.classList.add("negative");
+        fill.style.width = `${Math.abs(value) / maxAbs * 100}%`;
+        track.appendChild(fill);
+        const number = document.createElement("span");
+        number.textContent = round(value, options.places ?? 2);
+        row.append(label, track, number);
+        target.appendChild(row);
+      });
+    }
+
+    function convolve2d(input, kernel, stride, padding, dilation) {
+      const inRows = input.length;
+      const inCols = input[0].length;
+      const kRows = kernel.length;
+      const kCols = kernel[0].length;
+      const effectiveRows = dilation * (kRows - 1) + 1;
+      const effectiveCols = dilation * (kCols - 1) + 1;
+      const outRows = Math.floor((inRows + 2 * padding - effectiveRows) / stride + 1);
+      const outCols = Math.floor((inCols + 2 * padding - effectiveCols) / stride + 1);
+      if (outRows <= 0 || outCols <= 0) return [];
+      return makeMatrix(outRows, outCols, (oy, ox) => {
+        let sum = 0;
+        for (let ky = 0; ky < kRows; ky += 1) {
+          for (let kx = 0; kx < kCols; kx += 1) {
+            const iy = oy * stride + ky * dilation - padding;
+            const ix = ox * stride + kx * dilation - padding;
+            const inputValue = iy >= 0 && ix >= 0 && iy < inRows && ix < inCols ? input[iy][ix] : 0;
+            sum += inputValue * kernel[ky][kx];
+          }
+        }
+        return sum;
+      });
+    }
+
+    const kernels = {
+      edge: [[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]],
+      blur: [[1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9]],
+      sharpen: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]],
+      emboss: [[-2, -1, 0], [-1, 1, 1], [0, 1, 2]]
+    };
+
+    const convState = {
+      input: baseMatrix(7, 7),
+      cursor: 0,
+      timer: null
+    };
+
+    function updateConv() {
+      const kernel = kernels[document.getElementById("convKernel").value];
+      const stride = Number(document.getElementById("convStride").value);
+      const padding = Number(document.getElementById("convPad").value);
+      const dilation = Number(document.getElementById("convDilation").value);
+      document.getElementById("strideOut").textContent = stride;
+      document.getElementById("padOut").textContent = padding;
+      document.getElementById("dilationOut").textContent = dilation;
+      const output = convolve2d(convState.input, kernel, stride, padding, dilation);
+      const outRows = output.length;
+      const outCols = output[0] ? output[0].length : 0;
+      const outIndex = outRows && outCols ? convState.cursor % (outRows * outCols) : 0;
+      const oy = outCols ? Math.floor(outIndex / outCols) : 0;
+      const ox = outCols ? outIndex % outCols : 0;
+      const active = [];
+      for (let ky = 0; ky < kernel.length; ky += 1) {
+        for (let kx = 0; kx < kernel[0].length; kx += 1) {
+          const iy = oy * stride + ky * dilation - padding;
+          const ix = ox * stride + kx * dilation - padding;
+          if (iy >= 0 && ix >= 0 && iy < convState.input.length && ix < convState.input[0].length) {
+            active.push([iy, ix]);
+          }
+        }
+      }
+      document.getElementById("convInputShape").textContent = "[1, 1, 7, 7]";
+      document.getElementById("convOutputShape").textContent = `[1, 1, ${outRows}, ${outCols}]`;
+      renderMatrix(document.getElementById("convInput"), convState.input, { active, min: -1.6, max: 1.6 });
+      renderMatrix(document.getElementById("convKernelGrid"), kernel, { min: -2, max: 8, places: 2 });
+      renderMatrix(document.getElementById("convOutput"), output.length ? output : [[0]], { active: [[oy, ox]], min: -6, max: 6 });
+    }
+
+    function bindConv() {
+      ["convKernel", "convStride", "convPad", "convDilation"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => {
+          convState.cursor = 0;
+          updateConv();
+        });
+      });
+      document.getElementById("convPlay").addEventListener("click", event => {
+        const button = event.currentTarget;
+        const playing = button.getAttribute("aria-pressed") === "true";
+        button.setAttribute("aria-pressed", String(!playing));
+        button.textContent = playing ? "Play" : "Pause";
+        if (playing) {
+          clearInterval(convState.timer);
+          convState.timer = null;
+        } else {
+          convState.timer = setInterval(() => {
+            convState.cursor += 1;
+            updateConv();
+          }, 650);
+        }
+      });
+      updateConv();
+    }
+
+    function pool2d(input, size, stride, mode) {
+      const outRows = Math.floor((input.length - size) / stride + 1);
+      const outCols = Math.floor((input[0].length - size) / stride + 1);
+      return makeMatrix(outRows, outCols, (oy, ox) => {
+        const values = [];
+        for (let y = 0; y < size; y += 1) {
+          for (let x = 0; x < size; x += 1) {
+            values.push(input[oy * stride + y][ox * stride + x]);
+          }
+        }
+        return mode === "max" ? Math.max(...values) : mean(values);
+      });
+    }
+
+    function bindPool() {
+      const input = baseMatrix(6, 6, 2).map(row => row.map(value => value + .5));
+      function update() {
+        const mode = document.getElementById("poolMode").value;
+        const size = Number(document.getElementById("poolWindow").value);
+        const stride = Number(document.getElementById("poolStride").value);
+        document.getElementById("poolWindowOut").textContent = size;
+        document.getElementById("poolStrideOut").textContent = stride;
+        const output = pool2d(input, size, stride, mode);
+        document.getElementById("poolOutputShape").textContent = `[1, 1, ${output.length}, ${output[0].length}]`;
+        renderMatrix(document.getElementById("poolInput"), input, { min: -1.4, max: 1.8 });
+        renderMatrix(document.getElementById("poolOutput"), output, { min: -1.4, max: 1.8 });
+      }
+      ["poolMode", "poolWindow", "poolStride"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      update();
+    }
+
+    const activations = {
+      relu: x => Math.max(0, x),
+      gelu: x => .5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + .044715 * x ** 3))),
+      silu: x => x / (1 + Math.exp(-x)),
+      tanh: x => Math.tanh(x),
+      sigmoid: x => 1 / (1 + Math.exp(-x)),
+      leaky: x => x >= 0 ? x : .1 * x
+    };
+
+    function drawCurve(canvas, fn) {
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = "#d8d0c2";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 6; i += 1) {
+        const x = i * width / 6;
+        const y = i * height / 6;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      const toX = x => (x + 3) / 6 * width;
+      const toY = y => height - (clamp(y, -3, 3) + 3) / 6 * height;
+      ctx.strokeStyle = "#5b646b";
+      ctx.beginPath();
+      ctx.moveTo(0, toY(0));
+      ctx.lineTo(width, toY(0));
+      ctx.moveTo(toX(0), 0);
+      ctx.lineTo(toX(0), height);
+      ctx.stroke();
+      ctx.strokeStyle = "#2364aa";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i = 0; i <= 220; i += 1) {
+        const x = -3 + i * 6 / 220;
+        const px = toX(x);
+        const py = toY(fn(x));
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
+    function bindActivations() {
+      const input = [-2.4, -1.3, -.4, 0, .35, .9, 1.8, 2.7];
+      function update() {
+        const kind = document.getElementById("activationKind").value;
+        const fn = activations[kind];
+        const output = input.map(fn);
+        renderBars(document.getElementById("activationInputBars"), input, { maxAbs: 3, labels: input.map((_, i) => `x${i}`) });
+        renderBars(document.getElementById("activationOutputBars"), output, { maxAbs: 3, labels: output.map((_, i) => `y${i}`) });
+        drawCurve(document.getElementById("activationCurve"), fn);
+      }
+      document.getElementById("activationKind").addEventListener("input", update);
+      update();
+    }
+
+    function bindLinear() {
+      const base = [.8, -.6, .25, 1.1, -.35];
+      const weights = [
+        [.5, -.2, .1, .7, -.4],
+        [-.1, .8, .45, -.3, .2],
+        [.65, .1, -.7, .05, .55],
+        [-.45, -.25, .35, .6, .15]
+      ];
+      const bias = [.2, -.15, .05, .35];
+      function update() {
+        const scale = Number(document.getElementById("linearScale").value) / 100;
+        const useBias = document.getElementById("linearBias").value === "on";
+        document.getElementById("linearScaleOut").textContent = round(scale, 1);
+        const input = base.map(value => value * scale);
+        const output = weights.map((row, i) => row.reduce((sum, weight, j) => sum + weight * input[j], useBias ? bias[i] : 0));
+        renderBars(document.getElementById("linearInput"), input, { maxAbs: 1.2 });
+        renderMatrix(document.getElementById("linearWeights"), weights, { min: -.8, max: .8 });
+        renderBars(document.getElementById("linearOutput"), output, { maxAbs: 1.8, labels: output.map((_, i) => `y${i}`) });
+      }
+      ["linearScale", "linearBias"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      update();
+    }
+
+    function lcg(seed) {
+      let state = seed;
+      return () => {
+        state = (1664525 * state + 1013904223) % 4294967296;
+        return state / 4294967296;
+      };
+    }
+
+    function bindNorm() {
+      const values = Array.from({ length: 32 }, (_, i) => Math.sin(i * .7) * 1.5 + (i % 4) * .35 - .5);
+      function update() {
+        const kind = document.getElementById("normKind").value;
+        const p = Number(document.getElementById("dropoutP").value) / 100;
+        document.getElementById("dropoutOut").textContent = round(p, 2);
+        let output;
+        if (kind === "dropout") {
+          const rand = lcg(42);
+          output = values.map(value => rand() < p ? 0 : value / Math.max(.001, 1 - p));
+        } else if (kind === "layer") {
+          output = [];
+          for (let i = 0; i < values.length; i += 16) {
+            const group = values.slice(i, i + 16);
+            const m = mean(group);
+            const s = std(group) + 1e-5;
+            output.push(...group.map(value => (value - m) / s));
+          }
+        } else if (kind === "group") {
+          output = [];
+          for (let i = 0; i < values.length; i += 8) {
+            const group = values.slice(i, i + 8);
+            const m = mean(group);
+            const s = std(group) + 1e-5;
+            output.push(...group.map(value => (value - m) / s));
+          }
+        } else {
+          const m = mean(values);
+          const s = std(values) + 1e-5;
+          output = values.map(value => (value - m) / s);
+        }
+        renderBars(document.getElementById("normInputBars"), values.slice(0, 16), { maxAbs: 2.6 });
+        renderBars(document.getElementById("normOutputBars"), output.slice(0, 16), { maxAbs: 3.2 });
+        document.getElementById("inputMean").textContent = round(mean(values), 3);
+        document.getElementById("inputStd").textContent = round(std(values), 3);
+        document.getElementById("outputMean").textContent = round(mean(output), 3);
+        document.getElementById("outputStd").textContent = round(std(output), 3);
+      }
+      ["normKind", "dropoutP"].forEach(id => document.getElementById(id).addEventListener("input", update));
+      update();
+    }
+
+    function bindEmbedding() {
+      const vocab = ["cnn", "kernel", "stride", "padding", "relu", "pool", "linear", "logit"];
+      const table = makeMatrix(8, 5, (row, col) => Math.sin((row + 1) * (col + 2) * .7));
+      let selected = [0, 3, 4, 6];
+      const tokenRow = document.getElementById("tokenRow");
+      function update() {
+        tokenRow.innerHTML = "";
+        vocab.forEach((token, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "token";
+          if (selected.includes(index)) button.classList.add("active");
+          button.textContent = `${index}: ${token}`;
+          button.addEventListener("click", () => {
+            if (selected.includes(index)) selected = selected.filter(item => item !== index);
+            else selected = [...selected, index].slice(-5);
+            if (!selected.length) selected = [index];
+            update();
+          });
+          tokenRow.appendChild(button);
+        });
+        const ids = selected.map(id => id);
+        const output = selected.map(id => table[id]);
+        renderBars(document.getElementById("tokenIds"), ids, { maxAbs: 8, labels: ids.map((_, i) => `t${i}`), places: 0 });
+        renderMatrix(document.getElementById("embeddingTable"), table, { min: -1, max: 1 });
+        renderMatrix(document.getElementById("embeddingOutput"), output, { min: -1, max: 1 });
+        document.getElementById("embeddingOutputShape").textContent = `[${output.length}, 5]`;
+      }
+      update();
+    }
+
+    function softmax(values) {
+      const max = Math.max(...values);
+      const exp = values.map(value => Math.exp(value - max));
+      const total = exp.reduce((sum, value) => sum + value, 0);
+      return exp.map(value => value / total);
+    }
+
+    function bindAttention() {
+      const values = [
+        [.8, .1, -.2, .4],
+        [.2, .9, .3, -.5],
+        [-.4, .35, .95, .15],
+        [.55, -.25, .25, .8]
+      ];
+      const keys = [
+        [.6, .2, -.1, .1],
+        [.15, .75, .25, -.3],
+        [-.2, .4, .8, .2],
+        [.3, -.15, .1, .7]
+      ];
+      const queries = [
+        [.7, .2, -.1, .2],
+        [.1, .8, .2, -.2],
+        [-.3, .3, .9, .1],
+        [.45, -.1, .2, .75]
+      ];
+      function update() {
+        const focus = Number(document.getElementById("attentionFocus").value);
+        const scores = keys.map(key => key.reduce((sum, value, i) => sum + value * queries[focus][i], 0) / 2);
+        const weights = softmax(scores);
+        const output = [0, 1, 2, 3].map(dim => values.reduce((sum, row, index) => sum + row[dim] * weights[index], 0));
+        renderMatrix(document.getElementById("attentionWeights"), [weights], { min: 0, max: 1, places: 2 });
+        renderMatrix(document.getElementById("attentionValues"), values, { min: -1, max: 1 });
+        renderBars(document.getElementById("attentionOutput"), output, { maxAbs: 1, labels: output.map((_, i) => `c${i}`) });
+      }
+      document.getElementById("attentionFocus").addEventListener("input", update);
+      update();
+    }
+
+    function upsampleNearest(input) {
+      const rows = input.length * 2;
+      const cols = input[0].length * 2;
+      return makeMatrix(rows, cols, (y, x) => input[Math.floor(y / 2)][Math.floor(x / 2)]);
+    }
+
+    function upsampleSmooth(input) {
+      const nearest = upsampleNearest(input);
+      return nearest.map((row, y) => row.map((value, x) => {
+        const neighbors = [];
+        for (let dy = -1; dy <= 1; dy += 1) {
+          for (let dx = -1; dx <= 1; dx += 1) {
+            const yy = clamp(y + dy, 0, nearest.length - 1);
+            const xx = clamp(x + dx, 0, nearest[0].length - 1);
+            neighbors.push(nearest[yy][xx]);
+          }
+        }
+        return mean(neighbors) * .7 + value * .3;
+      }));
+    }
+
+    function transposedConv(input) {
+      const kernel = [[.2, .5, .2], [.5, 1, .5], [.2, .5, .2]];
+      const out = makeMatrix(input.length * 2 + 1, input[0].length * 2 + 1, () => 0);
+      input.forEach((row, y) => {
+        row.forEach((value, x) => {
+          kernel.forEach((krow, ky) => {
+            krow.forEach((weight, kx) => {
+              out[y * 2 + ky][x * 2 + kx] += value * weight;
+            });
+          });
+        });
+      });
+      return out;
+    }
+
+    function bindUpsample() {
+      const input = baseMatrix(4, 4, 4);
+      function update() {
+        const mode = document.getElementById("upsampleMode").value;
+        const output = mode === "nearest" ? upsampleNearest(input) : mode === "bilinear" ? upsampleSmooth(input) : transposedConv(input);
+        renderMatrix(document.getElementById("upsampleInput"), input, { min: -1.5, max: 1.5 });
+        renderMatrix(document.getElementById("upsampleOutput"), output, { min: -1.5, max: 1.5 });
+        document.getElementById("upsampleOutputShape").textContent = `[1, 1, ${output.length}, ${output[0].length}]`;
+      }
+      document.getElementById("upsampleMode").addEventListener("input", update);
+      update();
+    }
+
+    const LAYERS = [
+      { family: "Containers", name: "Module", contract: "Base class for stateful layers and models.", params: "registered Parameters, Buffers, and child Modules", use: "Subclass it whenever the forward path has state or structure.", shape: "defined by forward" },
+      { family: "Containers", name: "Sequential", contract: "Chains modules in order.", params: "children only", use: "Straight-through stacks with one input and one output.", shape: "output of layer i becomes input of layer i+1" },
+      { family: "Containers", name: "ModuleList / ModuleDict", contract: "Registers modules without defining data flow.", params: "children only", use: "Loops, branches, named blocks, dynamic depth.", shape: "defined manually in forward" },
+      { family: "Shape", name: "Identity", contract: "Returns input unchanged.", params: "none", use: "Placeholders, optional branches, ablations.", shape: "same as input" },
+      { family: "Shape", name: "Flatten", contract: "Collapses a range of dimensions.", params: "start_dim, end_dim", use: "Bridge conv maps into dense heads.", shape: "[N, C, H, W] -> [N, C*H*W] when start_dim=1" },
+      { family: "Shape", name: "Unflatten", contract: "Expands one dimension into several dimensions.", params: "dim, unflattened_size", use: "Decoder starts, reshaping latent vectors.", shape: "[N, C*H*W] -> [N, C, H, W]" },
+      { family: "Dense", name: "Linear", contract: "Applies y = x A^T + b to the last dimension.", params: "in_features, out_features, bias", use: "Classifiers, projections, MLP blocks, transformer feed-forward layers.", shape: "[..., in_features] -> [..., out_features]" },
+      { family: "Dense", name: "Bilinear", contract: "Combines two inputs through learned bilinear interactions.", params: "in1_features, in2_features, out_features", use: "Pairwise feature interactions and matching models.", shape: "[N, F1], [N, F2] -> [N, O]" },
+      { family: "Dense", name: "LazyLinear", contract: "Infers in_features on first forward pass.", params: "out_features, bias", use: "Rapid prototyping when previous feature size is not known yet.", shape: "[..., inferred] -> [..., out_features]" },
+      { family: "Convolution", name: "Conv1d", contract: "Slides kernels over one spatial or temporal dimension.", params: "in_channels, out_channels, kernel_size, stride, padding, dilation, groups", use: "Audio, signals, token-local models.", shape: "[N, C, L] -> [N, O, L_out]" },
+      { family: "Convolution", name: "Conv2d", contract: "Slides kernels over height and width.", params: "in_channels, out_channels, kernel_size, stride, padding, dilation, groups", use: "Images, feature maps, spectrograms.", shape: "[N, C, H, W] -> [N, O, H_out, W_out]" },
+      { family: "Convolution", name: "Conv3d", contract: "Slides kernels over depth, height, and width.", params: "in_channels, out_channels, kernel_size, stride, padding, dilation, groups", use: "Video clips, medical volumes, voxel grids.", shape: "[N, C, D, H, W] -> [N, O, D_out, H_out, W_out]" },
+      { family: "Convolution", name: "ConvTranspose1d/2d/3d", contract: "Learned upsampling-like convolution transpose.", params: "in_channels, out_channels, kernel_size, stride, padding, output_padding, groups, dilation", use: "Decoders, segmentation, generative networks.", shape: "usually increases spatial dimensions when stride > 1" },
+      { family: "Convolution", name: "LazyConv1d/2d/3d", contract: "Infers input channels at first call.", params: "out_channels, kernel_size, stride, padding", use: "Prototyping flexible front ends.", shape: "same as Conv*, with inferred C_in" },
+      { family: "Convolution", name: "Unfold / Fold", contract: "Extracts sliding local blocks or combines blocks back.", params: "kernel_size, dilation, padding, stride", use: "Patch operations, custom convolution, local attention.", shape: "image tensor <-> patch matrix" },
+      { family: "Padding", name: "ConstantPad1d/2d/3d", contract: "Pads boundaries with a fixed value.", params: "padding, value", use: "Explicit padding before conv or pooling.", shape: "spatial dimensions grow by padding amounts" },
+      { family: "Padding", name: "ZeroPad2d", contract: "Pads 2D spatial boundaries with zeros.", params: "padding", use: "Conv boundary control.", shape: "[N, C, H, W] -> [N, C, H+pH, W+pW]" },
+      { family: "Padding", name: "ReflectionPad1d/2d/3d", contract: "Pads with reflected boundary values.", params: "padding", use: "Image generation and restoration where zero borders are visible.", shape: "spatial dimensions grow" },
+      { family: "Padding", name: "ReplicationPad1d/2d/3d", contract: "Pads by repeating edge values.", params: "padding", use: "Boundary-preserving image tasks.", shape: "spatial dimensions grow" },
+      { family: "Pooling", name: "MaxPool1d/2d/3d", contract: "Takes maximum value in each window.", params: "kernel_size, stride, padding, dilation, ceil_mode", use: "Downsampling while keeping strongest local evidence.", shape: "spatial dimensions shrink unless padded" },
+      { family: "Pooling", name: "AvgPool1d/2d/3d", contract: "Takes average value in each window.", params: "kernel_size, stride, padding, count_include_pad", use: "Smoothing downsample, statistics-preserving reductions.", shape: "spatial dimensions shrink unless padded" },
+      { family: "Pooling", name: "AdaptiveAvgPool1d/2d/3d", contract: "Averages to a requested output size.", params: "output_size", use: "Global pooling and variable input sizes.", shape: "[N, C, *] -> [N, C, requested]" },
+      { family: "Pooling", name: "AdaptiveMaxPool1d/2d/3d", contract: "Max-pools to a requested output size.", params: "output_size, return_indices", use: "Fixed-size summaries while preserving strongest evidence.", shape: "[N, C, *] -> [N, C, requested]" },
+      { family: "Pooling", name: "MaxUnpool1d/2d/3d", contract: "Places pooled values back using saved max indices.", params: "kernel_size, stride, padding", use: "Older encoder-decoder segmentation designs.", shape: "pooled tensor -> larger sparse tensor" },
+      { family: "Pooling", name: "FractionalMaxPool2d/3d", contract: "Max pooling with non-integer downsampling ratio.", params: "kernel_size, output_size or output_ratio", use: "Specific architectures needing stochastic fractional reduction.", shape: "spatial dimensions shrink to requested size or ratio" },
+      { family: "Activation", name: "ReLU / ReLU6", contract: "Clamps negatives to zero; ReLU6 also caps at six.", params: "inplace", use: "Default sparse activation, mobile-friendly capped variant.", shape: "same as input" },
+      { family: "Activation", name: "LeakyReLU / PReLU", contract: "Keeps a small slope for negative values.", params: "negative_slope or learned slope", use: "Avoiding dead ReLU units.", shape: "same as input" },
+      { family: "Activation", name: "ELU / CELU / SELU", contract: "Smooth negative branch activations.", params: "alpha", use: "Self-normalizing or smoother MLP/CNN variants.", shape: "same as input" },
+      { family: "Activation", name: "GELU", contract: "Smooth stochastic-gating-like activation.", params: "approximate", use: "Transformers and modern MLP blocks.", shape: "same as input" },
+      { family: "Activation", name: "SiLU / Mish", contract: "Smooth non-monotonic or gated activations.", params: "inplace for SiLU", use: "Efficient CNNs and modern feature extractors.", shape: "same as input" },
+      { family: "Activation", name: "Sigmoid / Tanh", contract: "Maps values to bounded intervals.", params: "none", use: "Gates, probabilities, bounded outputs.", shape: "same as input" },
+      { family: "Activation", name: "Softmax / LogSoftmax", contract: "Normalizes values along one dimension.", params: "dim", use: "Attention weights, probability distributions, NLL inputs.", shape: "same as input" },
+      { family: "Activation", name: "Softplus / Softsign / Hardtanh / Hardswish", contract: "Alternative smooth or piecewise nonlinearities.", params: "varies by layer", use: "Positive outputs, bounded activations, mobile efficient nets.", shape: "same as input" },
+      { family: "Activation", name: "GLU", contract: "Splits tensor and gates one half by sigmoid of the other.", params: "dim", use: "Gated convolutional and sequence models.", shape: "halves size along dim" },
+      { family: "Normalization", name: "BatchNorm1d/2d/3d", contract: "Normalizes per channel using batch statistics.", params: "num_features, eps, momentum, affine, track_running_stats", use: "CNNs and MLPs with reliable batch sizes.", shape: "same as input" },
+      { family: "Normalization", name: "LayerNorm", contract: "Normalizes over the last specified dimensions per sample.", params: "normalized_shape, eps, elementwise_affine", use: "Transformers, RNNs, small-batch settings.", shape: "same as input" },
+      { family: "Normalization", name: "GroupNorm", contract: "Splits channels into groups and normalizes within each sample.", params: "num_groups, num_channels, eps, affine", use: "CNNs with small batches.", shape: "same as input" },
+      { family: "Normalization", name: "InstanceNorm1d/2d/3d", contract: "Normalizes each sample and channel independently.", params: "num_features, eps, momentum, affine", use: "Style transfer, generation, sample-specific contrast.", shape: "same as input" },
+      { family: "Normalization", name: "LocalResponseNorm", contract: "Normalizes across nearby channels.", params: "size, alpha, beta, k", use: "Historical CNNs, rarely used in new models.", shape: "same as input" },
+      { family: "Normalization", name: "RMSNorm", contract: "Normalizes by root mean square without mean subtraction.", params: "normalized_shape, eps, elementwise_affine", use: "Transformer variants where RMS scaling is preferred.", shape: "same as input" },
+      { family: "Regularization", name: "Dropout", contract: "Randomly zeros individual elements during training.", params: "p, inplace", use: "Dense heads and transformer blocks.", shape: "same as input" },
+      { family: "Regularization", name: "Dropout1d/2d/3d", contract: "Drops whole channels for batched feature maps.", params: "p, inplace", use: "CNN feature regularization.", shape: "same as input" },
+      { family: "Regularization", name: "AlphaDropout / FeatureAlphaDropout", contract: "Dropout variants preserving SELU self-normalizing behavior.", params: "p, inplace", use: "Networks using SELU.", shape: "same as input" },
+      { family: "Sparse", name: "Embedding", contract: "Looks up rows from a learned table using integer ids.", params: "num_embeddings, embedding_dim, padding_idx, max_norm, sparse", use: "Text, categorical features, ids.", shape: "[...] ids -> [..., embedding_dim]" },
+      { family: "Sparse", name: "EmbeddingBag", contract: "Embeds and pools bags of token ids without materializing every vector.", params: "num_embeddings, embedding_dim, mode, sparse", use: "Large sparse categorical features, recommendation models.", shape: "bag offsets -> pooled embeddings" },
+      { family: "Recurrent", name: "RNN", contract: "Scans a sequence with a recurrent hidden state.", params: "input_size, hidden_size, num_layers, nonlinearity, batch_first, bidirectional", use: "Simple sequential baselines.", shape: "[T,N,E] or [N,T,E] -> sequence output plus hidden state" },
+      { family: "Recurrent", name: "LSTM", contract: "Recurrent layer with input, forget, output gates and cell state.", params: "input_size, hidden_size, num_layers, dropout, bidirectional, proj_size", use: "Longer sequence dependencies and time-series models.", shape: "sequence output plus (h_n, c_n)" },
+      { family: "Recurrent", name: "GRU", contract: "Gated recurrent layer with reset and update gates.", params: "input_size, hidden_size, num_layers, dropout, bidirectional", use: "Lighter recurrent sequence models.", shape: "sequence output plus h_n" },
+      { family: "Recurrent", name: "RNNCell / LSTMCell / GRUCell", contract: "Single recurrent step.", params: "input_size, hidden_size", use: "Custom recurrence loops and step-level control.", shape: "one time step -> next hidden state" },
+      { family: "Attention", name: "MultiheadAttention", contract: "Projects query, key, value and performs scaled dot-product attention over heads.", params: "embed_dim, num_heads, dropout, batch_first, bias", use: "Transformers, cross-attention, set and sequence models.", shape: "query sequence -> attended sequence" },
+      { family: "Attention", name: "TransformerEncoderLayer", contract: "Self-attention plus feed-forward block with residuals and normalization.", params: "d_model, nhead, dim_feedforward, dropout, activation, batch_first, norm_first", use: "Encoder-only language, vision, and sequence models.", shape: "[T,N,E] or [N,T,E] -> same shape" },
+      { family: "Attention", name: "TransformerDecoderLayer", contract: "Self-attention, cross-attention, feed-forward, residuals, normalization.", params: "d_model, nhead, dim_feedforward, dropout, activation, batch_first, norm_first", use: "Sequence generation and encoder-decoder models.", shape: "target sequence -> target sequence" },
+      { family: "Attention", name: "Transformer", contract: "Full encoder-decoder transformer stack.", params: "d_model, nhead, num_encoder_layers, num_decoder_layers", use: "Reference implementation and compact experiments.", shape: "source and target sequences -> target representations" },
+      { family: "Upsampling", name: "Upsample", contract: "Resizes spatial dimensions with nearest, linear, bilinear, bicubic, or trilinear interpolation.", params: "size, scale_factor, mode, align_corners", use: "Decoders and feature pyramid networks.", shape: "spatial dimensions change to requested size or scale" },
+      { family: "Upsampling", name: "PixelShuffle", contract: "Rearranges channel data into larger spatial dimensions.", params: "upscale_factor", use: "Super-resolution decoders.", shape: "[N, C*r^2, H, W] -> [N, C, H*r, W*r]" },
+      { family: "Upsampling", name: "PixelUnshuffle", contract: "Rearranges spatial blocks into channels.", params: "downscale_factor", use: "Patchifying and invertible downsampling.", shape: "[N, C, H*r, W*r] -> [N, C*r^2, H, W]" },
+      { family: "Distance", name: "CosineSimilarity", contract: "Computes cosine similarity along a dimension.", params: "dim, eps", use: "Metric learning, retrieval, contrastive objectives.", shape: "removes compared dim" },
+      { family: "Distance", name: "PairwiseDistance", contract: "Computes p-norm distance between paired vectors.", params: "p, eps, keepdim", use: "Siamese networks and embeddings.", shape: "[N, D], [N, D] -> [N]" },
+      { family: "Loss", name: "CrossEntropyLoss", contract: "Logits plus class indices; combines LogSoftmax and NLLLoss.", params: "weight, ignore_index, reduction, label_smoothing", use: "Single-label multiclass classification.", shape: "[N, C, ...] logits and [N, ...] targets -> scalar by default" },
+      { family: "Loss", name: "BCEWithLogitsLoss", contract: "Binary cross entropy with numerically stable sigmoid.", params: "weight, pos_weight, reduction", use: "Binary and multilabel classification.", shape: "logits and targets same shape -> scalar by default" },
+      { family: "Loss", name: "MSELoss / L1Loss / SmoothL1Loss", contract: "Regression losses comparing prediction and target tensors.", params: "reduction and beta for SmoothL1", use: "Regression, reconstruction, value prediction.", shape: "prediction and target same shape -> scalar by default" },
+      { family: "Loss", name: "NLLLoss / KLDivLoss", contract: "Distribution losses for log probabilities or divergence.", params: "reduction, weights, log_target for KL", use: "Probabilistic training and distillation.", shape: "distribution-shaped inputs -> scalar by default" },
+      { family: "Loss", name: "TripletMarginLoss / CosineEmbeddingLoss", contract: "Metric learning objectives.", params: "margin, p, reduction", use: "Embedding spaces and retrieval.", shape: "paired or triplet vectors -> scalar by default" },
+      { family: "Loss", name: "CTCLoss", contract: "Aligns input sequences to shorter target label sequences.", params: "blank, reduction, zero_infinity", use: "Speech and OCR without frame-level labels.", shape: "log_probs [T,N,C] plus targets and lengths -> scalar by default" }
+    ];
+
+    function bindAtlas() {
+      const familySelect = document.getElementById("layerFamily");
+      [...new Set(LAYERS.map(layer => layer.family))].sort().forEach(family => {
+        const option = document.createElement("option");
+        option.value = family;
+        option.textContent = family;
+        familySelect.appendChild(option);
+      });
+
+      function render() {
+        const search = document.getElementById("layerSearch").value.trim().toLowerCase();
+        const family = familySelect.value;
+        const filtered = LAYERS.filter(layer => {
+          const matchesFamily = family === "all" || layer.family === family;
+          const haystack = `${layer.family} ${layer.name} ${layer.contract} ${layer.params} ${layer.use} ${layer.shape}`.toLowerCase();
+          return matchesFamily && (!search || haystack.includes(search));
+        });
+        document.getElementById("layerCount").textContent = `${filtered.length} of ${LAYERS.length} layers`;
+        const list = document.getElementById("layerList");
+        list.innerHTML = "";
+        filtered.forEach(layer => {
+          const item = document.createElement("article");
+          item.className = "layer-item";
+          const left = document.createElement("div");
+          const name = document.createElement("div");
+          name.className = "layer-name";
+          name.textContent = layer.name;
+          const familyTag = document.createElement("span");
+          familyTag.className = "layer-family";
+          familyTag.textContent = layer.family;
+          left.append(name, familyTag);
+          const right = document.createElement("div");
+          const description = document.createElement("p");
+          description.textContent = layer.contract;
+          const meta = document.createElement("div");
+          meta.className = "layer-meta";
+          [
+            ["Parameters", layer.params],
+            ["Output contract", layer.shape],
+            ["Use", layer.use]
+          ].forEach(([label, value]) => {
+            const block = document.createElement("div");
+            const title = document.createElement("b");
+            title.textContent = label;
+            const lineBreak = document.createElement("br");
+            const text = document.createTextNode(value);
+            block.append(title, lineBreak, text);
+            meta.appendChild(block);
+          });
+          right.append(description, meta);
+          item.append(left, right);
+          list.appendChild(item);
+        });
+      }
+
+      document.getElementById("layerSearch").addEventListener("input", render);
+      familySelect.addEventListener("input", render);
+      render();
+    }
+
+    function renderMiniMatrix(target, matrix) {
+      const values = flatten(matrix);
+      target.innerHTML = "";
+      target.style.gridTemplateColumns = `repeat(${matrix[0].length}, minmax(0, 1fr))`;
+      matrix.forEach(row => {
+        row.forEach(value => {
+          const cell = document.createElement("span");
+          cell.className = "mini-cell";
+          cell.style.background = colorFor(value, Math.min(...values, -1), Math.max(...values, 1));
+          target.appendChild(cell);
+        });
+      });
+    }
+
+    let pipelineSeed = 1;
+    function bindPipeline() {
+      function update() {
+        const input = baseMatrix(8, 8, pipelineSeed);
+        const conv = convolve2d(input, kernels.sharpen, 1, 1, 1);
+        const relu = conv.map(row => row.map(value => Math.max(0, value)));
+        const pool = pool2d(relu, 2, 2, "max");
+        const vector = flatten(pool);
+        const logits = [
+          mean(vector.slice(0, 4)) * 1.2,
+          mean(vector.slice(4, 8)) * .9 - .15,
+          mean(vector.slice(8, 12)) * 1.1 + .1,
+          mean(vector.slice(12, 16)) * .7
+        ];
+        const stages = [
+          { name: "Input", shape: "[1, 1, 8, 8]", matrix: input },
+          { name: "Conv2d", shape: "[1, 1, 8, 8]", matrix: conv },
+          { name: "ReLU", shape: "[1, 1, 8, 8]", matrix: relu },
+          { name: "MaxPool2d", shape: "[1, 1, 4, 4]", matrix: pool },
+          { name: "Linear logits", shape: "[1, 4]", bars: logits }
+        ];
+        const root = document.getElementById("pipeline");
+        root.innerHTML = "";
+        stages.forEach(stage => {
+          const item = document.createElement("div");
+          item.className = "stage";
+          const title = document.createElement("b");
+          title.textContent = stage.name;
+          item.appendChild(title);
+          if (stage.matrix) {
+            const mini = document.createElement("div");
+            mini.className = "mini-matrix";
+            renderMiniMatrix(mini, stage.matrix);
+            item.appendChild(mini);
+          } else {
+            const bars = document.createElement("div");
+            bars.className = "bars";
+            renderBars(bars, stage.bars, { maxAbs: 2, labels: stage.bars.map((_, i) => `k${i}`) });
+            item.appendChild(bars);
+          }
+          const shape = document.createElement("small");
+          shape.textContent = stage.shape;
+          item.appendChild(shape);
+          root.appendChild(item);
+        });
+      }
+      document.getElementById("pipelineRefresh").addEventListener("click", () => {
+        pipelineSeed += 1;
+        update();
+      });
+      update();
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      const input = baseMatrix(8, 8, 3);
+      function drawGrid(matrix, x0, y0, size, activeCells = []) {
+        const active = new Set(activeCells.map(([y, x]) => `${y}:${x}`));
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        const cell = size / cols;
+        const values = flatten(matrix);
+        matrix.forEach((row, y) => {
+          row.forEach((value, x) => {
+            ctx.fillStyle = colorFor(value, Math.min(...values, -1), Math.max(...values, 1));
+            ctx.fillRect(x0 + x * cell, y0 + y * cell, cell - 2, cell - 2);
+            if (active.has(`${y}:${x}`)) {
+              ctx.strokeStyle = "#2d7d55";
+              ctx.lineWidth = 3;
+              ctx.strokeRect(x0 + x * cell + 1, y0 + y * cell + 1, cell - 4, cell - 4);
+            }
+          });
+        });
+      }
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#172026";
+        ctx.font = "700 24px Georgia";
+        ctx.fillText("Convolution turns local patches into feature maps", 32, 48);
+        ctx.font = "14px ui-monospace, monospace";
+        ctx.fillStyle = "#5b646b";
+        ctx.fillText("[N, C, H, W]", 50, 96);
+        ctx.fillText("kernel [O, C, kH, kW]", 292, 96);
+        ctx.fillText("[N, O, H_out, W_out]", 510, 96);
+        const positions = [];
+        for (let y = 0; y < 6; y += 1) {
+          for (let x = 0; x < 6; x += 1) positions.push([y, x]);
+        }
+        const [wy, wx] = positions[Math.floor(frame / 8) % positions.length];
+        const active = [];
+        for (let y = 0; y < 3; y += 1) {
+          for (let x = 0; x < 3; x += 1) active.push([wy + y, wx + x]);
+        }
+        drawGrid(input, 46, 124, 210, active);
+        drawGrid(kernels.edge, 320, 176, 120);
+        const output = convolve2d(input, kernels.edge, 1, 1, 1);
+        drawGrid(output, 510, 124, 168, [[wy + 1, wx + 1]]);
+        ctx.strokeStyle = "#b47423";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(268, 230);
+        ctx.lineTo(306, 230);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(452, 230);
+        ctx.lineTo(494, 230);
+        ctx.stroke();
+        ctx.fillStyle = "#203445";
+        ctx.font = "700 15px Inter, system-ui, sans-serif";
+        ctx.fillText("shared local weights", 306, 330);
+        ctx.fillText("feature response", 505, 330);
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      bindConv();
+      bindPool();
+      bindActivations();
+      bindLinear();
+      bindNorm();
+      bindEmbedding();
+      bindAttention();
+      bindUpsample();
+      bindAtlas();
+      bindPipeline();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

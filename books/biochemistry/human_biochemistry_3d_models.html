@@ -1,0 +1,1604 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Human Biochemistry 3D Molecular Models</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #5d6874;
+      --line: #d8dde3;
+      --paper: #fbfbf8;
+      --panel: #ffffff;
+      --blue: #0b5cad;
+      --green: #24714a;
+      --red: #a1372c;
+      --amber: #9a6200;
+      --shade: #eef3f8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 16px/1.55 Georgia, "Times New Roman", serif;
+    }
+
+    .page {
+      width: min(1220px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    header {
+      padding: 48px 0 30px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 26px;
+    }
+
+    .kicker {
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font: 700 13px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, h3 {
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      line-height: 1.14;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(40px, 7vw, 76px);
+      max-width: 980px;
+      margin: 0 0 14px;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      margin: 0 0 14px;
+    }
+
+    h3 {
+      font-size: 22px;
+      margin: 20px 0 8px;
+    }
+
+    p {
+      max-width: 900px;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .subtitle {
+      max-width: 880px;
+      color: var(--muted);
+      font-size: 21px;
+      margin: 0 0 22px;
+    }
+
+    .navline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 18px 0 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    .button,
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--blue);
+      font: 700 14px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    button:hover,
+    .button:hover {
+      border-color: #8cb4d8;
+      background: #f0f6fc;
+    }
+
+    button.active {
+      color: #fff;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    .note {
+      border-left: 5px solid var(--amber);
+      background: #fff6e5;
+      padding: 15px 18px;
+      margin: 18px 0 26px;
+      max-width: 980px;
+    }
+
+    .viewer-layout {
+      position: relative;
+      display: block;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(20, 30, 40, .05);
+    }
+
+    .controls {
+      position: fixed;
+      top: 96px;
+      right: 24px;
+      z-index: 1000;
+      width: min(360px, calc(100vw - 32px));
+      min-width: 260px;
+      min-height: 62px;
+      max-width: calc(100vw - 32px);
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+      resize: both;
+      padding: 0;
+    }
+
+    .controls-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f9fb;
+      cursor: move;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .controls-header h2 {
+      margin: 0;
+      font-size: 19px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.2;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 6px;
+      flex: none;
+    }
+
+    .panel-actions button {
+      min-height: 28px;
+      width: 32px;
+      padding: 0;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .controls-body {
+      padding: 0 16px 16px;
+    }
+
+    .controls.collapsed {
+      resize: none;
+      overflow: hidden;
+      min-height: 0;
+      height: auto !important;
+    }
+
+    .controls.collapsed .controls-body {
+      display: none;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font: 800 12px/1.3 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin: 14px 0 6px;
+    }
+
+    select,
+    input[type="search"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--ink);
+      font: 15px/1.3 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .viewer-panel {
+      position: relative;
+      min-height: 620px;
+      overflow: hidden;
+    }
+
+    #viewer {
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      width: 100%;
+      height: min(72vh, 720px);
+      min-height: 520px;
+      background:
+        linear-gradient(135deg, rgba(11, 92, 173, .08), rgba(36, 113, 74, .06)),
+        #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    #viewer canvas {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 1 !important;
+    }
+
+    .model-info {
+      padding: 16px 18px 18px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .model-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .model-title strong {
+      font-size: 22px;
+    }
+
+    .formula {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .rxn {
+      display: block;
+      background: var(--shade);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 10px 0 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .status {
+      min-height: 22px;
+      color: var(--muted);
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 12px 0 0;
+    }
+
+    .status.error {
+      color: var(--red);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e8f0f8;
+      color: #244661;
+      font: 800 12px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .molecule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 28px 0 0;
+      background: var(--panel);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    .molecule-table th,
+    .molecule-table td {
+      border: 1px solid var(--line);
+      padding: 9px 11px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .molecule-table th {
+      background: #e7edf4;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    footer {
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      margin-top: 48px;
+      padding-top: 24px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .controls {
+        top: auto;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        width: auto;
+        max-height: 58vh;
+      }
+
+      #viewer {
+        height: 62vh;
+        min-height: 440px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+
+      .page {
+        width: auto;
+        padding: 0;
+      }
+
+      .controls,
+      #viewer,
+      .navline {
+        display: none;
+      }
+
+      .viewer-layout {
+        display: block;
+      }
+
+      .panel {
+        box-shadow: none;
+        border: 0;
+      }
+    }
+  </style>
+  <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="kicker">Companion to the compound formula index</div>
+      <h1>Interactive 3D Molecular Models</h1>
+      <p class="subtitle">Rotate biochemical compounds in space with ball-and-stick, stick, sphere, and line views. Models load from PubChem 3D SDF conformers and render in the browser with 3Dmol.js.</p>
+      <div class="navline">
+        <a class="button" href="index.html">Book Home</a>
+        <a class="button" href="human_biochemistry_reaction_atlas.html">Reaction Atlas</a>
+        <a class="button" href="human_biochemistry_compound_index.html">Compound Formula Index</a>
+        <a class="button" href="#model-list">Model List</a>
+      </div>
+    </header>
+
+    <section class="note">
+      These structures are single-molecule 3D conformers, usually computed or curated by PubChem. They are useful for seeing atoms, bonds, approximate geometry, and functional groups. They are not molecular-dynamics simulations, not cellular crowding models, and not a single permanent "physical state" for flexible biomolecules in water. Generic biochemical classes, such as "fatty acid" or "triacylglycerol", are represented by a named example molecule.
+    </section>
+
+    <main class="viewer-layout">
+      <aside class="panel controls">
+        <div class="controls-header" id="controls-header">
+          <h2>Viewer Controls</h2>
+          <div class="panel-actions">
+            <button type="button" id="collapse-controls" title="Collapse controls" aria-label="Collapse controls">-</button>
+            <button type="button" id="reset-panel" title="Reset panel position" aria-label="Reset panel position">&#8599;</button>
+          </div>
+        </div>
+        <div class="controls-body">
+          <label for="search">Search</label>
+          <input id="search" type="search" placeholder="glucose, ATP, lactate">
+
+          <label for="molecule">Compound</label>
+          <select id="molecule"></select>
+
+          <label>Style</label>
+          <div class="style-grid">
+            <button type="button" data-style="stick">Stick</button>
+            <button type="button" data-style="ballstick" class="active">Ball-stick</button>
+            <button type="button" data-style="sphere">Sphere</button>
+            <button type="button" data-style="line">Line</button>
+          </div>
+
+          <label>Actions</label>
+        <div class="style-grid">
+          <button type="button" id="spin">Spin</button>
+          <button type="button" id="labels" class="active">Labels</button>
+          <button type="button" id="reset">Reset View</button>
+          <button type="button" id="pubchem">PubChem</button>
+        </div>
+
+          <p id="status" class="status">Loading viewer...</p>
+          <p class="small">Drag this panel by its header. Resize it from the bottom-right corner, or collapse it when you need more model space.</p>
+          <p class="small">Internet access is required for the 3Dmol.js library and PubChem model downloads.</p>
+        </div>
+      </aside>
+
+      <section class="panel viewer-panel" aria-label="3D molecular viewer">
+        <div id="viewer"></div>
+        <div class="model-info">
+          <div class="model-title">
+            <strong id="model-name">Select a compound</strong>
+            <span id="model-group" class="tag">compound</span>
+            <span id="model-formula" class="formula"></span>
+          </div>
+          <div id="model-note"></div>
+          <span id="model-reaction" class="rxn"></span>
+        </div>
+      </section>
+    </main>
+
+    <section id="model-list">
+      <h2>Model List</h2>
+      <p>Each row uses a PubChem name query to retrieve an SDF structure with 3D coordinates. If PubChem lacks a 3D conformer for a large cofactor, the page reports that directly in the viewer.</p>
+      <table class="molecule-table">
+        <thead>
+          <tr>
+            <th>Compound in atlas</th>
+            <th>PubChem query</th>
+            <th>Formula</th>
+            <th>Representative reaction</th>
+          </tr>
+        </thead>
+        <tbody id="model-table"></tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>Data source: <a href="https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest">PubChem PUG-REST</a>. Renderer: <a href="https://3dmol.org/doc/">3Dmol.js</a>.</p>
+    </footer>
+  </div>
+
+  <script>
+    const molecules = [
+      {
+        name: "Acetaldehyde",
+        query: "acetaldehyde",
+        formula: "C2H4O",
+        group: "detox",
+        note: "Reactive aldehyde formed during ethanol oxidation.",
+        reaction: "Ethanol + NAD+ -> acetaldehyde + NADH + H+"
+      },
+      {
+        name: "Acetate",
+        query: "acetate",
+        formula: "C2H3O2-",
+        group: "carbon",
+        note: "Small carboxylate converted to acetyl-CoA.",
+        reaction: "Acetaldehyde + NAD+ + H2O -> acetate + NADH + 2 H+"
+      },
+      {
+        name: "Acetoacetate",
+        query: "acetoacetate",
+        formula: "C4H5O3-",
+        group: "ketone",
+        note: "Ketone body produced by liver mitochondria.",
+        reaction: "HMG-CoA -> acetoacetate + acetyl-CoA"
+      },
+      {
+        name: "Acetone",
+        query: "acetone",
+        formula: "C3H6O",
+        group: "ketone",
+        note: "Volatile product of acetoacetate decarboxylation.",
+        reaction: "Acetoacetate -> acetone + CO2"
+      },
+      {
+        name: "Acetyl-CoA",
+        query: "acetyl coenzyme A",
+        formula: "C23H38N7O17P3S",
+        group: "cofactor",
+        note: "Large acyl carrier; the thioester acetyl group is the chemically active end.",
+        reaction: "Pyruvate + CoA-SH + NAD+ -> acetyl-CoA + CO2 + NADH + H+"
+      },
+      {
+        name: "Adenosine",
+        query: "adenosine",
+        formula: "C10H13N5O4",
+        group: "nucleotide",
+        note: "Purine nucleoside and extracellular signal.",
+        reaction: "Adenosine + H2O -> inosine + NH4+"
+      },
+      {
+        name: "ADP",
+        query: "adenosine diphosphate",
+        formula: "C10H15N5O10P2",
+        group: "energy",
+        note: "ATP product and ATP synthase substrate.",
+        reaction: "ADP + Pi + proton motive force -> ATP + H2O"
+      },
+      {
+        name: "Alanine",
+        query: "L-alanine",
+        formula: "C3H7NO2",
+        group: "amino acid",
+        note: "Amino acid used in the glucose-alanine cycle.",
+        reaction: "Alanine + alpha-ketoglutarate <-> pyruvate + glutamate"
+      },
+      {
+        name: "alpha-Ketoglutarate",
+        query: "alpha-ketoglutaric acid",
+        formula: "C5H6O5",
+        group: "TCA",
+        note: "TCA intermediate and amino-group acceptor.",
+        reaction: "Amino acid + alpha-ketoglutarate <-> alpha-keto acid + glutamate"
+      },
+      {
+        name: "AMP",
+        query: "adenosine monophosphate",
+        formula: "C10H14N5O7P",
+        group: "nucleotide",
+        note: "Energy-state signal and purine nucleotide.",
+        reaction: "AMP + H2O -> IMP + NH4+"
+      },
+      {
+        name: "Arginine",
+        query: "L-arginine",
+        formula: "C6H14N4O2",
+        group: "amino acid",
+        note: "Urea-cycle amino acid and nitric oxide precursor.",
+        reaction: "Arginine + H2O -> ornithine + urea"
+      },
+      {
+        name: "Ascorbate",
+        query: "ascorbic acid",
+        formula: "C6H8O6",
+        group: "vitamin",
+        note: "Vitamin C redox cofactor.",
+        reaction: "Dopamine + ascorbate + O2 -> norepinephrine + dehydroascorbate + H2O"
+      },
+      {
+        name: "Aspartate",
+        query: "L-aspartic acid",
+        formula: "C4H7NO4",
+        group: "amino acid",
+        note: "Amino acid nitrogen donor for urea and nucleotide synthesis.",
+        reaction: "Aspartate + alpha-ketoglutarate <-> oxaloacetate + glutamate"
+      },
+      {
+        name: "ATP",
+        query: "adenosine triphosphate",
+        formula: "C10H16N5O13P3",
+        group: "energy",
+        note: "Main phosphoryl-transfer molecule.",
+        reaction: "ATP + H2O -> ADP + Pi + H+"
+      },
+      {
+        name: "beta-Hydroxybutyrate",
+        query: "3-hydroxybutyric acid",
+        formula: "C4H8O3",
+        group: "ketone",
+        note: "Reduced ketone body used as fasting fuel.",
+        reaction: "Acetoacetate + NADH + H+ <-> beta-hydroxybutyrate + NAD+"
+      },
+      {
+        name: "Bicarbonate",
+        query: "bicarbonate",
+        formula: "HCO3-",
+        group: "buffer",
+        note: "Blood buffer and carboxylation substrate.",
+        reaction: "CO2 + H2O <-> HCO3- + H+"
+      },
+      {
+        name: "cAMP",
+        query: "cyclic AMP",
+        formula: "C10H12N5O6P",
+        group: "signal",
+        note: "Second messenger made from ATP.",
+        reaction: "ATP -> cAMP + PPi"
+      },
+      {
+        name: "Carbamoyl phosphate",
+        query: "carbamoyl phosphate",
+        formula: "CH4NO5P",
+        group: "nitrogen",
+        note: "Activated carbamoyl donor in urea and pyrimidine synthesis.",
+        reaction: "NH4+ + HCO3- + 2 ATP -> carbamoyl phosphate + 2 ADP + Pi"
+      },
+      {
+        name: "Carnitine",
+        query: "L-carnitine",
+        formula: "C7H15NO3",
+        group: "lipid",
+        note: "Carries long-chain acyl groups into mitochondria.",
+        reaction: "Acyl-CoA + carnitine <-> acyl-carnitine + CoA-SH"
+      },
+      {
+        name: "cGMP",
+        query: "cyclic GMP",
+        formula: "C10H12N5O7P",
+        group: "signal",
+        note: "Second messenger downstream of nitric oxide.",
+        reaction: "GTP -> cGMP + PPi"
+      },
+      {
+        name: "Cholesterol",
+        query: "cholesterol",
+        formula: "C27H46O",
+        group: "lipid",
+        note: "Sterol membrane lipid and steroid precursor.",
+        reaction: "Lanosterol -> cholesterol"
+      },
+      {
+        name: "Citrate",
+        query: "citric acid",
+        formula: "C6H8O7",
+        group: "TCA",
+        note: "TCA intermediate and cytosolic acetyl-CoA source.",
+        reaction: "Oxaloacetate + acetyl-CoA + H2O -> citrate + CoA-SH + H+"
+      },
+      {
+        name: "Citrulline",
+        query: "L-citrulline",
+        formula: "C6H13N3O3",
+        group: "urea cycle",
+        note: "Urea-cycle and nitric oxide cycle intermediate.",
+        reaction: "Ornithine + carbamoyl phosphate -> citrulline + Pi"
+      },
+      {
+        name: "Coenzyme A",
+        query: "coenzyme A",
+        formula: "C21H36N7O16P3S",
+        group: "cofactor",
+        note: "Acyl-group carrier with a reactive thiol.",
+        reaction: "Fatty acid + CoA-SH + ATP -> acyl-CoA + AMP + PPi"
+      },
+      {
+        name: "Carbon dioxide",
+        query: "carbon dioxide",
+        formula: "CO2",
+        group: "gas",
+        note: "Oxidation product and bicarbonate precursor.",
+        reaction: "CO2 + H2O <-> H2CO3 <-> HCO3- + H+"
+      },
+      {
+        name: "Creatine",
+        query: "creatine",
+        formula: "C4H9N3O2",
+        group: "energy",
+        note: "Energy-buffer molecule in muscle and brain.",
+        reaction: "Phosphocreatine + ADP + H+ <-> creatine + ATP"
+      },
+      {
+        name: "CTP",
+        query: "cytidine triphosphate",
+        formula: "C9H16N3O14P3",
+        group: "nucleotide",
+        note: "Pyrimidine nucleotide and lipid head-group activator.",
+        reaction: "UTP + glutamine + ATP + H2O -> CTP + glutamate + ADP + Pi"
+      },
+      {
+        name: "Cysteine",
+        query: "L-cysteine",
+        formula: "C3H7NO2S",
+        group: "amino acid",
+        note: "Sulfur amino acid in glutathione and protein disulfides.",
+        reaction: "Glutamate + cysteine + ATP -> gamma-glutamylcysteine + ADP + Pi"
+      },
+      {
+        name: "Dihydroxyacetone phosphate",
+        query: "dihydroxyacetone phosphate",
+        formula: "C3H7O6P",
+        group: "glycolysis",
+        note: "Glycolytic triose and glycerolipid precursor.",
+        reaction: "Dihydroxyacetone phosphate <-> glyceraldehyde-3-phosphate"
+      },
+      {
+        name: "Dopamine",
+        query: "dopamine",
+        formula: "C8H11NO2",
+        group: "neurotransmitter",
+        note: "Catecholamine neurotransmitter.",
+        reaction: "L-DOPA + H+ -> dopamine + CO2"
+      },
+      {
+        name: "dTMP",
+        query: "thymidine monophosphate",
+        formula: "C10H15N2O8P",
+        group: "DNA",
+        note: "DNA thymine nucleotide precursor.",
+        reaction: "dUMP + N5,N10-methylene-THF -> dTMP + DHF"
+      },
+      {
+        name: "dUMP",
+        query: "deoxyuridine monophosphate",
+        formula: "C9H13N2O8P",
+        group: "DNA",
+        note: "Substrate for thymidylate synthesis.",
+        reaction: "dUMP + N5,N10-methylene-THF -> dTMP + DHF"
+      },
+      {
+        name: "Epinephrine",
+        query: "epinephrine",
+        formula: "C9H13NO3",
+        group: "hormone",
+        note: "Adrenal catecholamine hormone.",
+        reaction: "Norepinephrine + SAM -> epinephrine + SAH"
+      },
+      {
+        name: "Ethanol",
+        query: "ethanol",
+        formula: "C2H6O",
+        group: "detox",
+        note: "Dietary alcohol oxidized in liver.",
+        reaction: "Ethanol + NAD+ -> acetaldehyde + NADH + H+"
+      },
+      {
+        name: "FAD",
+        query: "flavin adenine dinucleotide",
+        formula: "C27H33N9O15P2",
+        group: "cofactor",
+        note: "Protein-bound flavin redox cofactor.",
+        reaction: "Succinate + FAD -> fumarate + FADH2"
+      },
+      {
+        name: "Fatty acid example: palmitic acid",
+        query: "palmitic acid",
+        formula: "C16H32O2",
+        group: "lipid",
+        note: "Representative saturated fatty acid for the generic fatty acid class.",
+        reaction: "Fatty acid + CoA-SH + ATP -> acyl-CoA + AMP + PPi"
+      },
+      {
+        name: "Fructose",
+        query: "D-fructose",
+        formula: "C6H12O6",
+        group: "carbohydrate",
+        note: "Dietary ketose sugar.",
+        reaction: "Sucrose + H2O -> glucose + fructose"
+      },
+      {
+        name: "Fructose-6-phosphate",
+        query: "fructose 6-phosphate",
+        formula: "C6H13O9P",
+        group: "glycolysis",
+        note: "Glycolytic and gluconeogenic intermediate.",
+        reaction: "Glucose-6-phosphate <-> fructose-6-phosphate"
+      },
+      {
+        name: "Fumarate",
+        query: "fumaric acid",
+        formula: "C4H4O4",
+        group: "TCA",
+        note: "TCA and urea-cycle connecting metabolite.",
+        reaction: "Succinate + FAD -> fumarate + FADH2"
+      },
+      {
+        name: "Galactose",
+        query: "D-galactose",
+        formula: "C6H12O6",
+        group: "carbohydrate",
+        note: "Dietary sugar and glycosylation precursor.",
+        reaction: "Lactose + H2O -> glucose + galactose"
+      },
+      {
+        name: "Glucose",
+        query: "D-glucose",
+        formula: "C6H12O6",
+        group: "carbohydrate",
+        note: "Central blood sugar and fuel.",
+        reaction: "Glucose + ATP -> glucose-6-phosphate + ADP + H+"
+      },
+      {
+        name: "Glucose-1-phosphate",
+        query: "glucose 1-phosphate",
+        formula: "C6H13O9P",
+        group: "glycogen",
+        note: "Glycogen metabolism intermediate.",
+        reaction: "Glycogen(n) + Pi -> glycogen(n-1) + glucose-1-phosphate"
+      },
+      {
+        name: "Glucose-6-phosphate",
+        query: "glucose 6-phosphate",
+        formula: "C6H13O9P",
+        group: "glycolysis",
+        note: "Branch point for glycolysis, PPP, glycogen, and glucose release.",
+        reaction: "Glucose-6-phosphate + NADP+ -> 6-phosphoglucono-delta-lactone + NADPH + H+"
+      },
+      {
+        name: "Glutamate",
+        query: "L-glutamic acid",
+        formula: "C5H9NO4",
+        group: "amino acid",
+        note: "Amino nitrogen hub and neurotransmitter.",
+        reaction: "Glutamate + NAD(P)+ + H2O <-> alpha-ketoglutarate + NH4+ + NAD(P)H + H+"
+      },
+      {
+        name: "Glutamine",
+        query: "L-glutamine",
+        formula: "C5H10N2O3",
+        group: "amino acid",
+        note: "Nitrogen carrier and biosynthetic nitrogen donor.",
+        reaction: "Glutamate + NH4+ + ATP -> glutamine + ADP + Pi"
+      },
+      {
+        name: "Glutathione",
+        query: "glutathione",
+        formula: "C10H17N3O6S",
+        group: "antioxidant",
+        note: "Main intracellular thiol antioxidant.",
+        reaction: "2 GSH + ROOH -> GSSG + ROH + H2O"
+      },
+      {
+        name: "Glyceraldehyde-3-phosphate",
+        query: "glyceraldehyde 3-phosphate",
+        formula: "C3H7O6P",
+        group: "glycolysis",
+        note: "Oxidation-ready glycolytic triose.",
+        reaction: "Glyceraldehyde-3-phosphate + Pi + NAD+ <-> 1,3-bisphosphoglycerate + NADH + H+"
+      },
+      {
+        name: "Glycerol",
+        query: "glycerol",
+        formula: "C3H8O3",
+        group: "lipid",
+        note: "Triacylglycerol backbone.",
+        reaction: "Triacylglycerol + 3 H2O -> glycerol + 3 fatty acids"
+      },
+      {
+        name: "Glycerol-3-phosphate",
+        query: "glycerol 3-phosphate",
+        formula: "C3H9O6P",
+        group: "lipid",
+        note: "Glycerolipid precursor.",
+        reaction: "Glycerol + ATP -> glycerol-3-phosphate + ADP + H+"
+      },
+      {
+        name: "Glycine",
+        query: "glycine",
+        formula: "C2H5NO2",
+        group: "amino acid",
+        note: "Smallest amino acid; heme, purine, creatine, and glutathione precursor.",
+        reaction: "Glycine + succinyl-CoA -> delta-aminolevulinate + CO2 + CoA-SH"
+      },
+      {
+        name: "GTP",
+        query: "guanosine triphosphate",
+        formula: "C10H16N5O14P3",
+        group: "energy",
+        note: "Energy donor for signaling, translation, and PEPCK.",
+        reaction: "Oxaloacetate + GTP -> phosphoenolpyruvate + GDP + CO2"
+      },
+      {
+        name: "Heme",
+        query: "heme",
+        formula: "C34H32FeN4O4",
+        group: "cofactor",
+        note: "Iron porphyrin for oxygen binding and electron transfer.",
+        reaction: "Protoporphyrin IX + Fe2+ -> heme + 2 H+"
+      },
+      {
+        name: "Homocysteine",
+        query: "homocysteine",
+        formula: "C4H9NO2S",
+        group: "one-carbon",
+        note: "Methionine-cycle intermediate.",
+        reaction: "Homocysteine + N5-methyl-THF -> methionine + THF"
+      },
+      {
+        name: "Hydrogen peroxide",
+        query: "hydrogen peroxide",
+        formula: "H2O2",
+        group: "redox",
+        note: "Reactive oxygen species and signaling oxidant.",
+        reaction: "2 H2O2 -> 2 H2O + O2"
+      },
+      {
+        name: "Hypoxanthine",
+        query: "hypoxanthine",
+        formula: "C5H4N4O",
+        group: "purine",
+        note: "Purine salvage and degradation intermediate.",
+        reaction: "Hypoxanthine + PRPP -> IMP + PPi"
+      },
+      {
+        name: "IMP",
+        query: "inosine monophosphate",
+        formula: "C10H13N4O8P",
+        group: "purine",
+        note: "Purine branch point to AMP and GMP.",
+        reaction: "PRPP + glycine + glutamine + aspartate + CO2 + 10-formyl-THF + ATP -> IMP + byproducts"
+      },
+      {
+        name: "Inosine",
+        query: "inosine",
+        formula: "C10H12N4O5",
+        group: "purine",
+        note: "Purine nucleoside degradation intermediate.",
+        reaction: "Adenosine + H2O -> inosine + NH4+"
+      },
+      {
+        name: "Isocitrate",
+        query: "isocitric acid",
+        formula: "C6H8O7",
+        group: "TCA",
+        note: "TCA oxidative decarboxylation substrate.",
+        reaction: "Isocitrate + NAD+ -> alpha-ketoglutarate + CO2 + NADH + H+"
+      },
+      {
+        name: "Lactate",
+        query: "lactic acid",
+        formula: "C3H6O3",
+        group: "glycolysis",
+        note: "Anaerobic glycolytic product and circulating fuel.",
+        reaction: "Pyruvate + NADH + H+ <-> lactate + NAD+"
+      },
+      {
+        name: "Lactose",
+        query: "lactose",
+        formula: "C12H22O11",
+        group: "carbohydrate",
+        note: "Milk disaccharide.",
+        reaction: "Lactose + H2O -> glucose + galactose"
+      },
+      {
+        name: "L-DOPA",
+        query: "levodopa",
+        formula: "C9H11NO4",
+        group: "neurotransmitter",
+        note: "Catecholamine synthesis intermediate.",
+        reaction: "Tyrosine + BH4 + O2 -> L-DOPA + BH2 + H2O"
+      },
+      {
+        name: "Malate",
+        query: "L-malic acid",
+        formula: "C4H6O5",
+        group: "TCA",
+        note: "TCA intermediate and shuttle metabolite.",
+        reaction: "Malate + NAD+ <-> oxaloacetate + NADH + H+"
+      },
+      {
+        name: "Mevalonate",
+        query: "mevalonic acid",
+        formula: "C6H12O4",
+        group: "lipid",
+        note: "Cholesterol and isoprenoid synthesis intermediate.",
+        reaction: "HMG-CoA + 2 NADPH + 2 H+ -> mevalonate + CoA-SH + 2 NADP+"
+      },
+      {
+        name: "Methionine",
+        query: "L-methionine",
+        formula: "C5H11NO2S",
+        group: "amino acid",
+        note: "Essential amino acid and SAM precursor.",
+        reaction: "Methionine + ATP -> S-adenosylmethionine + Pi + PPi"
+      },
+      {
+        name: "NAD+",
+        query: "nicotinamide adenine dinucleotide",
+        formula: "C21H27N7O14P2",
+        group: "cofactor",
+        note: "Oxidized hydride acceptor in catabolism.",
+        reaction: "Lactate + NAD+ <-> pyruvate + NADH + H+"
+      },
+      {
+        name: "NADH",
+        query: "NADH",
+        formula: "C21H29N7O14P2",
+        group: "cofactor",
+        note: "Reduced electron carrier.",
+        reaction: "NADH + H+ + Q -> NAD+ + QH2"
+      },
+      {
+        name: "NADPH",
+        query: "NADPH",
+        formula: "C21H30N7O17P3",
+        group: "cofactor",
+        note: "Reductive biosynthesis and antioxidant defense cofactor.",
+        reaction: "GSSG + NADPH + H+ -> 2 GSH + NADP+"
+      },
+      {
+        name: "Nitric oxide",
+        query: "nitric oxide",
+        formula: "NO",
+        group: "signal",
+        note: "Gasotransmitter for vascular, neural, and immune signaling.",
+        reaction: "Arginine + O2 + NADPH -> citrulline + nitric oxide + NADP+"
+      },
+      {
+        name: "Norepinephrine",
+        query: "norepinephrine",
+        formula: "C8H11NO3",
+        group: "neurotransmitter",
+        note: "Catecholamine neurotransmitter and hormone.",
+        reaction: "Dopamine + ascorbate + O2 -> norepinephrine + dehydroascorbate + H2O"
+      },
+      {
+        name: "Oxygen",
+        query: "oxygen",
+        formula: "O2",
+        group: "gas",
+        note: "Terminal electron acceptor and oxygenation substrate.",
+        reaction: "4 cytochrome c(Fe2+) + O2 + 8 H+ -> 2 H2O + 4 cytochrome c(Fe3+)"
+      },
+      {
+        name: "Ornithine",
+        query: "L-ornithine",
+        formula: "C5H12N2O2",
+        group: "urea cycle",
+        note: "Urea-cycle carrier regenerated by arginase.",
+        reaction: "Arginine + H2O -> ornithine + urea"
+      },
+      {
+        name: "Orotate",
+        query: "orotic acid",
+        formula: "C5H4N2O4",
+        group: "pyrimidine",
+        note: "Pyrimidine ring intermediate.",
+        reaction: "Orotate + PRPP -> OMP + PPi"
+      },
+      {
+        name: "Oxaloacetate",
+        query: "oxaloacetic acid",
+        formula: "C4H4O5",
+        group: "TCA",
+        note: "TCA, gluconeogenesis, and amino-acid metabolism intermediate.",
+        reaction: "Pyruvate + HCO3- + ATP -> oxaloacetate + ADP + Pi"
+      },
+      {
+        name: "Palmitate",
+        query: "palmitic acid",
+        formula: "C16H32O2",
+        group: "lipid",
+        note: "Major saturated fatty acid product of fatty acid synthase.",
+        reaction: "Acetyl-CoA + 7 malonyl-CoA + 14 NADPH + 14 H+ -> palmitate + 7 CO2 + 8 CoA-SH + 14 NADP+ + 6 H2O"
+      },
+      {
+        name: "Phenylalanine",
+        query: "L-phenylalanine",
+        formula: "C9H11NO2",
+        group: "amino acid",
+        note: "Essential aromatic amino acid.",
+        reaction: "Phenylalanine + BH4 + O2 -> tyrosine + BH2 + H2O"
+      },
+      {
+        name: "Phosphocreatine",
+        query: "phosphocreatine",
+        formula: "C4H10N3O5P",
+        group: "energy",
+        note: "Fast ATP buffer in muscle and brain.",
+        reaction: "Phosphocreatine + ADP + H+ <-> creatine + ATP"
+      },
+      {
+        name: "Phosphoenolpyruvate",
+        query: "phosphoenolpyruvic acid",
+        formula: "C3H5O6P",
+        group: "glycolysis",
+        note: "High-energy enol phosphate.",
+        reaction: "Phosphoenolpyruvate + ADP + H+ -> pyruvate + ATP"
+      },
+      {
+        name: "Pregnenolone",
+        query: "pregnenolone",
+        formula: "C21H32O2",
+        group: "steroid",
+        note: "First common steroid hormone precursor.",
+        reaction: "Cholesterol + O2 + NADPH -> pregnenolone + isocaproaldehyde + H2O + NADP+"
+      },
+      {
+        name: "PRPP",
+        query: "phosphoribosyl pyrophosphate",
+        formula: "C5H13O14P3",
+        group: "nucleotide",
+        note: "Activated ribose donor for nucleotide synthesis and salvage.",
+        reaction: "Ribose-5-phosphate + ATP -> PRPP + AMP"
+      },
+      {
+        name: "Proline",
+        query: "L-proline",
+        formula: "C5H9NO2",
+        group: "amino acid",
+        note: "Protein amino acid and collagen hydroxylation substrate.",
+        reaction: "Proline residue + alpha-ketoglutarate + O2 -> hydroxyproline residue + succinate + CO2"
+      },
+      {
+        name: "Pyruvate",
+        query: "pyruvic acid",
+        formula: "C3H4O3",
+        group: "glycolysis",
+        note: "Glycolytic endpoint and central carbon hub.",
+        reaction: "Pyruvate + CoA-SH + NAD+ -> acetyl-CoA + CO2 + NADH + H+"
+      },
+      {
+        name: "Ribose-5-phosphate",
+        query: "ribose 5-phosphate",
+        formula: "C5H11O8P",
+        group: "pentose phosphate",
+        note: "Nucleotide ribose precursor.",
+        reaction: "Ribose-5-phosphate + ATP -> PRPP + AMP"
+      },
+      {
+        name: "SAM",
+        query: "S-adenosylmethionine",
+        formula: "C15H22N6O5S",
+        group: "one-carbon",
+        note: "Major biological methyl donor.",
+        reaction: "Methionine + ATP -> S-adenosylmethionine + Pi + PPi"
+      },
+      {
+        name: "Serine",
+        query: "L-serine",
+        formula: "C3H7NO3",
+        group: "amino acid",
+        note: "One-carbon and phospholipid metabolism amino acid.",
+        reaction: "Serine + THF <-> glycine + N5,N10-methylene-THF + H2O"
+      },
+      {
+        name: "Serotonin",
+        query: "serotonin",
+        formula: "C10H12N2O",
+        group: "neurotransmitter",
+        note: "Monoamine neurotransmitter and peripheral signal.",
+        reaction: "5-hydroxytryptophan -> serotonin + CO2"
+      },
+      {
+        name: "Succinate",
+        query: "succinic acid",
+        formula: "C4H6O4",
+        group: "TCA",
+        note: "TCA intermediate and Complex II substrate.",
+        reaction: "Succinyl-CoA + GDP + Pi <-> succinate + GTP + CoA-SH"
+      },
+      {
+        name: "Sucrose",
+        query: "sucrose",
+        formula: "C12H22O11",
+        group: "carbohydrate",
+        note: "Dietary disaccharide.",
+        reaction: "Sucrose + H2O -> glucose + fructose"
+      },
+      {
+        name: "Tetrahydrofolate",
+        query: "tetrahydrofolic acid",
+        formula: "C19H23N7O6",
+        group: "one-carbon",
+        note: "One-carbon unit carrier.",
+        reaction: "Serine + THF <-> glycine + N5,N10-methylene-THF + H2O"
+      },
+      {
+        name: "Triacylglycerol example: tripalmitin",
+        query: "tripalmitin",
+        formula: "C51H98O6",
+        group: "lipid",
+        note: "Representative triacylglycerol for the generic storage-lipid class.",
+        reaction: "Triacylglycerol + 3 H2O -> glycerol + 3 fatty acids"
+      },
+      {
+        name: "Tryptophan",
+        query: "L-tryptophan",
+        formula: "C11H12N2O2",
+        group: "amino acid",
+        note: "Essential amino acid and serotonin precursor.",
+        reaction: "Tryptophan + BH4 + O2 -> 5-hydroxytryptophan + BH2 + H2O"
+      },
+      {
+        name: "Tyrosine",
+        query: "L-tyrosine",
+        formula: "C9H11NO3",
+        group: "amino acid",
+        note: "Catecholamine and thyroid hormone precursor.",
+        reaction: "Tyrosine + BH4 + O2 -> L-DOPA + BH2 + H2O"
+      },
+      {
+        name: "UDP-glucose",
+        query: "UDP-glucose",
+        formula: "C15H24N2O17P2",
+        group: "glycogen",
+        note: "Activated glucose donor.",
+        reaction: "UDP-glucose + glycogen(n) -> UDP + glycogen(n+1)"
+      },
+      {
+        name: "UMP",
+        query: "uridine monophosphate",
+        formula: "C9H13N2O9P",
+        group: "pyrimidine",
+        note: "First common pyrimidine nucleotide product.",
+        reaction: "OMP -> UMP + CO2"
+      },
+      {
+        name: "Urea",
+        query: "urea",
+        formula: "CH4N2O",
+        group: "nitrogen",
+        note: "Major nitrogen excretion product.",
+        reaction: "Arginine + H2O -> ornithine + urea"
+      },
+      {
+        name: "Uric acid",
+        query: "uric acid",
+        formula: "C5H4N4O3",
+        group: "purine",
+        note: "Final human purine oxidation product.",
+        reaction: "Hypoxanthine -> xanthine -> uric acid"
+      },
+      {
+        name: "UTP",
+        query: "uridine triphosphate",
+        formula: "C9H15N2O15P3",
+        group: "pyrimidine",
+        note: "Pyrimidine nucleotide and glucose activation partner.",
+        reaction: "Glucose-1-phosphate + UTP -> UDP-glucose + PPi"
+      },
+      {
+        name: "Water",
+        query: "water",
+        formula: "H2O",
+        group: "solvent",
+        note: "Solvent, reactant, product, and acid-base participant.",
+        reaction: "H2O <-> H+ + OH-"
+      },
+      {
+        name: "Xanthine",
+        query: "xanthine",
+        formula: "C5H4N4O2",
+        group: "purine",
+        note: "Purine degradation intermediate.",
+        reaction: "Hypoxanthine -> xanthine -> uric acid"
+      }
+    ];
+
+    const state = {
+      viewer: null,
+      style: "ballstick",
+      spinning: false,
+      labels: true,
+      current: null,
+      filtered: molecules.slice(),
+      drag: null
+    };
+
+    const byId = (id) => document.getElementById(id);
+
+    function sdfUrl(molecule) {
+      return "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/" +
+        encodeURIComponent(molecule.query) +
+        "/SDF?record_type=3d";
+    }
+
+    function pubchemPageUrl(molecule) {
+      return "https://pubchem.ncbi.nlm.nih.gov/#query=" + encodeURIComponent(molecule.query);
+    }
+
+    function setStatus(message, error = false) {
+      const status = byId("status");
+      status.textContent = message;
+      status.classList.toggle("error", error);
+    }
+
+    function resizeViewer() {
+      if (state.viewer && typeof state.viewer.resize === "function") {
+        state.viewer.resize();
+        state.viewer.render();
+      }
+    }
+
+    function clampControlsPanel() {
+      const panel = document.querySelector(".controls");
+      if (!panel || panel.style.right || panel.style.bottom) {
+        return;
+      }
+      const rect = panel.getBoundingClientRect();
+      const margin = 12;
+      const left = Math.max(margin, Math.min(rect.left, window.innerWidth - rect.width - margin));
+      const top = Math.max(margin, Math.min(rect.top, window.innerHeight - rect.height - margin));
+      panel.style.left = left + "px";
+      panel.style.top = top + "px";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+    }
+
+    function resetControlsPanel() {
+      const panel = document.querySelector(".controls");
+      if (!panel) {
+        return;
+      }
+      panel.classList.remove("collapsed");
+      panel.style.left = "";
+      panel.style.top = "";
+      panel.style.right = "";
+      panel.style.bottom = "";
+      panel.style.width = "";
+      panel.style.height = "";
+      byId("collapse-controls").textContent = "-";
+      byId("collapse-controls").setAttribute("aria-label", "Collapse controls");
+      byId("collapse-controls").setAttribute("title", "Collapse controls");
+    }
+
+    function setupControlsPanel() {
+      const panel = document.querySelector(".controls");
+      const header = byId("controls-header");
+      const collapse = byId("collapse-controls");
+      const resetPanel = byId("reset-panel");
+      if (!panel || !header || !collapse || !resetPanel) {
+        return;
+      }
+
+      header.addEventListener("pointerdown", (event) => {
+        if (event.target.closest("button")) {
+          return;
+        }
+        const rect = panel.getBoundingClientRect();
+        panel.style.left = rect.left + "px";
+        panel.style.top = rect.top + "px";
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        state.drag = {
+          id: event.pointerId,
+          offsetX: event.clientX - rect.left,
+          offsetY: event.clientY - rect.top
+        };
+        header.setPointerCapture(event.pointerId);
+      });
+
+      header.addEventListener("pointermove", (event) => {
+        if (!state.drag || state.drag.id !== event.pointerId) {
+          return;
+        }
+        const margin = 8;
+        const width = panel.offsetWidth;
+        const height = panel.offsetHeight;
+        const left = Math.max(margin, Math.min(event.clientX - state.drag.offsetX, window.innerWidth - width - margin));
+        const top = Math.max(margin, Math.min(event.clientY - state.drag.offsetY, window.innerHeight - height - margin));
+        panel.style.left = left + "px";
+        panel.style.top = top + "px";
+      });
+
+      header.addEventListener("pointerup", (event) => {
+        if (state.drag && state.drag.id === event.pointerId) {
+          state.drag = null;
+        }
+      });
+
+      header.addEventListener("pointercancel", () => {
+        state.drag = null;
+      });
+
+      collapse.addEventListener("click", () => {
+        const collapsed = panel.classList.toggle("collapsed");
+        collapse.textContent = collapsed ? "+" : "-";
+        collapse.setAttribute("aria-label", collapsed ? "Expand controls" : "Collapse controls");
+        collapse.setAttribute("title", collapsed ? "Expand controls" : "Collapse controls");
+      });
+
+      resetPanel.addEventListener("click", resetControlsPanel);
+      window.addEventListener("resize", () => {
+        clampControlsPanel();
+        resizeViewer();
+      });
+    }
+
+    function fillSelect(items) {
+      const select = byId("molecule");
+      select.innerHTML = "";
+      items.forEach((molecule, index) => {
+        const option = document.createElement("option");
+        option.value = String(molecules.indexOf(molecule));
+        option.textContent = molecule.name;
+        select.appendChild(option);
+        if (index === 0) {
+          select.value = option.value;
+        }
+      });
+    }
+
+    function fillTable() {
+      const body = byId("model-table");
+      body.innerHTML = molecules.map((molecule) => (
+        "<tr>" +
+          "<td>" + escapeHtml(molecule.name) + "</td>" +
+          "<td><a href=\"" + pubchemPageUrl(molecule) + "\">" + escapeHtml(molecule.query) + "</a></td>" +
+          "<td>" + escapeHtml(molecule.formula) + "</td>" +
+          "<td>" + escapeHtml(molecule.reaction) + "</td>" +
+        "</tr>"
+      )).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function styleSpec() {
+      if (state.style === "ballstick") {
+        return { stick: { radius: 0.16 }, sphere: { scale: 0.28 } };
+      }
+      if (state.style === "sphere") {
+        return { sphere: { scale: 0.62 } };
+      }
+      if (state.style === "line") {
+        return { line: { linewidth: 2 } };
+      }
+      return { stick: { radius: 0.18 } };
+    }
+
+    function renderLabels() {
+      state.viewer.removeAllLabels();
+      if (!state.labels) {
+        return;
+      }
+      const model = state.viewer.getModel();
+      if (!model) {
+        return;
+      }
+      const atoms = model.selectedAtoms({});
+      atoms.forEach((atom) => {
+        state.viewer.addLabel(atom.elem, {
+          position: atom,
+          fontSize: 11,
+          fontColor: "black",
+          backgroundColor: "white",
+          backgroundOpacity: 0.75,
+          borderThickness: 0.5,
+          borderColor: "#d8dde3"
+        });
+      });
+    }
+
+    function renderStyle() {
+      if (!state.viewer) {
+        return;
+      }
+      state.viewer.setStyle({}, styleSpec());
+      renderLabels();
+      state.viewer.render();
+    }
+
+    async function loadMolecule(molecule) {
+      state.current = molecule;
+      byId("model-name").textContent = molecule.name;
+      byId("model-group").textContent = molecule.group;
+      byId("model-formula").textContent = molecule.formula;
+      byId("model-note").textContent = molecule.note;
+      byId("model-reaction").textContent = molecule.reaction;
+
+      if (!window.$3Dmol) {
+        setStatus("3Dmol.js did not load. Check internet access or open the page where external scripts are allowed.", true);
+        return;
+      }
+      if (!state.viewer) {
+        setStatus("The 3D viewer could not be created in its page container.", true);
+        return;
+      }
+
+      setStatus("Fetching 3D SDF from PubChem for " + molecule.query + "...");
+
+      try {
+        const response = await fetch(sdfUrl(molecule));
+        if (!response.ok) {
+          throw new Error("PubChem returned HTTP " + response.status);
+        }
+        const sdf = await response.text();
+        state.viewer.clear();
+        state.viewer.addModel(sdf, "sdf");
+        renderStyle();
+        state.viewer.zoomTo();
+        state.viewer.spin(state.spinning);
+        resizeViewer();
+        state.viewer.render();
+        setStatus("Loaded PubChem 3D conformer for " + molecule.name + ".");
+      } catch (error) {
+        state.viewer.clear();
+        state.viewer.render();
+        setStatus("Could not load a 3D conformer for \"" + molecule.query + "\". PubChem may not have a 3D SDF for this query, or network access may be blocked. " + error.message, true);
+      }
+    }
+
+    function currentSelection() {
+      const index = Number(byId("molecule").value);
+      return molecules[index] || state.filtered[0] || molecules[0];
+    }
+
+    function filterMolecules() {
+      const term = byId("search").value.trim().toLowerCase();
+      state.filtered = molecules.filter((molecule) => (
+        molecule.name.toLowerCase().includes(term) ||
+        molecule.query.toLowerCase().includes(term) ||
+        molecule.formula.toLowerCase().includes(term) ||
+        molecule.group.toLowerCase().includes(term)
+      ));
+      fillSelect(state.filtered.length ? state.filtered : molecules);
+    }
+
+    function init() {
+      fillSelect(molecules);
+      fillTable();
+      setupControlsPanel();
+
+      if (window.$3Dmol) {
+        state.viewer = $3Dmol.createViewer(byId("viewer"), {
+          backgroundColor: "white",
+          antialias: true
+        });
+      }
+
+      byId("molecule").addEventListener("change", () => loadMolecule(currentSelection()));
+      byId("search").addEventListener("input", filterMolecules);
+
+      document.querySelectorAll("[data-style]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("[data-style]").forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          state.style = button.dataset.style;
+          renderStyle();
+        });
+      });
+
+      byId("spin").addEventListener("click", () => {
+        state.spinning = !state.spinning;
+        byId("spin").classList.toggle("active", state.spinning);
+        if (state.viewer) {
+          state.viewer.spin(state.spinning);
+          state.viewer.render();
+        }
+      });
+
+      byId("labels").addEventListener("click", () => {
+        state.labels = !state.labels;
+        byId("labels").classList.toggle("active", state.labels);
+        renderStyle();
+      });
+
+      byId("reset").addEventListener("click", () => {
+        if (state.viewer) {
+          state.viewer.zoomTo();
+          state.viewer.render();
+        }
+      });
+
+      byId("pubchem").addEventListener("click", () => {
+        window.open(pubchemPageUrl(state.current || currentSelection()), "_blank", "noopener,noreferrer");
+      });
+
+      loadMolecule(molecules.find((molecule) => molecule.name === "Glucose") || molecules[0]);
+      byId("molecule").value = String(molecules.findIndex((molecule) => molecule.name === "Glucose"));
+    }
+
+    window.addEventListener("load", init);
+  </script>
+</body>
+</html>

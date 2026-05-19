@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Machine Learning Book</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f3ed;
+      --ink: #17212a;
+      --muted: #5f6d77;
+      --line: #d8d0c2;
+      --panel: #ffffff;
+      --soft: #eee8dd;
+      --blue: #1f6fb2;
+      --green: #2f7d57;
+      --red: #bd4b43;
+      --amber: #b87924;
+      --violet: #6b55a3;
+      --cyan: #147f87;
+      --shadow: 0 18px 48px rgba(23, 33, 42, .12);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 86vh;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      background: #17212a;
+    }
+
+    #heroCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #17212a;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(246,243,237,.94), rgba(246,243,237,.75) 48%, rgba(246,243,237,.2));
+      pointer-events: none;
+    }
+
+    .inner {
+      width: min(1140px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 820px;
+      padding: 72px 0 58px;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--blue);
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 820px;
+      font-size: 68px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 42px;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 27px;
+    }
+
+    h4 {
+      margin: 0 0 8px;
+      font-size: 21px;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 18px 0 28px;
+      color: #384652;
+      font-size: 22px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+      font-family: var(--sans);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      padding: 9px 14px;
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .button.secondary {
+      background: rgba(255,255,255,.82);
+      color: var(--ink);
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 32px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .stat {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.78);
+      padding: 12px;
+    }
+
+    .stat:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .stat:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .section,
+    .band {
+      padding: 54px 0;
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .lead {
+      max-width: 880px;
+      color: #2c3942;
+      font-size: 21px;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 1px solid var(--line);
+      background: rgba(251,250,247,.94);
+      backdrop-filter: blur(10px);
+      font-family: var(--sans);
+    }
+
+    .top-nav .inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 58px;
+    }
+
+    .brand {
+      color: #203645;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      color: #364650;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: var(--blue);
+    }
+
+    .tools {
+      display: grid;
+      grid-template-columns: minmax(240px, .6fr) minmax(180px, .25fr) minmax(0, 1fr);
+      gap: 12px;
+      margin: 22px 0;
+      font-family: var(--sans);
+    }
+
+    .tools input,
+    .tools select {
+      min-height: 40px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 10px;
+    }
+
+    .count {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1ebe0;
+      color: #243643;
+      padding: 9px 12px;
+      font-family: var(--mono);
+    }
+
+    .chapter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .chapter-card {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+      min-height: 330px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 10px 28px rgba(23, 33, 42, .07);
+      padding: 18px;
+    }
+
+    .chapter-card[data-status="planned"] {
+      background: #faf8f3;
+      box-shadow: none;
+    }
+
+    .chapter-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: var(--sans);
+    }
+
+    .chapter-number {
+      color: var(--muted);
+      font: 12px/1 var(--mono);
+    }
+
+    .status {
+      border-radius: 6px;
+      background: var(--green);
+      color: #fff;
+      padding: 5px 7px;
+      font: 12px/1 var(--sans);
+    }
+
+    .status.planned {
+      background: var(--muted);
+    }
+
+    .chapter-card h3 {
+      margin-bottom: 10px;
+    }
+
+    .chapter-card p {
+      color: #34434d;
+      font-size: 16px;
+    }
+
+    .chapter-meta {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+      color: var(--muted);
+      font: 13px/1.35 var(--sans);
+    }
+
+    .chapter-meta span {
+      border-left: 3px solid var(--blue);
+      background: #f6f1e9;
+      padding: 8px;
+    }
+
+    .open-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      background: var(--ink);
+      color: #fff;
+      padding: 8px 12px;
+      text-decoration: none;
+      font: 800 14px/1 var(--sans);
+    }
+
+    .open-link.disabled {
+      border-color: var(--line);
+      background: #ede7dc;
+      color: var(--muted);
+      cursor: default;
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(320px, .7fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .path {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+      counter-reset: path;
+    }
+
+    .path-step {
+      counter-increment: path;
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 12px;
+    }
+
+    .path-step::before {
+      content: counter(path);
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font: 800 14px/1 var(--sans);
+    }
+
+    .path-step:nth-child(2)::before {
+      background: var(--green);
+    }
+
+    .path-step:nth-child(3)::before {
+      background: var(--amber);
+    }
+
+    .path-step:nth-child(4)::before {
+      background: var(--violet);
+    }
+
+    .path-step b {
+      display: block;
+      margin-bottom: 4px;
+      font-family: var(--sans);
+    }
+
+    .path-step span {
+      color: var(--muted);
+      font: 14px/1.45 var(--sans);
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h3 {
+      margin-bottom: 12px;
+    }
+
+    .meter-list {
+      display: grid;
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .meter {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) 48px;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .meter-track {
+      height: 18px;
+      overflow: hidden;
+      background: #eee7db;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .meter:nth-child(2) .meter-fill {
+      background: var(--green);
+    }
+
+    .meter:nth-child(3) .meter-fill {
+      background: var(--amber);
+    }
+
+    .meter:nth-child(4) .meter-fill {
+      background: var(--violet);
+    }
+
+    .future-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .future {
+      border-top: 4px solid var(--cyan);
+      background: #fff;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 14px;
+      min-height: 150px;
+    }
+
+    .future:nth-child(2) {
+      border-top-color: var(--red);
+    }
+
+    .future:nth-child(3) {
+      border-top-color: var(--green);
+    }
+
+    .future:nth-child(4) {
+      border-top-color: var(--amber);
+    }
+
+    .future b {
+      display: block;
+      margin-bottom: 8px;
+      font-family: var(--sans);
+    }
+
+    .future span {
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 64px;
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    @media (max-width: 1000px) {
+      h1 {
+        font-size: 48px;
+      }
+
+      .chapter-grid,
+      .map,
+      .tools {
+        grid-template-columns: 1fr;
+      }
+
+      .future-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1140px);
+      }
+
+      .hero {
+        min-height: 78vh;
+      }
+
+      .hero-content {
+        padding: 48px 0 42px;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-stats,
+      .future-grid,
+      .nav-links {
+        grid-template-columns: 1fr;
+      }
+
+      .top-nav .inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 0;
+      }
+
+      .meter {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero" id="top">
+    <canvas id="heroCanvas" width="1440" height="860" aria-label="Machine learning book visual index"></canvas>
+    <div class="inner hero-content">
+      <p class="kicker">Softel Labs Education</p>
+      <h1>Machine Learning Book</h1>
+      <p class="subtitle">A growing, interactive machine learning book with chapters for basic ML, computer vision, deep learning, natural language processing, and ML productionisation. Each page is self-contained and teaches concepts through explanations, metrics, and browser-based simulations.</p>
+      <div class="hero-actions">
+        <a class="button" href="#chapters">Start Reading</a>
+        <a class="button secondary" href="classic_ml_algorithms_book.html">Open Basic ML</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><b>5 complete sections</b><br>Basic ML, CV, DL, NLP, and MLOps foundations.</div>
+        <div class="stat"><b>31+ simulators</b><br>Metrics, filters, models, tensors, masks, boxes, clusters, tokens, retrieval, decoding, drift, and deployment.</div>
+        <div class="stat"><b>Interactive chapters</b><br>Every chapter runs locally with HTML, CSS, and JavaScript.</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="top-nav" aria-label="Book navigation">
+    <div class="inner">
+      <a class="brand" href="#top">Machine Learning Book</a>
+      <div class="nav-links">
+        <a href="#chapters">Sections</a>
+        <a href="#reading-path">Reading Path</a>
+        <a href="#future">Future Pages</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="section" id="chapters">
+      <div class="inner">
+          <p class="lead">Start with basic machine learning if you want the classical foundations. Move to computer vision for image tasks and evaluation. Use deep learning when you are ready for CNNs, tensors, and Torch-style layers. Use NLP to connect scikit-learn style vectorizers to modern transformer and LLM systems. Use MLOps to turn models into operated production systems.</p>
+
+        <div class="tools">
+          <input id="chapterSearch" type="search" placeholder="Search sections, simulators, metrics, topics" aria-label="Search ML book sections">
+          <select id="chapterFilter" aria-label="Filter book sections">
+            <option value="all">All sections</option>
+            <option value="core">Core</option>
+            <option value="vision">Computer vision</option>
+            <option value="deep">Deep learning</option>
+            <option value="nlp">NLP</option>
+            <option value="ops">MLOps</option>
+            <option value="planned">Planned</option>
+          </select>
+          <div class="count" id="chapterCount">0 sections</div>
+        </div>
+
+        <div class="chapter-grid" id="chapterGrid"></div>
+      </div>
+    </section>
+
+    <section class="band" id="reading-path">
+      <div class="inner map">
+        <div>
+          <h2>Recommended Reading Path</h2>
+          <p class="lead">The chapters are independent, but this order builds the most useful mental model: estimator contracts first, image task contracts second, learned tensor operations third, language representation and generation fourth, production operation fifth.</p>
+          <div class="path">
+            <div class="path-step"><div><b>Basic ML</b><span>Learn feature matrices, supervised and unsupervised algorithms, validation, metrics, and classical model behavior.</span></div></div>
+            <div class="path-step"><div><b>Computer Vision ML</b><span>Move from general ML metrics to image-specific tasks: filters, classification, detection, masks, augmentation, and visual evaluation.</span></div></div>
+            <div class="path-step"><div><b>Deep Learning</b><span>Study CNN mechanics, tensor shape contracts, Torch base layers, normalization, attention, and layer-level simulations.</span></div></div>
+            <div class="path-step"><div><b>NLP and Transformers</b><span>Move from count vectorizers, TF-IDF, and Naive Bayes to embeddings, attention, decoding, retrieval, and LLM evaluation.</span></div></div>
+            <div class="path-step"><div><b>MLOps and Production ML</b><span>Connect models to labels, training, evaluation, deployment, monitoring, feedback loops, large-model operations, and agent safety.</span></div></div>
+            <div class="path-step"><div><b>Future Chapters</b><span>Add recommender systems, time series, optimization, data engineering, and advanced evaluation as the book grows.</span></div></div>
+          </div>
+        </div>
+
+        <aside class="panel" aria-label="Current coverage">
+          <h3>Current Coverage</h3>
+          <div class="meter-list">
+            <div class="meter"><span>Classic ML</span><div class="meter-track"><div class="meter-fill" style="width: 92%"></div></div><span>92%</span></div>
+            <div class="meter"><span>Vision ML</span><div class="meter-track"><div class="meter-fill" style="width: 88%"></div></div><span>88%</span></div>
+            <div class="meter"><span>Deep ML</span><div class="meter-track"><div class="meter-fill" style="width: 90%"></div></div><span>90%</span></div>
+            <div class="meter"><span>NLP ML</span><div class="meter-track"><div class="meter-fill" style="width: 86%"></div></div><span>86%</span></div>
+            <div class="meter"><span>Production</span><div class="meter-track"><div class="meter-fill" style="width: 84%"></div></div><span>84%</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="future">
+      <div class="inner">
+        <h2>Future Pages</h2>
+        <p class="lead">The index is designed as the start of a larger ML book. NLP and MLOps have moved from planned next steps into full interactive chapters; the remaining slots can become full chapters later without changing the overall structure.</p>
+        <div class="future-grid">
+          <div class="future"><b>Optimization and Training</b><span>Loss surfaces, gradient descent, schedulers, regularization, batch effects, and optimizer dynamics.</span></div>
+          <div class="future"><b>Recommender Systems</b><span>Collaborative filtering, ranking losses, retrieval, candidate generation, and online metrics.</span></div>
+          <div class="future"><b>Time Series ML</b><span>Forecasting, backtesting, leakage-safe validation, anomaly detection, and sequence features.</span></div>
+          <div class="future"><b>Advanced Evaluation</b><span>Robustness, adversarial tests, human preference evaluation, causal checks, and model comparison design.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">Machine Learning Book index. All linked chapters are standalone local HTML/CSS/JS pages.</div>
+  </footer>
+
+  <script>
+    const chapters = [
+      {
+        number: "01",
+        title: "Basic ML",
+        file: "classic_ml_algorithms_book.html",
+        group: "core",
+        status: "ready",
+        summary: "Classic supervised and unsupervised machine learning: SVMs, k-means, kNN, random forests, regression, PCA, metrics, validation, and debugging.",
+        topics: ["SVM", "k-means", "kNN", "random forests", "PCA", "regression", "validation"],
+        simulators: "K-means, SVM margin, kNN, random forest, PCA, regression"
+      },
+      {
+        number: "02",
+        title: "Computer Vision ML",
+        file: "computer_vision_ml_book.html",
+        group: "vision",
+        status: "ready",
+        summary: "Vision task contracts and evaluation: filters, image classification, object detection, segmentation masks, augmentation, IoU, Dice, AP, and confusion matrices.",
+        topics: ["filters", "classification", "detection", "segmentation", "IoU", "mAP", "Dice"],
+        simulators: "Filter lab, classifier, detector NMS, mask metrics, augmentation geometry"
+      },
+      {
+        number: "03",
+        title: "Deep Learning, CNNs, and Torch Layers",
+        file: "deep_ml_torch_layers_book.html",
+        group: "deep",
+        status: "ready",
+        summary: "Deep ML foundations: tensor contracts, CNN mechanics, Torch layer families, activations, pooling, normalization, embeddings, attention, and training.",
+        topics: ["CNN", "torch.nn", "convolution", "pooling", "attention", "normalization", "training"],
+        simulators: "Convolution, pooling, activations, linear layers, normalization, embeddings, attention"
+      },
+      {
+        number: "04",
+        title: "NLP and Transformers",
+        file: "nlp_ml_book.html",
+        group: "nlp",
+        status: "ready",
+        summary: "Natural language processing from classical ML to modern LLMs: tokenization, CountVectorizer, TF-IDF, Naive Bayes, embeddings, attention, transformers, decoding, retrieval, RAG, and evaluation.",
+        topics: ["NLP", "CountVectorizer", "TF-IDF", "Naive Bayes", "transformers", "attention", "LLMs", "retrieval"],
+        simulators: "Tokenizer, vectorizer, Naive Bayes, attention, next-token decoding, embedding retrieval"
+      },
+      {
+        number: "05",
+        title: "MLOps and Production ML",
+        file: "mlops_production_ml_book.html",
+        group: "ops",
+        status: "ready",
+        summary: "ML productionisation from small closed-loop classifiers to large vision-language and agent systems: labels, training, evaluation, deployment, monitoring, drift, feedback, canaries, RAG, tools, and operations.",
+        topics: ["MLOps", "production ML", "monitoring", "drift", "deployment", "canary", "feedback loops", "VLLM", "agents"],
+        simulators: "Lifecycle pipeline, active labeling, drift monitoring, canary deployment, VLLM and agent operations"
+      }
+    ];
+
+    function createText(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      node.textContent = text;
+      return node;
+    }
+
+    function renderChapters() {
+      const search = document.getElementById("chapterSearch").value.trim().toLowerCase();
+      const filter = document.getElementById("chapterFilter").value;
+      const root = document.getElementById("chapterGrid");
+      const filtered = chapters.filter(chapter => {
+        const matchesFilter = filter === "all" || chapter.group === filter || chapter.status === filter;
+        const text = `${chapter.title} ${chapter.summary} ${chapter.topics.join(" ")} ${chapter.simulators}`.toLowerCase();
+        return matchesFilter && (!search || text.includes(search));
+      });
+      root.innerHTML = "";
+      document.getElementById("chapterCount").textContent = `${filtered.length} of ${chapters.length} sections`;
+      filtered.forEach(chapter => {
+        const card = document.createElement("article");
+        card.className = "chapter-card";
+        card.dataset.status = chapter.status;
+
+        const top = document.createElement("div");
+        top.className = "chapter-top";
+        top.append(
+          createText("span", "chapter-number", `Section ${chapter.number}`),
+          createText("span", `status ${chapter.status === "planned" ? "planned" : ""}`, chapter.status)
+        );
+
+        const body = document.createElement("div");
+        body.append(createText("h3", "", chapter.title));
+        body.append(createText("p", "", chapter.summary));
+        const meta = document.createElement("div");
+        meta.className = "chapter-meta";
+        meta.append(createText("span", "", `Topics: ${chapter.topics.join(", ")}`));
+        meta.append(createText("span", "", `Simulators: ${chapter.simulators}`));
+        body.appendChild(meta);
+
+        const link = document.createElement(chapter.file ? "a" : "span");
+        link.className = chapter.file ? "open-link" : "open-link disabled";
+        link.textContent = chapter.file ? "Open Section" : "Planned";
+        if (chapter.file) link.href = chapter.file;
+
+        card.append(top, body, link);
+        root.appendChild(card);
+      });
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      const points = Array.from({ length: 90 }, (_, i) => ({
+        x: 760 + Math.sin(i * 8.7) * 260 + Math.cos(i * 2.1) * 80,
+        y: 420 + Math.cos(i * 5.9) * 210 + Math.sin(i * 1.7) * 80,
+        r: 3 + (i % 5),
+        c: i % 3
+      }));
+
+      function tick() {
+        const width = canvas.width;
+        const height = canvas.height;
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#17212a";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = "rgba(255,255,255,.08)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= width; x += 64) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= height; y += 64) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        points.forEach((point, i) => {
+          const x = point.x + Math.sin(frame * .016 + i) * 16;
+          const y = point.y + Math.cos(frame * .014 + i * .7) * 16;
+          points.slice(i + 1, i + 4).forEach(other => {
+            const ox = other.x + Math.sin(frame * .016 + i) * 16;
+            const oy = other.y + Math.cos(frame * .014 + i * .7) * 16;
+            ctx.strokeStyle = "rgba(255,255,255,.12)";
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(ox, oy);
+            ctx.stroke();
+          });
+          ctx.fillStyle = point.c === 0 ? "#1f6fb2" : point.c === 1 ? "#2f7d57" : "#b87924";
+          ctx.beginPath();
+          ctx.arc(x, y, point.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.strokeStyle = "#bd4b43";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        for (let i = 0; i <= 180; i += 1) {
+          const x = 680 + i * 3.2;
+          const y = 430 + Math.sin(i * .08 + frame * .025) * 80 + Math.cos(i * .035) * 45;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      document.getElementById("chapterSearch").addEventListener("input", renderChapters);
+      document.getElementById("chapterFilter").addEventListener("input", renderChapters);
+      renderChapters();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

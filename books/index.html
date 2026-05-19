@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Education Library</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2328;
+      --muted: #64707d;
+      --paper: #fffdf8;
+      --surface: #ffffff;
+      --line: #d9d2c6;
+      --wood: #7a4c30;
+      --wood-dark: #53321f;
+      --brass: #b88a36;
+      --green: #2f6f64;
+      --blue: #355f8c;
+      --red: #954c43;
+      --shadow: 0 18px 40px rgba(57, 43, 27, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(122, 76, 48, 0.07) 1px, transparent 1px) 0 0 / 44px 44px,
+        linear-gradient(180deg, #faf4e8 0%, #eef3f1 54%, #f7f4ed 100%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 52px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 28px;
+      align-items: stretch;
+      min-height: 330px;
+      margin-bottom: 26px;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 36px 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3rem, 8vw, 6.4rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 650px;
+      margin: 22px 0 0;
+      color: #3e4750;
+      font-size: clamp(1rem, 2vw, 1.18rem);
+      line-height: 1.7;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .stat {
+      min-width: 110px;
+      padding: 12px 14px;
+      border: 1px solid rgba(83, 50, 31, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: 0 8px 24px rgba(83, 50, 31, 0.08);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .shelf-scene {
+      position: relative;
+      align-self: center;
+      min-height: 300px;
+      padding: 24px 20px 34px;
+      border: 10px solid var(--wood-dark);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 32%),
+        linear-gradient(180deg, #8a5736, #6d432b);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .shelf-scene::before,
+    .shelf-scene::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 16px;
+      background: linear-gradient(180deg, #6b3e26, #412719);
+      box-shadow: 0 4px 12px rgba(38, 24, 15, 0.28);
+    }
+
+    .shelf-scene::before {
+      top: 45%;
+    }
+
+    .shelf-scene::after {
+      bottom: 12px;
+    }
+
+    .book-spines {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(18px, 1fr));
+      align-items: end;
+      gap: 8px;
+      min-height: 236px;
+    }
+
+    .spine {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      border-radius: 5px 5px 2px 2px;
+      color: #fffaf0;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16), 8px 0 18px rgba(31, 22, 16, 0.18);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 0.83rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-align: center;
+    }
+
+    .spine:nth-child(1) { height: 205px; background: var(--green); }
+    .spine:nth-child(2) { height: 188px; background: var(--blue); }
+    .spine:nth-child(3) { height: 216px; background: #7d543f; }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 14px;
+      border: 1px solid rgba(83, 50, 31, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.88);
+      box-shadow: 0 12px 30px rgba(57, 43, 27, 0.1);
+      backdrop-filter: blur(14px);
+    }
+
+    .search {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface);
+    }
+
+    .search svg {
+      color: var(--muted);
+    }
+
+    .search input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter {
+      min-height: 38px;
+      padding: 0 13px;
+      border: 1px solid rgba(83, 50, 31, 0.22);
+      border-radius: 7px;
+      background: #fffdf8;
+      color: #38424d;
+      cursor: pointer;
+    }
+
+    .filter[aria-pressed="true"] {
+      border-color: var(--wood-dark);
+      background: var(--wood-dark);
+      color: #fffaf0;
+    }
+
+    .sort {
+      min-height: 38px;
+      padding: 0 34px 0 12px;
+      border: 1px solid rgba(83, 50, 31, 0.22);
+      border-radius: 7px;
+      background-color: var(--surface);
+      color: #38424d;
+      cursor: pointer;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin: 0 0 16px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.75rem, 4vw, 2.7rem);
+      letter-spacing: 0;
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      min-height: 250px;
+      border: 1px solid rgba(83, 50, 31, 0.18);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 14px 32px rgba(57, 43, 27, 0.12);
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      background: var(--accent);
+      box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.16);
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 20px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      margin: 13px 0 0;
+      color: #505b66;
+      line-height: 1.55;
+    }
+
+    .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .topics li {
+      padding: 5px 8px;
+      border: 1px solid rgba(83, 50, 31, 0.16);
+      border-radius: 999px;
+      background: #fbf7ef;
+      color: #53606d;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .open-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 20px;
+    }
+
+    .open-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 7px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .path {
+      min-width: 0;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.76rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .empty {
+      display: none;
+      padding: 34px;
+      border: 1px dashed rgba(83, 50, 31, 0.28);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.65);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty.is-visible {
+      display: block;
+    }
+
+    footer {
+      margin-top: 34px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 940px) {
+      .hero,
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        padding-bottom: 4px;
+      }
+
+      .shelf-scene {
+        min-height: 245px;
+      }
+
+      .book-spines {
+        min-height: 184px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        padding-top: 18px;
+      }
+
+      .hero {
+        min-height: auto;
+        margin-bottom: 18px;
+      }
+
+      .lead {
+        line-height: 1.55;
+      }
+
+      .shelf-scene {
+        border-width: 7px;
+        padding-inline: 12px;
+      }
+
+      .book-spines {
+        gap: 5px;
+      }
+
+      .spine {
+        font-size: 0.7rem;
+      }
+
+      .toolbar {
+        position: static;
+        padding: 10px;
+      }
+
+      .filter-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filter,
+      .sort {
+        width: 100%;
+      }
+
+      .section-heading {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="library-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Local education shelf</p>
+        <h1 id="library-title">Education Library</h1>
+        <p class="lead">A single-page catalog for the books in this folder, grouped by subject and ready to open through local relative links.</p>
+        <div class="stats" aria-label="Library summary">
+          <div class="stat">
+            <strong id="bookTotal">3</strong>
+            <span>Books</span>
+          </div>
+          <div class="stat">
+            <strong id="subjectTotal">3</strong>
+            <span>Subjects</span>
+          </div>
+          <div class="stat">
+            <strong>HTML</strong>
+            <span>Format</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shelf-scene" aria-hidden="true">
+        <div class="book-spines">
+          <div class="spine">ML</div>
+          <div class="spine">Bio</div>
+          <div class="spine">DSP</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="Catalog tools">
+      <label class="search" for="searchInput">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m21 21-4.3-4.3m1.3-5.2a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="searchInput" type="search" placeholder="Search titles, topics, or paths" autocomplete="off">
+      </label>
+
+      <div class="filter-group" id="filters" aria-label="Subject filters"></div>
+
+      <select class="sort" id="sortSelect" aria-label="Sort books">
+        <option value="subject">Sort by subject</option>
+        <option value="title">Sort by title</option>
+        <option value="path">Sort by path</option>
+      </select>
+    </section>
+
+    <section aria-labelledby="catalog-title">
+      <div class="section-heading">
+        <h2 id="catalog-title">Available Books</h2>
+        <div class="result-count" id="resultCount" aria-live="polite"></div>
+      </div>
+      <div class="grid" id="bookGrid"></div>
+      <div class="empty" id="emptyState">No books match the current search.</div>
+    </section>
+
+    <footer>
+      Folder-level index.html files are shown as one book entry.
+    </footer>
+  </main>
+
+  <script>
+    const books = [
+      {
+        title: "Machine Learning Book",
+        subject: "Machine Learning",
+        path: "ML/index.html",
+        accent: "#2f6f64",
+        description: "A guided entry point into the machine learning material and recommended reading path.",
+        topics: ["overview", "reading path", "machine learning"]
+      },
+      {
+        title: "Human Biochemistry Book",
+        subject: "Biochemistry",
+        path: "biochemistry/index.html",
+        accent: "#476a79",
+        description: "A three-section book linking the reaction atlas, compound formula index, and interactive 3D molecular models.",
+        topics: ["reactions", "compounds", "3D models"]
+      },
+      {
+        title: "DSP Book: Signals, Convolution, Filters, and Audio Techniques",
+        subject: "Engineering",
+        path: "engineer/dsp/index.html",
+        accent: "#7d543f",
+        description: "Signals, sampling, convolution, filters, the z-plane, FFTs, spectrograms, and DSP simulators.",
+        topics: ["DSP", "filters", "audio"]
+      }
+    ];
+
+    const grid = document.querySelector("#bookGrid");
+    const filters = document.querySelector("#filters");
+    const searchInput = document.querySelector("#searchInput");
+    const sortSelect = document.querySelector("#sortSelect");
+    const resultCount = document.querySelector("#resultCount");
+    const emptyState = document.querySelector("#emptyState");
+    const bookTotal = document.querySelector("#bookTotal");
+    const subjectTotal = document.querySelector("#subjectTotal");
+
+    let activeSubject = "All";
+
+    const subjects = ["All", ...Array.from(new Set(books.map((book) => book.subject)))];
+
+    bookTotal.textContent = books.length;
+    subjectTotal.textContent = subjects.length - 1;
+
+    function createFilters() {
+      filters.innerHTML = subjects.map((subject) => `
+        <button class="filter" type="button" data-subject="${subject}" aria-pressed="${subject === activeSubject}">
+          ${subject}
+        </button>
+      `).join("");
+    }
+
+    function bookMatches(book, term) {
+      const haystack = [
+        book.title,
+        book.subject,
+        book.path,
+        book.description,
+        ...book.topics
+      ].join(" ").toLowerCase();
+
+      return haystack.includes(term);
+    }
+
+    function sortBooks(items) {
+      const mode = sortSelect.value;
+      return [...items].sort((a, b) => {
+        if (mode === "title") {
+          return a.title.localeCompare(b.title);
+        }
+        if (mode === "path") {
+          return a.path.localeCompare(b.path);
+        }
+        return a.subject.localeCompare(b.subject) || a.title.localeCompare(b.title);
+      });
+    }
+
+    function renderBooks() {
+      const term = searchInput.value.trim().toLowerCase();
+      const filtered = sortBooks(books.filter((book) => {
+        const subjectMatch = activeSubject === "All" || book.subject === activeSubject;
+        return subjectMatch && bookMatches(book, term);
+      }));
+
+      grid.innerHTML = filtered.map((book) => `
+        <article class="card" style="--accent: ${book.accent}">
+          <div class="card-body">
+            <div class="meta">
+              <span class="dot" aria-hidden="true"></span>
+              <span>${book.subject}</span>
+            </div>
+            <h3>${book.title}</h3>
+            <p>${book.description}</p>
+            <ul class="topics" aria-label="Topics">
+              ${book.topics.map((topic) => `<li>${topic}</li>`).join("")}
+            </ul>
+            <div class="open-row">
+              <a class="open-link" href="${book.path}">
+                Open
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17 17 7m0 0H8m9 0v9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <span class="path" title="${book.path}">${book.path}</span>
+            </div>
+          </div>
+        </article>
+      `).join("");
+
+      resultCount.textContent = `${filtered.length} of ${books.length} shown`;
+      emptyState.classList.toggle("is-visible", filtered.length === 0);
+    }
+
+    filters.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-subject]");
+      if (!button) return;
+
+      activeSubject = button.dataset.subject;
+      document.querySelectorAll(".filter").forEach((item) => {
+        item.setAttribute("aria-pressed", String(item === button));
+      });
+      renderBooks();
+    });
+
+    searchInput.addEventListener("input", renderBooks);
+    sortSelect.addEventListener("change", renderBooks);
+
+    createFilters();
+    renderBooks();
+  </script>
+</body>
+</html>
