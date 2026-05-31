@@ -105,7 +105,49 @@ class TanksGame extends Game {
       draw_text(this.ctx, this.players[i].info(), 5 + (i * 140), 60, 10, "white")
     }
 
+    this.draw_velocity_bars()
     this.draw_gravity_vector()
+  }
+
+  draw_velocity_bars() {
+    let bar_w = 310 * this.W_ratio
+    let bar_h = 24 * this.H_ratio
+    let y = 84 * this.H_ratio
+
+    this.draw_velocity_bar(this.players[0], 18 * this.W_ratio, y, bar_w, bar_h, false)
+    this.draw_velocity_bar(this.players[1], this.W - bar_w - 18 * this.W_ratio, y, bar_w, bar_h, true)
+  }
+
+  draw_velocity_bar(player, x, y, w, h, align_right=false) {
+    let ctx = this.ctx
+    let velocity = player.current_shot_velocity()
+    let display_max_velocity = 6
+    let ratio = Math.min(1, velocity / display_max_velocity)
+    let label = `${player.name} velocity ${velocity.toFixed(1)}`
+    let hint = `hold ${player.control_label("изстрел")}`
+    let fill_w = Math.max(0, Math.min(w, w * ratio))
+
+    ctx.save()
+
+    ctx.globalAlpha = 0.88
+    draw_rect(ctx, x, y, w, h, "rgba(0, 0, 0, 0.58)", true)
+    ctx.globalAlpha = 1
+
+    let fill_color = ratio > 0.75 ? "#ffcf4a" : ratio > 0.38 ? "#55c3d8" : "#58c878"
+    draw_rect(ctx, x, y, fill_w, h, fill_color, true)
+    draw_rect(ctx, x, y, w, h, player.color, false, 2)
+
+    ctx.font = `${14 * this.W_ratio}px Arial`
+    ctx.fillStyle = "white"
+    ctx.textAlign = align_right ? "right" : "left"
+    ctx.fillText(label, align_right ? x + w : x, y - 8 * this.H_ratio)
+
+    ctx.font = `${11 * this.W_ratio}px Arial`
+    ctx.fillStyle = "#dce8ef"
+    ctx.textAlign = align_right ? "left" : "right"
+    ctx.fillText(hint, align_right ? x : x + w, y + h + 15 * this.H_ratio)
+
+    ctx.restore()
   }
 
   // Draw Gravity vector on the upper right corner with an red arrow

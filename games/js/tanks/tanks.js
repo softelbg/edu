@@ -118,6 +118,7 @@ class Tank extends SemiCircle {
     this.explosion = 0
     this.last_shot_key_down = 0
     this.is_shot_key_down = false
+    this.max_shot_velocity = 15
 
     document.addEventListener('keydown', this.on_keydown.bind(this))
     document.addEventListener('keyup', this.on_keyup.bind(this))
@@ -132,11 +133,12 @@ class Tank extends SemiCircle {
 
   on_keyup(e) {
     if (this.alive) {
-      if ('изстрел' in this.controls && e.key == this.controls["изстрел"]) {
+      if (this.match_control(e, "изстрел")) {
+        e.preventDefault()
         let angle_radians = to_radians(this.angle)
         let x1 = this.x + this.turret_len * Math.cos(angle_radians)
         let y1 = this.y + this.turret_len * Math.sin(angle_radians)
-        let v = this.last_shot_key_down ? Math.min(15, (Date.now() - this.last_shot_key_down) / 100) : 5
+        let v = this.shot_velocity()
         console.log("Firing cannon ball with velocity", v)
         this.cannon_balls.push(
           new CannonBall(this.ctx, this.W, this.H, x1, y1, v, this.angle, 5, this.g, "red")
@@ -149,7 +151,8 @@ class Tank extends SemiCircle {
 
   on_keydown(e) {
     if (this.alive) {
-      if ('наляво' in this.controls && e.key == this.controls["наляво"]) {
+      if (this.match_control(e, "наляво")) {
+        e.preventDefault()
         this.angle -= 1
         if (this.angle < 190) {
           this.angle = 190
@@ -157,7 +160,8 @@ class Tank extends SemiCircle {
         return
       }
 
-      if ('надясно' in this.controls && e.key == this.controls["надясно"]) {
+      if (this.match_control(e, "надясно")) {
+        e.preventDefault()
         this.angle += 1
         if (this.angle > 350) {
           this.angle = 350
@@ -165,7 +169,8 @@ class Tank extends SemiCircle {
         return
       }
 
-      if ('изстрел' in this.controls && e.key == this.controls["изстрел"]) {
+      if (this.match_control(e, "изстрел")) {
+        e.preventDefault()
         if (this.is_shot_key_down == false) {
           this.is_shot_key_down = true
           this.last_shot_key_down = Date.now()
@@ -174,6 +179,49 @@ class Tank extends SemiCircle {
         return
       }
     }
+  }
+
+  match_control(e, action) {
+    if (!(action in this.controls)) {
+      return false
+    }
+
+    let keys = this.controls[action]
+    if (!Array.isArray(keys)) {
+      keys = [keys]
+    }
+
+    return keys.includes(e.key) || keys.includes(e.code)
+  }
+
+  control_label(action) {
+    if (!(action in this.controls)) {
+      return ""
+    }
+
+    let keys = this.controls[action]
+    if (!Array.isArray(keys)) {
+      keys = [keys]
+    }
+
+    return keys.map((key) => key.toUpperCase()).join("/")
+  }
+
+  shot_velocity() {
+    return this.last_shot_key_down ? Math.min(this.max_shot_velocity, (Date.now() - this.last_shot_key_down) / 100) : 5
+  }
+
+  current_shot_velocity() {
+    if (!this.is_shot_key_down || !this.last_shot_key_down) {
+      return 0
+    }
+
+    let elapsed = Math.max(0, Date.now() - this.last_shot_key_down)
+    return Math.min(this.max_shot_velocity, elapsed / 100)
+  }
+
+  shot_charge_ratio() {
+    return this.current_shot_velocity() / this.max_shot_velocity
   }
 
   draw() {
