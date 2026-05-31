@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robotics Book: Kinematics, Probabilistic Robotics, and AI Agents</title>
+  <style>
+    :root {
+      --ink: #18222b;
+      --muted: #64717d;
+      --paper: #f7f8f4;
+      --surface: #ffffff;
+      --line: #d8ded6;
+      --blue: #315f8a;
+      --green: #2f6f64;
+      --red: #9a4f45;
+      --gold: #b8842c;
+      --violet: #6b5e97;
+      --shadow: 0 18px 42px rgba(24, 34, 43, 0.13);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(49, 95, 138, .06) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(180deg, #eef5f3 0%, var(--paper) 48%, #f4efe6 100%);
+    }
+    a { color: inherit; text-decoration: none; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    math { font-family: "STIX Two Math", "Cambria Math", "Times New Roman", serif; font-size: 1.14em; }
+    button, input, select { font: inherit; }
+
+    .layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); min-height: 100vh; }
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(255,255,255,.82);
+      backdrop-filter: blur(14px);
+    }
+    .breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .breadcrumbs a, .toc nav a {
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      padding: 0 10px;
+      border: 1px solid rgba(49,95,138,.16);
+      border-radius: 7px;
+      background: #fff;
+      color: #31414f;
+      font-size: .88rem;
+      font-weight: 800;
+    }
+    .toc-title {
+      margin: 16px 0 12px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    .toc nav { display: grid; gap: 8px; }
+
+    .hero, .chapter { padding: 46px 0; }
+    .hero { color: #fff; background: #18222b; }
+    .inner { width: min(1120px, calc(100% - 36px)); margin: 0 auto; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(310px, .95fr); gap: 30px; align-items: center; }
+    .kicker { margin: 0 0 12px; color: #a8d6ca; font-size: .78rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    h1 { margin: 0; font-size: clamp(2.8rem, 7vw, 6rem); line-height: .96; }
+    h2 { margin: 0 0 14px; font-size: clamp(2rem, 4vw, 3rem); }
+    h3 { margin: 0 0 10px; font-size: 1.45rem; }
+    .subtitle, .lead { max-width: 820px; color: #d8e2ea; font-size: 1.1rem; line-height: 1.65; }
+    .lead { color: #475461; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 7px;
+      background: var(--green);
+      color: #fff;
+      font-weight: 900;
+    }
+    .button.secondary { border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .robot-visual {
+      min-height: 330px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 8px;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(255,255,255,.08) 32px),
+        repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(255,255,255,.08) 32px);
+      box-shadow: 0 20px 50px rgba(0,0,0,.22);
+    }
+    .robot-visual canvas { width: 100%; height: 330px; display: block; border: 0; background: transparent; }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card, .sim, .equation {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    .card p, .card li, .sim p, .equation p { color: #485560; line-height: 1.62; }
+    .note {
+      margin: 16px 0;
+      padding: 16px 18px;
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      background: #f0f7f3;
+      color: #32423b;
+      line-height: 1.6;
+    }
+    .math-block {
+      overflow-x: auto;
+      margin: 14px 0;
+      padding: 14px;
+      border-radius: 8px;
+      background: #f6f8fb;
+      border: 1px solid #dbe3ea;
+      text-align: center;
+    }
+    pre { overflow: auto; margin: 16px 0 0; padding: 16px; border-radius: 8px; background: #18222b; color: #e8edf2; line-height: 1.55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: #fff; }
+    th, td { padding: 11px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: #3a4a56; background: #f6f8fb; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 14px 0; }
+    label { display: grid; gap: 6px; color: #394856; font-weight: 850; font-size: .9rem; }
+    input, select {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 10px;
+      color: var(--ink);
+      background: #fff;
+    }
+    input[type="range"] { padding: 0; }
+    .result { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .metric { padding: 12px; border-radius: 8px; background: #f6f8fb; border: 1px solid #dbe3ea; }
+    .metric b { display: block; font-size: 1.16rem; }
+    .metric span { color: var(--muted); font-size: .78rem; font-weight: 850; text-transform: uppercase; }
+    canvas { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .wide { grid-column: 1 / -1; }
+    .lab-grid { display: grid; grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr); gap: 16px; align-items: start; }
+    .dh-control {
+      display: grid;
+      grid-template-columns: 52px 54px minmax(130px, 1fr);
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      color: #394856;
+      font-size: .88rem;
+      font-weight: 850;
+    }
+    .dh-control output {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: .8rem;
+    }
+    .image-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .frame-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+    .frame-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+    .frame-card div { padding: 13px; color: #485560; line-height: 1.48; }
+    .source-list { display: grid; gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; }
+    .source-list a { color: var(--blue); font-weight: 850; }
+    .timeline { display: grid; gap: 12px; }
+    .event { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 12px; align-items: start; }
+    .event time { color: var(--green); font-weight: 900; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .pill { padding: 5px 8px; border-radius: 999px; background: #edf5f2; border: 1px solid #d5e5df; color: #53606b; font-size: .78rem; font-weight: 850; }
+    .footer { padding: 28px 0 44px; color: var(--muted); text-align: center; }
+
+    @media (max-width: 980px) {
+      .layout, .hero-grid, .grid, .three, .controls, .result, .lab-grid, .image-grid { grid-template-columns: 1fr; }
+      .toc { position: static; height: auto; }
+      .event { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Breadcrumbs">
+        <a href="../index.html">Library</a>
+        <a href="#visual-examples">Visual Examples</a>
+      </nav>
+      <div class="toc-title">Robotics Book</div>
+      <nav>
+        <a href="#analytic">Analytic Arm Kinematics</a>
+        <a href="#dh">Denavit-Hartenberg</a>
+        <a href="#ik">Inverse Kinematics</a>
+        <a href="#visual-examples">Visual Examples</a>
+        <a href="#probabilistic">Probabilistic Robotics</a>
+        <a href="#ai">AI, VLMs, and Agents</a>
+        <a href="#deep-dives">Deep Dives</a>
+        <a href="#simulators">Simulators</a>
+        <a href="#sources">Sources</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="top">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Softel Labs Education | Robotics</p>
+            <h1>Robotics Book</h1>
+            <p class="subtitle">An academic and practical robotics book beginning with analytic robotic arm coordinates, Denavit-Hartenberg kinematics, inverse kinematics, probabilistic robotics, and modern AI/VLM/VLA/agentic robotics for future humanoid and general-purpose systems.</p>
+            <div class="hero-actions">
+              <a class="button" href="#analytic">Start with Kinematics</a>
+              <a class="button secondary" href="#ai">Modern AI Robotics</a>
+            </div>
+          </div>
+          <div class="robot-visual" aria-label="Animated robotic arm workspace">
+            <canvas id="heroArm" width="720" height="520"></canvas>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="analytic">
+        <div class="inner">
+          <h2>1. Analytic Robotic Arm Coordinates</h2>
+          <p class="lead">A robot arm is a chain of rigid links connected by joints. Analytic kinematics asks for exact coordinate maps between joint space and task space: given joint variables, where is the tool; given a target, which joint variables can reach it?</p>
+          <div class="grid">
+            <article class="equation">
+              <h3>Planar two-link forward kinematics</h3>
+              <p>For a shoulder angle <math><mi>&theta;</mi><mo>_</mo><mn>1</mn></math>, elbow angle <math><mi>&theta;</mi><mo>_</mo><mn>2</mn></math>, and link lengths <math><mi>L</mi><mo>_</mo><mn>1</mn></math>, <math><mi>L</mi><mo>_</mo><mn>2</mn></math>:</p>
+              <div class="math-block">
+                <math display="block">
+                  <mtable>
+                    <mtr>
+                      <mtd><mi>x</mi></mtd>
+                      <mtd><mo>=</mo></mtd>
+                      <mtd><msub><mi>L</mi><mn>1</mn></msub><mi>cos</mi><mo>(</mo><msub><mi>&theta;</mi><mn>1</mn></msub><mo>)</mo><mo>+</mo><msub><mi>L</mi><mn>2</mn></msub><mi>cos</mi><mo>(</mo><msub><mi>&theta;</mi><mn>1</mn></msub><mo>+</mo><msub><mi>&theta;</mi><mn>2</mn></msub><mo>)</mo></mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd><mi>y</mi></mtd>
+                      <mtd><mo>=</mo></mtd>
+                      <mtd><msub><mi>L</mi><mn>1</mn></msub><mi>sin</mi><mo>(</mo><msub><mi>&theta;</mi><mn>1</mn></msub><mo>)</mo><mo>+</mo><msub><mi>L</mi><mn>2</mn></msub><mi>sin</mi><mo>(</mo><msub><mi>&theta;</mi><mn>1</mn></msub><mo>+</mo><msub><mi>&theta;</mi><mn>2</mn></msub><mo>)</mo></mtd>
+                    </mtr>
+                  </mtable>
+                </math>
+              </div>
+            </article>
+            <article class="equation">
+              <h3>Jacobian velocity map</h3>
+              <p>The differential relationship between joint velocities and end-effector velocity is:</p>
+              <div class="math-block">
+                <math display="block">
+                  <mrow>
+                    <mrow><mo>[</mo><mtable><mtr><mtd><mover><mi>x</mi><mo>.</mo></mover></mtd></mtr><mtr><mtd><mover><mi>y</mi><mo>.</mo></mover></mtd></mtr></mtable><mo>]</mo></mrow>
+                    <mo>=</mo>
+                    <mi>J</mi><mo>(</mo><mi>q</mi><mo>)</mo>
+                    <mrow><mo>[</mo><mtable><mtr><mtd><msub><mover><mi>&theta;</mi><mo>.</mo></mover><mn>1</mn></msub></mtd></mtr><mtr><mtd><msub><mover><mi>&theta;</mi><mo>.</mo></mover><mn>2</mn></msub></mtd></mtr></mtable><mo>]</mo></mrow>
+                  </mrow>
+                </math>
+              </div>
+              <p>The Jacobian is the object that connects geometry to control, singularities, velocity amplification, and force transmission.</p>
+            </article>
+          </div>
+          <div class="note">A useful educational arm stack starts in servo space, but the goal is task space: object pose, approach vector, wrist orientation, gripper opening, and a safe trajectory. Analytic kinematics is the bridge between raw joint commands and geometric manipulation.</div>
+        </div>
+      </section>
+
+      <section class="chapter" id="dh">
+        <div class="inner">
+          <h2>2. Denavit-Hartenberg Kinematics</h2>
+          <p class="lead">Denavit-Hartenberg notation is a systematic way to assign coordinate frames to a serial manipulator. Each link transform is represented by four parameters: joint angle, link offset, link length, and link twist.</p>
+          <div class="equation">
+            <h3>Standard DH transform</h3>
+            <div class="math-block">
+              <math display="block">
+                <mrow>
+                  <msubsup><mi>T</mi><mrow><mi>i</mi><mo>-</mo><mn>1</mn></mrow><mi>i</mi></msubsup>
+                  <mo>=</mo>
+                  <mrow><mo>[</mo>
+                    <mtable>
+                      <mtr><mtd><mi>cos</mi><msub><mi>&theta;</mi><mi>i</mi></msub></mtd><mtd><mo>-</mo><mi>sin</mi><msub><mi>&theta;</mi><mi>i</mi></msub><mi>cos</mi><msub><mi>&alpha;</mi><mi>i</mi></msub></mtd><mtd><mi>sin</mi><msub><mi>&theta;</mi><mi>i</mi></msub><mi>sin</mi><msub><mi>&alpha;</mi><mi>i</mi></msub></mtd><mtd><msub><mi>a</mi><mi>i</mi></msub><mi>cos</mi><msub><mi>&theta;</mi><mi>i</mi></msub></mtd></mtr>
+                      <mtr><mtd><mi>sin</mi><msub><mi>&theta;</mi><mi>i</mi></msub></mtd><mtd><mi>cos</mi><msub><mi>&theta;</mi><mi>i</mi></msub><mi>cos</mi><msub><mi>&alpha;</mi><mi>i</mi></msub></mtd><mtd><mo>-</mo><mi>cos</mi><msub><mi>&theta;</mi><mi>i</mi></msub><mi>sin</mi><msub><mi>&alpha;</mi><mi>i</mi></msub></mtd><mtd><msub><mi>a</mi><mi>i</mi></msub><mi>sin</mi><msub><mi>&theta;</mi><mi>i</mi></msub></mtd></mtr>
+                      <mtr><mtd><mn>0</mn></mtd><mtd><mi>sin</mi><msub><mi>&alpha;</mi><mi>i</mi></msub></mtd><mtd><mi>cos</mi><msub><mi>&alpha;</mi><mi>i</mi></msub></mtd><mtd><msub><mi>d</mi><mi>i</mi></msub></mtd></mtr>
+                      <mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr>
+                    </mtable>
+                  <mo>]</mo></mrow>
+                </mrow>
+              </math>
+            </div>
+            <p>The full forward kinematic chain is <math><msubsup><mi>T</mi><mn>0</mn><mi>n</mi></msubsup><mo>=</mo><msubsup><mi>T</mi><mn>0</mn><mn>1</mn></msubsup><msubsup><mi>T</mi><mn>1</mn><mn>2</mn></msubsup><mo>...</mo><msubsup><mi>T</mi><mrow><mi>n</mi><mo>-</mo><mn>1</mn></mrow><mi>n</mi></msubsup></math>. The position is the top-right column of the final homogeneous transform.</p>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <h3>Academic workflow</h3>
+              <ol>
+                <li>Draw each joint axis <math><msub><mi>z</mi><mi>i</mi></msub></math>.</li>
+                <li>Place <math><msub><mi>x</mi><mi>i</mi></msub></math> along the common normal between consecutive joint axes.</li>
+                <li>Measure <math><msub><mi>a</mi><mi>i</mi></msub></math>, <math><msub><mi>&alpha;</mi><mi>i</mi></msub></math>, <math><msub><mi>d</mi><mi>i</mi></msub></math>, and <math><msub><mi>&theta;</mi><mi>i</mi></msub></math>.</li>
+                <li>Multiply transforms in order and validate with known poses.</li>
+              </ol>
+            </article>
+            <article class="card">
+              <h3>Servo arm caution</h3>
+              <p>Low-cost educational arms often expose servo angles rather than calibrated joint coordinates. Before trusting DH output, measure zero offsets, link lengths, rotation signs, joint limits, gear slack, and camera/tool offsets.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ik">
+        <div class="inner">
+          <h2>3. Inverse Kinematics and Workspace</h2>
+          <p class="lead">Inverse kinematics maps a desired end-effector pose back to joint variables. Closed-form IK is fast and exact for simple geometries; numerical IK handles complex chains but must manage singularities, joint limits, and local minima.</p>
+          <div class="grid">
+            <article class="equation">
+              <h3>Two-link closed-form IK</h3>
+              <div class="math-block">
+                <math display="block">
+                  <mtable>
+                    <mtr><mtd><mi>r</mi><mo>^</mo><mn>2</mn></mtd><mtd><mo>=</mo></mtd><mtd><mi>x</mi><mo>^</mo><mn>2</mn><mo>+</mo><mi>y</mi><mo>^</mo><mn>2</mn></mtd></mtr>
+                    <mtr><mtd><mi>c</mi><mo>_</mo><mn>2</mn></mtd><mtd><mo>=</mo></mtd><mtd><mfrac><mrow><mi>r</mi><mo>^</mo><mn>2</mn><mo>-</mo><msub><mi>L</mi><mn>1</mn></msub><mo>^</mo><mn>2</mn><mo>-</mo><msub><mi>L</mi><mn>2</mn></msub><mo>^</mo><mn>2</mn></mrow><mrow><mn>2</mn><msub><mi>L</mi><mn>1</mn></msub><msub><mi>L</mi><mn>2</mn></msub></mrow></mfrac></mtd></mtr>
+                    <mtr><mtd><msub><mi>&theta;</mi><mn>2</mn></msub></mtd><mtd><mo>=</mo></mtd><mtd><mi>atan2</mi><mo>(</mo><mo>&plusmn;</mo><msqrt><mrow><mn>1</mn><mo>-</mo><mi>c</mi><mo>_</mo><mn>2</mn><mo>^</mo><mn>2</mn></mrow></msqrt><mo>,</mo><mi>c</mi><mo>_</mo><mn>2</mn><mo>)</mo></mtd></mtr>
+                    <mtr><mtd><msub><mi>&theta;</mi><mn>1</mn></msub></mtd><mtd><mo>=</mo></mtd><mtd><mi>atan2</mi><mo>(</mo><mi>y</mi><mo>,</mo><mi>x</mi><mo>)</mo><mo>-</mo><mi>atan2</mi><mo>(</mo><msub><mi>L</mi><mn>2</mn></msub><mi>sin</mi><msub><mi>&theta;</mi><mn>2</mn></msub><mo>,</mo><msub><mi>L</mi><mn>1</mn></msub><mo>+</mo><msub><mi>L</mi><mn>2</mn></msub><mi>cos</mi><msub><mi>&theta;</mi><mn>2</mn></msub><mo>)</mo></mtd></mtr>
+                  </mtable>
+                </math>
+              </div>
+            </article>
+            <article class="card">
+              <h3>Controller hierarchy</h3>
+              <p>A robust arm controller should separate goals from mechanisms: natural-language task, symbolic plan, metric target pose, IK solution, collision and limit checks, trajectory generation, servo command, observation feedback, and stop conditions.</p>
+              <pre><code>task: "grab the bottle near the cap"
+-> target object: bottle cap
+-> target pose: x,y,z, approach angle
+-> IK candidates
+-> safe trajectory
+-> mv:step,base,shoulder,elbow,wrist_ver,wrist_rot,gripper</code></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="visual-examples">
+        <div class="inner">
+          <h2>4. Visual Examples From Arm Video</h2>
+          <p class="lead">A robotics book benefits from real visual scenes: the workspace is cluttered, the gripper can occlude the target, and camera viewpoints change with the arm. The frames below are used as example imagery for perception, calibration, and visual servoing discussions.</p>
+          <div class="image-grid">
+            <figure class="frame-card">
+              <img src="assets/arm_scene_overview.jpg" alt="Robot arm workspace overview">
+              <div><b>Workspace overview.</b><br>Use wide visual context for object discovery, scene layout, and coarse approach planning.</div>
+            </figure>
+            <figure class="frame-card">
+              <img src="assets/arm_gripper_view.jpg" alt="Robot gripper camera view">
+              <div><b>Gripper view.</b><br>Close-range manipulation depends on finger visibility, target occlusion, and the approach direction.</div>
+            </figure>
+            <figure class="frame-card">
+              <img src="assets/arm_motion_sample.jpg" alt="Robot arm motion sample frame">
+              <div><b>Motion sample.</b><br>Single-joint sweeps reveal which degree of freedom changes horizontal alignment, reach, pitch, and gripper orientation.</div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="probabilistic">
+        <div class="inner">
+          <h2>5. Classic Probabilistic Robotics</h2>
+          <p class="lead">Real robots act under uncertainty: sensors are noisy, actuators drift, maps are incomplete, and objects move. Probabilistic robotics models belief rather than pretending the state is known exactly.</p>
+          <div class="grid three">
+            <article class="equation">
+              <h3>Bayes filter</h3>
+              <div class="math-block">
+                <math display="block">
+                  <mrow>
+                    <mi>bel</mi><mo>(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>)</mo>
+                    <mo>=</mo>
+                    <mi>&eta;</mi><mi>p</mi><mo>(</mo><msub><mi>z</mi><mi>t</mi></msub><mo>|</mo><msub><mi>x</mi><mi>t</mi></msub><mo>)</mo>
+                    <mo>&Integral;</mo>
+                    <mi>p</mi><mo>(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>|</mo><msub><mi>u</mi><mi>t</mi></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow></msub><mo>)</mo>
+                    <mi>bel</mi><mo>(</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow></msub><mo>)</mo>
+                    <mi>d</mi><msub><mi>x</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow></msub>
+                  </mrow>
+                </math>
+              </div>
+            </article>
+            <article class="card">
+              <h3>Kalman filters</h3>
+              <p>Kalman filters estimate a continuous state with a prediction step and a measurement correction step. They are ideal when linear dynamics and Gaussian noise are a reasonable model.</p>
+            </article>
+            <article class="card">
+              <h3>SLAM and occupancy</h3>
+              <p>SLAM estimates both robot pose and map. Occupancy grids model each cell as free or occupied, updated by inverse sensor models. Modern systems often combine SLAM geometry with learned perception.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ai">
+        <div class="inner">
+          <h2>6. Modern AI, VLMs, and Agentic Robotics</h2>
+          <p class="lead">The current frontier is moving from manually programmed robots toward foundation-model robotics: language-conditioned perception, reasoning, planning, and action. A practical architecture still needs classical control underneath: AI proposes goals and constraints; verified controllers execute safely.</p>
+          <div class="grid">
+            <article class="card">
+              <h3>Layered future humanoid stack</h3>
+              <ol>
+                <li><b>Conversation layer:</b> plain English goals, clarification, status explanation, and user interruption.</li>
+                <li><b>World model:</b> multimodal scene understanding, object memory, affordances, hazards, and human intent.</li>
+                <li><b>Task planner:</b> decomposes "clean the table" into inspect, pick, wipe, verify, recover.</li>
+                <li><b>Skill library:</b> grasp, pour, open drawer, hand over, fold, plug, carry, navigate.</li>
+                <li><b>Controller:</b> IK, trajectory generation, force control, MPC, collision checking, emergency stop.</li>
+                <li><b>Learning loop:</b> log failures, request help, label recoveries, replay in simulation, update policies.</li>
+              </ol>
+            </article>
+            <article class="card">
+              <h3>Important design rule</h3>
+              <p>Do not let an LLM directly drive motors as free-form text. A safe system turns language into typed, bounded commands: target pose, object id, force limit, speed limit, allowed workspace, timeout, and abort condition. The controller validates and executes.</p>
+              <pre><code>{
+  "skill": "grasp_object",
+  "object": "bottle_cap",
+  "approach": "side",
+  "max_speed": 0.08,
+  "force_limit": "low",
+  "stop_if": ["human_hand_detected", "object_lost", "joint_limit_near"]
+}</code></pre>
+            </article>
+          </div>
+          <div class="grid three">
+            <article class="card">
+              <h3>NVIDIA GR00T</h3>
+              <p>NVIDIA describes GR00T N1 as an open foundation model for humanoid robots, trained from real robot trajectories, human videos, and synthetic data. Its architecture couples vision-language interpretation with real-time action generation.</p>
+            </article>
+            <article class="card">
+              <h3>Google Gemini Robotics</h3>
+              <p>Google DeepMind presents Gemini Robotics as a vision-language-action model that turns visual information and instructions into motor commands, with emphasis on generality, interactivity, dexterity, thinking, and multiple embodiments.</p>
+            </article>
+            <article class="card">
+              <h3>INSAIT SPEAR-1</h3>
+              <p>INSAIT's SPEAR-1 emphasizes 3D understanding to reduce the robotic data bottleneck. The published description argues that robotics needs precise 3D coordinates and distances, not only 2D visual descriptions.</p>
+            </article>
+          </div>
+          <div class="note">A strong near-term research direction is hybrid: keep deterministic servo safety and analytic kinematics, add visual state estimation from cameras, then let an AI planner choose bounded skills such as "sweep base left", "align gripper with cap", or "close gripper after cap is between fingers".</div>
+        </div>
+      </section>
+
+      <section class="chapter" id="deep-dives">
+        <div class="inner">
+          <h2>7. Deep Dive Pages</h2>
+          <p class="lead">These starter pages expand the main book into focused technical chapters.</p>
+          <div class="grid">
+            <article class="card"><h3>DH Kinematics Deep Dive</h3><p>Frame assignment, standard versus modified DH, transform multiplication, and calibration workflow.</p><a class="button" href="dh_deep_dive.html">Open DH</a></article>
+            <article class="card"><h3>SLAM Deep Dive</h3><p>Pose graphs, occupancy grids, scan matching, loop closure, and map consistency.</p><a class="button" href="slam_deep_dive.html">Open SLAM</a></article>
+            <article class="card"><h3>Kalman Sensor Filters</h3><p>State-space models, prediction, correction, covariance, sensor fusion, EKF, and UKF intuition.</p><a class="button" href="kalman_sensors_deep_dive.html">Open Kalman</a></article>
+            <article class="card"><h3>AI/LLM Robotics</h3><p>Language interfaces, VLM/VLA policies, agent planners, tool schemas, skill libraries, and safety gates.</p><a class="button" href="ai_llm_robotics_deep_dive.html">Open AI Robotics</a></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>8. Interactive Simulators</h2>
+          <div class="grid">
+            <article class="sim">
+              <h3>Planar Arm Forward and Inverse Kinematics</h3>
+              <div class="controls">
+                <label>L1 <input id="l1" type="number" value="110" min="20"></label>
+                <label>L2 <input id="l2" type="number" value="90" min="20"></label>
+                <label>Theta 1 <input id="theta1" type="range" min="-180" max="180" value="35"></label>
+                <label>Theta 2 <input id="theta2" type="range" min="-180" max="180" value="55"></label>
+                <label>Target X <input id="targetX" type="number" value="110"></label>
+                <label>Target Y <input id="targetY" type="number" value="105"></label>
+              </div>
+              <div class="hero-actions">
+                <button class="button" type="button" id="solveIk">Solve IK</button>
+                <button class="button secondary" type="button" id="elbowMode">Elbow: down</button>
+              </div>
+              <canvas id="armCanvas" width="720" height="420"></canvas>
+              <div class="result" id="armMetrics"></div>
+            </article>
+
+            <article class="sim">
+              <h3>Kalman Filter Sensor Fusion</h3>
+              <p>A 1D constant-velocity Kalman filter fuses a noisy motion model with noisy position measurements.</p>
+              <div class="controls">
+                <label>Acceleration command <input id="kfAccel" type="range" min="-2" max="2" step="0.1" value="0.4"></label>
+                <label>Process noise <input id="kfProcessNoise" type="range" min="0.01" max="4" step="0.01" value="0.5"></label>
+                <label>Sensor noise <input id="kfSensorNoise" type="range" min="1" max="80" value="18"></label>
+              </div>
+              <div class="hero-actions">
+                <button class="button" type="button" id="kfStep">Step filter</button>
+                <button class="button secondary" type="button" id="kfReset">Reset</button>
+              </div>
+              <canvas id="kfCanvas" width="720" height="280"></canvas>
+              <div class="result" id="kfMetrics"></div>
+            </article>
+
+            <article class="sim wide">
+              <h3>Editable DH Forward Kinematics</h3>
+              <p>Use this small DH calculator to see how chained homogeneous transforms move a tool point. Angles are degrees; lengths are arbitrary units.</p>
+              <div class="lab-grid">
+                <div>
+                  <div id="dhRows"></div>
+                  <div class="hero-actions">
+                    <button class="button" type="button" id="dhPreset">Load simple arm preset</button>
+                  </div>
+                </div>
+                <div>
+                  <canvas id="dhCanvas" width="720" height="360"></canvas>
+                  <div class="result" id="dhMetrics"></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sources">
+        <div class="inner">
+          <h2>9. Sources and Reading</h2>
+          <p class="lead">Modern robotics model references are linked to primary project pages or papers.</p>
+          <ul class="source-list">
+            <li><a href="https://research.nvidia.com/publication/2025-03_nvidia-isaac-gr00t-n1-open-foundation-model-humanoid-robots">NVIDIA Isaac GR00T N1 research page</a></li>
+            <li><a href="https://arxiv.org/abs/2503.14734">GR00T N1 arXiv paper</a></li>
+            <li><a href="https://deepmind.google/models/gemini-robotics/gemini-robotics/">Google DeepMind Gemini Robotics model page</a></li>
+            <li><a href="https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/">Google DeepMind RT-2 blog</a></li>
+            <li><a href="https://spear.insait.ai/">INSAIT SPEAR-1 project page</a></li>
+            <li><a href="https://arxiv.org/abs/2406.09246">OpenVLA paper</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <footer class="footer">Robotics Book. Initial edition: analytic kinematics, DH math, Kalman filtering, SLAM, visual examples, and modern AI robotics.</footer>
+    </main>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const deg = (x) => x * Math.PI / 180;
+    const rad = (x) => x * 180 / Math.PI;
+    const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+    function metric(label, value) { return `<div class="metric"><b>${value}</b><span>${label}</span></div>`; }
+
+    function drawHeroArm() {
+      const canvas = $("heroArm");
+      const ctx = canvas.getContext("2d");
+      let t = 0;
+      function tick() {
+        t += 0.018;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255,255,255,.08)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+        for (let y = 0; y < canvas.height; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+        const base = { x: 180, y: 380 };
+        const a1 = -0.8 + Math.sin(t) * 0.35;
+        const a2 = 0.9 + Math.cos(t * 1.2) * 0.28;
+        const p1 = { x: base.x + Math.cos(a1) * 150, y: base.y + Math.sin(a1) * 150 };
+        const p2 = { x: p1.x + Math.cos(a1 + a2) * 120, y: p1.y + Math.sin(a1 + a2) * 120 };
+        ctx.lineCap = "round";
+        ctx.lineWidth = 18;
+        ctx.strokeStyle = "#2f6f64";
+        ctx.beginPath(); ctx.moveTo(base.x, base.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+        ctx.strokeStyle = "#b8842c";
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+        [base, p1, p2].forEach((p, i) => {
+          ctx.fillStyle = i === 2 ? "#9a4f45" : "#fff";
+          ctx.beginPath(); ctx.arc(p.x, p.y, i === 2 ? 12 : 16, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.fillStyle = "rgba(255,255,255,.74)";
+        ctx.font = "700 18px system-ui";
+        ctx.fillText("q -> T(q) -> workspace", 320, 90);
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    let elbowDown = true;
+    function drawArm() {
+      const L1 = Number($("l1").value), L2 = Number($("l2").value);
+      const q1 = deg(Number($("theta1").value)), q2 = deg(Number($("theta2").value));
+      const base = { x: 260, y: 260 };
+      const p1 = { x: base.x + Math.cos(q1) * L1, y: base.y - Math.sin(q1) * L1 };
+      const p2 = { x: p1.x + Math.cos(q1 + q2) * L2, y: p1.y - Math.sin(q1 + q2) * L2 };
+      const tx = base.x + Number($("targetX").value);
+      const ty = base.y - Number($("targetY").value);
+      const canvas = $("armCanvas"), ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#edf1f5"; ctx.lineWidth = 1;
+      for (let x = 20; x < canvas.width; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+      for (let y = 20; y < canvas.height; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+      ctx.strokeStyle = "#9a4f45"; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.arc(base.x, base.y, L1 + L2, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.lineCap = "round"; ctx.lineWidth = 16; ctx.strokeStyle = "#315f8a"; ctx.beginPath(); ctx.moveTo(base.x, base.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+      ctx.strokeStyle = "#2f6f64"; ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+      [base, p1, p2].forEach((p, i) => { ctx.fillStyle = i === 2 ? "#9a4f45" : "#fff"; ctx.strokeStyle = "#18222b"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 13, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); });
+      ctx.fillStyle = "#b8842c"; ctx.beginPath(); ctx.arc(tx, ty, 8, 0, Math.PI * 2); ctx.fill();
+      const x = p2.x - base.x, y = base.y - p2.y;
+      $("armMetrics").innerHTML = [
+        metric("End x", x.toFixed(1)),
+        metric("End y", y.toFixed(1)),
+        metric("Theta 1", `${Number($("theta1").value).toFixed(1)} deg`),
+        metric("Theta 2", `${Number($("theta2").value).toFixed(1)} deg`)
+      ].join("");
+    }
+    function solveIk() {
+      const L1 = Number($("l1").value), L2 = Number($("l2").value);
+      const x = Number($("targetX").value), y = Number($("targetY").value);
+      const r2 = x * x + y * y;
+      let c2 = (r2 - L1 * L1 - L2 * L2) / (2 * L1 * L2);
+      c2 = clamp(c2, -1, 1);
+      const s2 = (elbowDown ? 1 : -1) * Math.sqrt(Math.max(0, 1 - c2 * c2));
+      const q2 = Math.atan2(s2, c2);
+      const q1 = Math.atan2(y, x) - Math.atan2(L2 * Math.sin(q2), L1 + L2 * Math.cos(q2));
+      $("theta1").value = rad(q1).toFixed(1);
+      $("theta2").value = rad(q2).toFixed(1);
+      drawArm();
+    }
+
+    let trueKf = { x: 80, v: 2 };
+    let kf = { x: 60, v: 0, p00: 400, p01: 0, p10: 0, p11: 80 };
+    let kfTrace = [];
+    function randn() {
+      let u = 0, v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+    function resetKf() {
+      trueKf = { x: 80, v: 2 };
+      kf = { x: 60, v: 0, p00: 400, p01: 0, p10: 0, p11: 80 };
+      kfTrace = [];
+      drawKf(null);
+    }
+    function stepKf() {
+      const dt = 1;
+      const accel = Number($("kfAccel").value);
+      const q = Number($("kfProcessNoise").value);
+      const r = Number($("kfSensorNoise").value) ** 2;
+      trueKf.v += accel * dt + randn() * q * 0.18;
+      trueKf.x = clamp(trueKf.x + trueKf.v * dt + 0.5 * accel * dt * dt, 20, 700);
+      const z = trueKf.x + randn() * Math.sqrt(r);
+
+      const predX = kf.x + kf.v * dt + 0.5 * accel * dt * dt;
+      const predV = kf.v + accel * dt;
+      const p00 = kf.p00 + dt * kf.p10 + dt * kf.p01 + dt * dt * kf.p11 + q;
+      const p01 = kf.p01 + dt * kf.p11;
+      const p10 = kf.p10 + dt * kf.p11;
+      const p11 = kf.p11 + q;
+
+      const innovation = z - predX;
+      const s = p00 + r;
+      const k0 = p00 / s;
+      const k1 = p10 / s;
+      kf.x = predX + k0 * innovation;
+      kf.v = predV + k1 * innovation;
+      kf.p00 = (1 - k0) * p00;
+      kf.p01 = (1 - k0) * p01;
+      kf.p10 = p10 - k1 * p00;
+      kf.p11 = p11 - k1 * p01;
+      kfTrace.push({ trueX: trueKf.x, z, estimate: kf.x });
+      if (kfTrace.length > 80) kfTrace.shift();
+      drawKf(z);
+    }
+    function drawKf(measurement) {
+      const canvas = $("kfCanvas"), ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#f6f8fb"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#dbe3ea"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(20, 210); ctx.lineTo(700, 210); ctx.stroke();
+      function drawTrace(key, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        kfTrace.forEach((item, i) => {
+          const x = 30 + i * 8;
+          const y = 230 - item[key] * 0.24;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+      drawTrace("trueX", "#9a4f45");
+      drawTrace("z", "rgba(184,132,44,.45)");
+      drawTrace("estimate", "#2f6f64");
+      const sigma = Math.sqrt(Math.max(0, kf.p00));
+      ctx.fillStyle = "rgba(47,111,100,.18)";
+      ctx.fillRect(clamp(kf.x - sigma, 20, 700), 188, Math.max(3, sigma * 2), 44);
+      ctx.fillStyle = "#9a4f45"; ctx.beginPath(); ctx.arc(clamp(trueKf.x, 20, 700), 210, 9, 0, Math.PI * 2); ctx.fill();
+      if (measurement !== null) { ctx.fillStyle = "#b8842c"; ctx.beginPath(); ctx.arc(clamp(measurement, 20, 700), 182, 7, 0, Math.PI * 2); ctx.fill(); }
+      ctx.fillStyle = "#2f6f64"; ctx.beginPath(); ctx.arc(clamp(kf.x, 20, 700), 238, 8, 0, Math.PI * 2); ctx.fill();
+      $("kfMetrics").innerHTML = [
+        metric("True x", trueKf.x.toFixed(1)),
+        metric("Estimate x", kf.x.toFixed(1)),
+        metric("Velocity", kf.v.toFixed(2)),
+        metric("Sigma x", sigma.toFixed(1))
+      ].join("");
+    }
+
+    const dhData = [
+      { a: 90, alpha: 0, d: 0, theta: 30 },
+      { a: 80, alpha: 0, d: 0, theta: 40 },
+      { a: 55, alpha: 0, d: 0, theta: -25 }
+    ];
+    function dhMatrix(a, alphaDeg, d, thetaDeg) {
+      const al = deg(alphaDeg), th = deg(thetaDeg);
+      const c = Math.cos(th), s = Math.sin(th), ca = Math.cos(al), sa = Math.sin(al);
+      return [[c, -s * ca, s * sa, a * c], [s, c * ca, -c * sa, a * s], [0, sa, ca, d], [0, 0, 0, 1]];
+    }
+    function mmul(A, B) {
+      return A.map((row, i) => B[0].map((_, j) => row.reduce((sum, _, k) => sum + A[i][k] * B[k][j], 0)));
+    }
+    function initDh() {
+      $("dhRows").innerHTML = dhData.map((row, i) => `
+        <div class="card">
+          <h3>Link ${i + 1}</h3>
+          ${dhSlider(i, "a", row.a, 0, 160, 1)}
+          ${dhSlider(i, "alpha", row.alpha, -180, 180, 1)}
+          ${dhSlider(i, "d", row.d, -100, 100, 1)}
+          ${dhSlider(i, "theta", row.theta, -180, 180, 1)}
+        </div>
+      `).join("");
+      document.querySelectorAll("[data-dh]").forEach((input) => input.addEventListener("input", drawDh));
+      drawDh();
+    }
+    function dhSlider(i, key, value, min, max, step) {
+      const id = `dh-${i}-${key}`;
+      return `<label class="dh-control" for="${id}"><span>${key}</span><output id="${id}-out">${value}</output><input id="${id}" type="range" data-dh="${i}:${key}" min="${min}" max="${max}" step="${step}" value="${value}"></label>`;
+    }
+    function currentDhRows() {
+      const rows = JSON.parse(JSON.stringify(dhData));
+      document.querySelectorAll("[data-dh]").forEach((input) => {
+        const [i, key] = input.dataset.dh.split(":");
+        rows[Number(i)][key] = Number(input.value) || 0;
+        const out = document.getElementById(`${input.id}-out`);
+        if (out) out.textContent = input.value;
+      });
+      return rows;
+    }
+    function drawDh() {
+      const canvas = $("dhCanvas"), ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#edf1f5"; ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+      for (let y = 0; y < canvas.height; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+      let T = [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]];
+      const pts = [{ x: 240, y: 250 }];
+      currentDhRows().forEach((row) => {
+        T = mmul(T, dhMatrix(row.a, row.alpha, row.d, row.theta));
+        pts.push({ x: 240 + T[0][3], y: 250 - T[1][3] });
+      });
+      ctx.lineCap = "round"; ctx.lineWidth = 12; ctx.strokeStyle = "#315f8a";
+      ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y); pts.slice(1).forEach((p) => ctx.lineTo(p.x, p.y)); ctx.stroke();
+      pts.forEach((p, i) => { ctx.fillStyle = i === pts.length - 1 ? "#9a4f45" : "#fff"; ctx.strokeStyle = "#18222b"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); });
+      const end = pts[pts.length - 1];
+      $("dhMetrics").innerHTML = [
+        metric("Tool x", (end.x - 240).toFixed(1)),
+        metric("Tool y", (250 - end.y).toFixed(1)),
+        metric("Links", pts.length - 1),
+        metric("Transform", "T0n")
+      ].join("");
+    }
+
+    ["l1", "l2", "theta1", "theta2", "targetX", "targetY"].forEach((id) => $(id).addEventListener("input", drawArm));
+    $("solveIk").addEventListener("click", solveIk);
+    $("elbowMode").addEventListener("click", () => { elbowDown = !elbowDown; $("elbowMode").textContent = `Elbow: ${elbowDown ? "down" : "up"}`; solveIk(); });
+    $("kfStep").addEventListener("click", stepKf);
+    $("kfReset").addEventListener("click", resetKf);
+    ["kfAccel", "kfProcessNoise", "kfSensorNoise"].forEach((id) => $(id).addEventListener("input", () => drawKf(null)));
+    $("dhPreset").addEventListener("click", () => {
+      document.querySelectorAll("[data-dh]").forEach((input) => {
+        const [i, key] = input.dataset.dh.split(":");
+        input.value = dhData[Number(i)][key];
+      });
+      drawDh();
+    });
+
+    drawHeroArm();
+    drawArm();
+    resetKf();
+    initDh();
+  </script>
+</body>
+</html>

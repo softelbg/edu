@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transformer Deep Dive: Attention, Blocks, Masks, and KV Cache</title>
+  <style>
+    :root { --ink:#17212a; --muted:#66717c; --paper:#f6f8fb; --surface:#fff; --line:#dbe3ea; --blue:#355f8c; --green:#2f6f64; --red:#954c43; --gold:#b88a36; --shadow:0 18px 42px rgba(23,33,42,.12); }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:linear-gradient(180deg,#eef3f8,var(--paper)); }
+    a { color:inherit; text-decoration:none; }
+    code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; }
+    .layout { display:grid; grid-template-columns:280px minmax(0,1fr); min-height:100vh; }
+    .toc { position:sticky; top:0; height:100vh; overflow:auto; padding:22px; border-right:1px solid var(--line); background:rgba(255,255,255,.82); backdrop-filter:blur(14px); }
+    .breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .breadcrumbs a,.toc nav a { display:inline-flex; min-height:34px; align-items:center; padding:0 10px; border:1px solid rgba(53,95,140,.16); border-radius:7px; background:#fff; color:#31414f; font-weight:800; font-size:.88rem; }
+    .toc-title { margin:16px 0 12px; font-family:Georgia,"Times New Roman",serif; font-size:1.45rem; font-weight:800; }
+    .toc nav { display:grid; gap:8px; }
+    .hero,.chapter { padding:44px 0; }
+    .hero { background:#17212a; color:#fff; }
+    .inner { width:min(1040px,calc(100% - 36px)); margin:0 auto; }
+    .hero-grid { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:30px; align-items:center; }
+    .kicker { margin:0 0 12px; color:#b8cef0; font-weight:900; letter-spacing:.12em; text-transform:uppercase; font-size:.78rem; }
+    h1,h2,h3 { font-family:Georgia,"Times New Roman",serif; letter-spacing:0; }
+    h1 { margin:0; font-size:clamp(2.7rem,6vw,5.2rem); line-height:.96; }
+    h2 { margin:0 0 14px; font-size:clamp(2rem,4vw,3rem); }
+    h3 { margin:0 0 10px; font-size:1.45rem; }
+    .subtitle,.lead { color:#d7e1ea; font-size:1.1rem; line-height:1.65; max-width:780px; }
+    .lead { color:#475461; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 14px; border-radius:7px; background:var(--blue); color:#fff; font-weight:900; }
+    .button.secondary { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+    .block-visual { display:grid; gap:10px; min-height:280px; padding:22px; border:1px solid rgba(255,255,255,.14); border-radius:8px; box-shadow:0 20px 50px rgba(0,0,0,.22); background:rgba(255,255,255,.06); }
+    .block { display:grid; place-items:center; border-radius:7px; border:1px solid rgba(255,255,255,.18); background:rgba(184,206,240,.13); color:#fff; font-weight:900; }
+    .block.attn { background:rgba(47,111,100,.42); } .block.mlp { background:rgba(149,76,67,.42); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .card,.sim { border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); padding:20px; }
+    .card p,.card li,.sim p { color:#485560; line-height:1.6; }
+    pre { overflow:auto; margin:16px 0 0; padding:16px; border-radius:8px; background:#17212a; color:#e8edf2; line-height:1.55; }
+    .controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:14px 0; }
+    label { display:grid; gap:6px; color:#394856; font-weight:850; font-size:.9rem; }
+    textarea,input,select { width:100%; border:1px solid var(--line); border-radius:7px; padding:10px; color:var(--ink); background:#fff; }
+    textarea { min-height:90px; resize:vertical; }
+    input[type=range] { padding:0; }
+    .result { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:14px; }
+    .metric { padding:12px; border-radius:8px; background:#f6f8fb; border:1px solid #dbe3ea; }
+    .metric b { display:block; font-size:1.18rem; }
+    .metric span { color:var(--muted); font-size:.78rem; font-weight:800; text-transform:uppercase; }
+    .matrix { display:grid; gap:4px; margin-top:12px; overflow:auto; }
+    .cell { min-width:42px; min-height:34px; display:grid; place-items:center; border-radius:6px; color:#fff; font-size:.8rem; font-weight:900; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; background:#fff; }
+    th,td { padding:11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:#3a4a56; background:#f6f8fb; }
+    .footer { padding:28px 0 44px; color:var(--muted); text-align:center; }
+    @media (max-width:880px) { .layout,.hero-grid,.grid,.controls,.result { grid-template-columns:1fr; } .toc { position:static; height:auto; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Breadcrumbs">
+        <a href="index.html">ML Home</a>
+        <a href="nlp_ml_book.html">NLP ML</a>
+      </nav>
+      <div class="toc-title">Transformers</div>
+      <nav>
+        <a href="#attention">Attention</a>
+        <a href="#block">Transformer Block</a>
+        <a href="#masks">Masks and Positions</a>
+        <a href="#simulators">Simulators</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | Transformer deep dive</p>
+            <h1>Transformers as Token Mixing Machines</h1>
+            <p class="subtitle">Self-attention lets each position read other positions through learned query-key compatibility. Transformer blocks package attention, residual connections, normalization, MLPs, positional information, and masks into a scalable sequence model.</p>
+            <div class="hero-actions">
+              <a class="button" href="#simulators">Open Attention Lab</a>
+              <a class="button secondary" href="llms_deep_dive.html">Next: LLMs</a>
+            </div>
+          </div>
+          <div class="block-visual" aria-hidden="true">
+            <div class="block">tokens + positions</div>
+            <div class="block attn">multi-head self-attention</div>
+            <div class="block">residual + norm</div>
+            <div class="block mlp">feed-forward MLP</div>
+            <div class="block">residual + norm</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="attention">
+        <div class="inner">
+          <h2>1. Attention Mechanics</h2>
+          <p class="lead">For each head, a token representation is projected into query, key, and value vectors. Query-key dot products produce attention logits. Softmax turns logits into weights. Weighted values produce the next representation.</p>
+          <div class="grid">
+            <article class="card">
+              <h3>Scaled dot-product attention</h3>
+              <pre><code>Q = X Wq
+K = X Wk
+V = X Wv
+scores = Q K^T / sqrt(d_head)
+scores = scores + mask
+weights = softmax(scores)
+output = weights V</code></pre>
+            </article>
+            <article class="card">
+              <h3>Why scale by sqrt(d)</h3>
+              <p>Dot products grow in magnitude with vector dimension. Without scaling, softmax saturates too early, attention becomes nearly one-hot, and gradients through non-winning keys shrink. Scaling keeps logits in a trainable range.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="block">
+        <div class="inner">
+          <h2>2. Transformer Block Details</h2>
+          <table>
+            <thead><tr><th>Part</th><th>Purpose</th><th>Fine detail</th></tr></thead>
+            <tbody>
+              <tr><td>Multi-head attention</td><td>Lets different heads model different relations.</td><td>Heads are not guaranteed to be human-interpretable; they are learned subspaces.</td></tr>
+              <tr><td>Residual path</td><td>Preserves information and stabilizes gradients.</td><td>Modern large decoders often use pre-norm blocks for training stability.</td></tr>
+              <tr><td>LayerNorm/RMSNorm</td><td>Controls activation scale per token.</td><td>RMSNorm drops mean subtraction and is common in decoder variants.</td></tr>
+              <tr><td>MLP / FFN</td><td>Applies token-wise nonlinear transformation after mixing.</td><td>Often 2-4x model width; gated variants such as SwiGLU are common.</td></tr>
+              <tr><td>Dropout</td><td>Regularizes smaller transformers.</td><td>Many very large models use little or no dropout and rely on data scale.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="masks">
+        <div class="inner">
+          <h2>3. Masks, Positions, and Cache</h2>
+          <div class="grid">
+            <article class="card">
+              <h3>Mask types</h3>
+              <p>Padding masks prevent tokens from reading padded positions. Causal masks prevent a decoder token from reading future tokens. Cross-attention masks control how decoder positions read encoder positions.</p>
+            </article>
+            <article class="card">
+              <h3>KV cache</h3>
+              <p>During autoregressive generation, previous keys and values are reused. The model computes Q for the new token and attends over cached K/V from prior tokens, avoiding a full recomputation of the prefix each step.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>4. Interactive Simulators</h2>
+          <div class="grid">
+            <article class="sim">
+              <h3>Attention Matrix Lab</h3>
+              <label>Tokens
+                <textarea id="tokens">the cat sat on the mat</textarea>
+              </label>
+              <div class="controls">
+                <label>Temperature <input id="temp" type="range" min="0.2" max="2.5" value="1" step="0.1"></label>
+                <label>Mask
+                  <select id="mask"><option value="none">none</option><option value="causal">causal</option></select>
+                </label>
+              </div>
+              <div class="matrix" id="matrix"></div>
+            </article>
+            <article class="sim">
+              <h3>Architecture and KV Cache Calculator</h3>
+              <div class="controls">
+                <label>Layers <input id="layers" type="number" min="1" value="24"></label>
+                <label>Model width <input id="width" type="number" min="64" value="1024"></label>
+                <label>Heads <input id="heads" type="number" min="1" value="16"></label>
+                <label>Context tokens <input id="context" type="number" min="1" value="4096"></label>
+                <label>MLP ratio <input id="mlpRatio" type="number" min="1" step="0.5" value="4"></label>
+                <label>Bytes/value <input id="bytes" type="number" min="1" value="2"></label>
+              </div>
+              <div class="result" id="archResult"></div>
+              <pre id="archNotes"></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="debugging">
+        <div class="inner">
+          <h2>5. Debugging Transformers</h2>
+          <table>
+            <thead><tr><th>Symptom</th><th>Likely cause</th><th>Check</th></tr></thead>
+            <tbody>
+              <tr><td>Model sees future labels</td><td>Missing or wrong causal mask.</td><td>Assert attention weights above diagonal are zero in decoder self-attention.</td></tr>
+              <tr><td>Long prompts fail</td><td>Position scheme or training context does not support the length.</td><td>Check tokenizer length, positional encoding, and truncation policy.</td></tr>
+              <tr><td>Generation latency grows</td><td>KV cache disabled or cache shape reallocated each step.</td><td>Profile prefill vs decode; verify cache reuse.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">Part of the Machine Learning Book. Related pages: <a href="tokenizers_deep_dive.html">Tokenizers</a>, <a href="nlp_ml_book.html">NLP ML</a>, <a href="llms_deep_dive.html">LLMs</a>.</footer>
+    </main>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    function metric(label, value) { return `<div class="metric"><b>${value}</b><span>${label}</span></div>`; }
+    function splitTokens() { return $("tokens").value.trim().split(/\s+/).filter(Boolean).slice(0, 10); }
+    function hashVec(token, offset) {
+      let h = 17 + offset * 31;
+      for (const ch of token) h = (h * 33 + ch.charCodeAt(0)) % 997;
+      return [Math.sin(h), Math.cos(h * 1.7), Math.sin(h * 2.3), Math.cos(h * 0.7)];
+    }
+    function dot(a, b) { return a.reduce((s, v, i) => s + v * b[i], 0); }
+    function softmax(xs) {
+      const max = Math.max(...xs.filter(Number.isFinite));
+      const exps = xs.map((x) => Number.isFinite(x) ? Math.exp(x - max) : 0);
+      const sum = exps.reduce((a, b) => a + b, 0) || 1;
+      return exps.map((x) => x / sum);
+    }
+    function updateMatrix() {
+      const toks = splitTokens();
+      const t = Number($("temp").value);
+      const causal = $("mask").value === "causal";
+      const root = $("matrix");
+      root.style.gridTemplateColumns = `90px repeat(${toks.length}, 54px)`;
+      let html = `<div></div>${toks.map((x) => `<div class="cell" style="background:#66717c">${x}</div>`).join("")}`;
+      toks.forEach((rowTok, i) => {
+        const q = hashVec(rowTok, 1);
+        const logits = toks.map((colTok, j) => causal && j > i ? -Infinity : dot(q, hashVec(colTok, 2)) / t);
+        const probs = softmax(logits);
+        html += `<div class="cell" style="background:#66717c">${rowTok}</div>`;
+        probs.forEach((p, j) => {
+          const alpha = Math.round(45 + p * 210);
+          html += `<div class="cell" title="${rowTok} attends to ${toks[j]}: ${p.toFixed(3)}" style="background:rgb(53 ${95 + alpha / 5} ${140 + alpha / 8})">${p.toFixed(2)}</div>`;
+        });
+      });
+      root.innerHTML = html || "Add tokens.";
+    }
+    function updateArch() {
+      const L = Number($("layers").value), d = Number($("width").value), h = Number($("heads").value);
+      const context = Number($("context").value), ratio = Number($("mlpRatio").value), bytes = Number($("bytes").value);
+      const headDim = d / h;
+      const attnParams = 4 * d * d;
+      const mlpParams = 2 * d * Math.round(d * ratio);
+      const total = L * (attnParams + mlpParams);
+      const kvBytes = L * 2 * context * d * bytes;
+      $("archResult").innerHTML = [
+        metric("Head dim", Number.isInteger(headDim) ? headDim : headDim.toFixed(1)),
+        metric("Block params", ((attnParams + mlpParams) / 1e6).toFixed(1) + "M"),
+        metric("Stack params", (total / 1e9).toFixed(2) + "B"),
+        metric("KV cache", (kvBytes / (1024 ** 3)).toFixed(2) + " GiB")
+      ].join("");
+      $("archNotes").textContent = `Approximation excludes embeddings, norms, biases, and vocabulary head. KV cache is per sequence at batch size 1 using ${bytes} bytes/value.`;
+    }
+    ["tokens", "temp", "mask"].forEach((id) => $(id).addEventListener("input", updateMatrix));
+    ["layers", "width", "heads", "context", "mlpRatio", "bytes"].forEach((id) => $(id).addEventListener("input", updateArch));
+    updateMatrix();
+    updateArch();
+  </script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CNN Deep Dive: Convolution, Receptive Fields, and Architecture</title>
+  <style>
+    :root {
+      --ink: #17212a;
+      --muted: #66717c;
+      --paper: #f7f8f4;
+      --surface: #ffffff;
+      --line: #d8ded6;
+      --blue: #2364aa;
+      --green: #2d7d55;
+      --red: #b4463a;
+      --gold: #b98125;
+      --shadow: 0 18px 42px rgba(23, 33, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef5f3 0%, var(--paper) 48%, #f4efe6 100%);
+    }
+    a { color: inherit; text-decoration: none; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 100vh; }
+    .toc {
+      position: sticky; top: 0; height: 100vh; overflow: auto; padding: 22px;
+      border-right: 1px solid var(--line); background: rgba(255,255,255,.78); backdrop-filter: blur(14px);
+    }
+    .breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .breadcrumbs a, .toc nav a {
+      display: inline-flex; min-height: 34px; align-items: center; padding: 0 10px;
+      border: 1px solid rgba(35,100,170,.16); border-radius: 7px; background: #fff; color: #31414f; font-weight: 800; font-size: .88rem;
+    }
+    .toc-title { margin: 16px 0 12px; font-family: Georgia, "Times New Roman", serif; font-size: 1.45rem; font-weight: 800; }
+    .toc nav { display: grid; gap: 8px; }
+    .hero, .chapter { padding: 44px 0; }
+    .hero { background: #17212a; color: #fff; }
+    .inner { width: min(1040px, calc(100% - 36px)); margin: 0 auto; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 30px; align-items: center; }
+    .kicker { margin: 0 0 12px; color: #94c7ff; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; font-size: .78rem; }
+    h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    h1 { margin: 0; font-size: clamp(2.7rem, 6vw, 5.4rem); line-height: .96; }
+    h2 { margin: 0 0 14px; font-size: clamp(2rem, 4vw, 3rem); }
+    h3 { margin: 0 0 10px; font-size: 1.45rem; }
+    .subtitle, .lead { color: #d7e1ea; font-size: 1.1rem; line-height: 1.65; max-width: 780px; }
+    .lead { color: #475461; }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 14px;
+      border-radius: 7px; background: var(--blue); color: #fff; font-weight: 900;
+    }
+    .button.secondary { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .visual {
+      min-height: 280px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px;
+      background: repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(255,255,255,.08) 32px),
+                  repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(255,255,255,.08) 32px);
+      box-shadow: 0 20px 50px rgba(0,0,0,.22); padding: 22px;
+    }
+    .feature-map { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; height: 236px; }
+    .pixel { border-radius: 5px; background: rgba(148,199,255,.18); border: 1px solid rgba(255,255,255,.14); }
+    .pixel.hot { background: #2d7d55; }
+    .pixel.edge { background: #b4463a; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card, .sim {
+      border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+      box-shadow: var(--shadow); padding: 20px;
+    }
+    .card p, .card li, .sim p { color: #485560; line-height: 1.6; }
+    .callout { border-left: 5px solid var(--green); background: #f0f7f3; padding: 16px 18px; border-radius: 8px; color: #32423b; }
+    pre { overflow: auto; margin: 16px 0 0; padding: 16px; border-radius: 8px; background: #17212a; color: #e8edf2; line-height: 1.55; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 14px 0; }
+    label { display: grid; gap: 6px; color: #394856; font-weight: 850; font-size: .9rem; }
+    input, select {
+      min-height: 38px; border: 1px solid var(--line); border-radius: 7px; padding: 0 10px; color: var(--ink); background: #fff;
+    }
+    input[type="range"] { padding: 0; }
+    .result { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .metric { padding: 12px; border-radius: 8px; background: #f6f8fb; border: 1px solid #dbe3ea; }
+    .metric b { display: block; font-size: 1.25rem; }
+    .metric span { color: var(--muted); font-size: .82rem; font-weight: 800; text-transform: uppercase; }
+    canvas { width: 100%; border-radius: 8px; background: #fff; border: 1px solid var(--line); }
+    .wide { grid-column: 1 / -1; }
+    .kernel-lab {
+      display: grid;
+      grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .kernel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .kernel-grid input {
+      min-height: 44px;
+      padding: 0 6px;
+      text-align: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-weight: 850;
+    }
+    .lab-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .play-button {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 7px;
+      background: var(--green);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .play-button.secondary {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+    .canvas-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .canvas-panel {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+    .canvas-panel strong {
+      color: #394856;
+      font-size: .9rem;
+    }
+    .kernel-note {
+      margin-top: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: .92rem;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: #fff; }
+    th, td { padding: 11px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: #3a4a56; background: #f6f8fb; }
+    .footer { padding: 28px 0 44px; color: var(--muted); text-align: center; }
+    @media (max-width: 880px) {
+      .layout, .hero-grid, .grid, .controls, .result, .kernel-lab, .canvas-pair { grid-template-columns: 1fr; }
+      .toc { position: static; height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Breadcrumbs">
+        <a href="index.html">ML Home</a>
+        <a href="deep_ml_torch_layers_book.html">Deep ML</a>
+      </nav>
+      <div class="toc-title">CNN Deep Dive</div>
+      <nav>
+        <a href="#shape">Shape Math</a>
+        <a href="#filters">Filters and Channels</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#simulators">Simulators</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | CNN deep dive</p>
+            <h1>CNNs From Pixels to Feature Hierarchies</h1>
+            <p class="subtitle">A detailed expansion of the CNN material: convolution arithmetic, learned filters, channels, receptive fields, parameter counts, normalization, architecture design, and failure analysis.</p>
+            <div class="hero-actions">
+              <a class="button" href="#simulators">Open Simulators</a>
+              <a class="button secondary" href="computer_vision_ml_book.html">Vision Context</a>
+            </div>
+          </div>
+          <div class="visual" aria-hidden="true">
+            <div class="feature-map">
+              <div class="pixel"></div><div class="pixel hot"></div><div class="pixel hot"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+              <div class="pixel"></div><div class="pixel hot"></div><div class="pixel edge"></div><div class="pixel edge"></div><div class="pixel"></div><div class="pixel"></div>
+              <div class="pixel"></div><div class="pixel"></div><div class="pixel edge"></div><div class="pixel edge"></div><div class="pixel hot"></div><div class="pixel"></div>
+              <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel hot"></div><div class="pixel hot"></div><div class="pixel"></div>
+              <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel hot"></div><div class="pixel"></div>
+              <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="shape">
+        <div class="inner">
+          <h2>1. Shape Math</h2>
+          <p class="lead">A 2D convolution layer maps <code>[N, C_in, H, W]</code> to <code>[N, C_out, H_out, W_out]</code>. The batch dimension is preserved. The channel count becomes the number of learned filters. Height and width depend on kernel, stride, padding, and dilation.</p>
+          <div class="grid">
+            <article class="card">
+              <h3>Output size</h3>
+              <p>For each spatial axis:</p>
+              <pre><code>effective_kernel = dilation * (kernel - 1) + 1
+out = floor((input + 2 * padding - effective_kernel) / stride) + 1</code></pre>
+              <p>If this value is not positive, the layer cannot be applied. If it is not the size you expected, inspect padding and stride before changing model code.</p>
+            </article>
+            <article class="card">
+              <h3>Parameter count</h3>
+              <p>For ordinary convolution:</p>
+              <pre><code>weights = out_channels * (in_channels / groups) * kernel_h * kernel_w
+bias = out_channels if bias=True else 0</code></pre>
+              <p>Depthwise convolution is the special case <code>groups = in_channels</code>. It saves parameters by filtering each channel separately, usually followed by a 1x1 pointwise convolution to mix channels.</p>
+            </article>
+          </div>
+          <div class="callout">A CNN layer is translation equivariant, not fully translation invariant. If an object shifts, the feature map shifts. Pooling, striding, data augmentation, and classifier heads create practical tolerance to shifts.</div>
+        </div>
+      </section>
+
+      <section class="chapter" id="filters">
+        <div class="inner">
+          <h2>2. Filters, Channels, and Nonlinearity</h2>
+          <div class="grid">
+            <article class="card">
+              <h3>What a filter learns</h3>
+              <p>A filter is a small tensor that scores a local patch. Early filters often behave like edge, color, and texture detectors. Deeper filters respond to parts, motifs, or task-specific patterns because their receptive fields cover larger regions of the original image.</p>
+              <p>Each output channel is one learned feature detector applied across the whole image. Sharing the same weights at every location is what makes convolution efficient.</p>
+            </article>
+            <article class="card">
+              <h3>Why activation matters</h3>
+              <p>Stacking linear convolutions without nonlinear activations collapses into another linear operation. ReLU, GELU, or SiLU lets the network compose piecewise nonlinear decisions: edge to corner, corner to part, part to object.</p>
+              <pre><code>x = conv(x)
+x = norm(x)       # optional but common
+x = activation(x)
+x = pooling(x)    # optional resolution change</code></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="architecture">
+        <div class="inner">
+          <h2>3. Architecture Design</h2>
+          <table>
+            <thead><tr><th>Design choice</th><th>What it controls</th><th>Typical failure</th></tr></thead>
+            <tbody>
+              <tr><td>Kernel size</td><td>Local pattern width. 3x3 stacks are common because they add nonlinearity while growing receptive field gradually.</td><td>Very large kernels early can waste parameters and blur local detail.</td></tr>
+              <tr><td>Stride and pooling</td><td>Spatial downsampling and compute reduction.</td><td>Downsampling too early destroys small objects and thin structures.</td></tr>
+              <tr><td>Channels</td><td>Number of feature detectors per resolution.</td><td>Too few channels underfit; too many make dense heads expensive.</td></tr>
+              <tr><td>Residual paths</td><td>Gradient flow and feature reuse.</td><td>Shape mismatch when channel or stride changes without projection.</td></tr>
+              <tr><td>Global average pooling</td><td>Converts feature maps to class features without huge flatten layers.</td><td>Loses location-specific evidence when exact geometry is needed.</td></tr>
+            </tbody>
+          </table>
+          <pre><code>class SmallResidualCNN(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+        self.stem = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.SiLU()
+        )
+        self.block = nn.Sequential(
+            nn.Conv2d(32, 32, 3, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.SiLU(),
+            nn.Conv2d(32, 32, 3, padding=1, bias=False),
+            nn.BatchNorm2d(32)
+        )
+        self.head = nn.Sequential(nn.AdaptiveAvgPool2d(1), nn.Flatten(), nn.Linear(32, num_classes))
+
+    def forward(self, x):
+        x = self.stem(x)
+        x = F.silu(x + self.block(x))
+        return self.head(x)</code></pre>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>4. Interactive Simulators</h2>
+          <div class="grid">
+            <article class="sim">
+              <h3>Convolution Shape and Parameter Calculator</h3>
+              <div class="controls">
+                <label>Input size <input id="inputSize" type="number" min="1" value="224"></label>
+                <label>Input channels <input id="inChannels" type="number" min="1" value="3"></label>
+                <label>Output channels <input id="outChannels" type="number" min="1" value="64"></label>
+                <label>Kernel <input id="kernel" type="number" min="1" value="7"></label>
+                <label>Stride <input id="stride" type="number" min="1" value="2"></label>
+                <label>Padding <input id="padding" type="number" min="0" value="3"></label>
+                <label>Dilation <input id="dilation" type="number" min="1" value="1"></label>
+                <label>Groups <input id="groups" type="number" min="1" value="1"></label>
+                <label>Bias
+                  <select id="bias"><option value="yes">yes</option><option value="no">no</option></select>
+                </label>
+              </div>
+              <div class="result" id="shapeResult"></div>
+            </article>
+
+            <article class="sim">
+              <h3>Receptive Field Stack</h3>
+              <p>Adjust layer count and stride pattern to see how much of the original image each final cell can read.</p>
+              <div class="controls">
+                <label>Layers <input id="rfLayers" type="range" min="1" max="12" value="5"></label>
+                <label>Kernel <input id="rfKernel" type="range" min="1" max="7" step="2" value="3"></label>
+                <label>Stride every N layers <input id="rfStrideEvery" type="range" min="1" max="6" value="3"></label>
+              </div>
+              <canvas id="rfCanvas" width="720" height="300"></canvas>
+              <div class="result" id="rfResult"></div>
+            </article>
+
+            <article class="sim wide">
+              <h3>3x3 Kernel and Filter Lab</h3>
+              <p>Select a well-known 3x3 image filter, edit its weights, choose a generated input image, and play the convolution scan to see how the output image is produced one pixel at a time.</p>
+              <div class="kernel-lab">
+                <div>
+                  <div class="controls">
+                    <label>Preset kernel
+                      <select id="kernelPreset"></select>
+                    </label>
+                    <label>Input image
+                      <select id="filterImage"></select>
+                    </label>
+                    <label>Output mapping
+                      <select id="outputMode">
+                        <option value="auto">auto normalize</option>
+                        <option value="clip">clip 0..255</option>
+                        <option value="absolute">absolute value</option>
+                      </select>
+                    </label>
+                    <label>Playback speed <span id="speedLabel">1.0x</span>
+                      <input id="filterSpeed" type="range" min="0.1" max="10" step="0.1" value="1">
+                    </label>
+                  </div>
+                  <div class="kernel-grid" id="kernelGrid" aria-label="Editable 3 by 3 kernel"></div>
+                  <div class="lab-actions">
+                    <button class="play-button" type="button" id="playFilter">Play convolution</button>
+                    <button class="play-button secondary" type="button" id="showFilter">Show full output</button>
+                  </div>
+                  <div class="result" id="filterResult"></div>
+                  <p class="kernel-note">Positive weights brighten matching local patterns. Negative weights suppress opposing patterns. Blur kernels average neighborhoods; edge kernels respond when one side of the 3x3 window differs strongly from the other.</p>
+                </div>
+                <div>
+                  <div class="canvas-pair">
+                    <div class="canvas-panel">
+                      <strong>Input image and moving 3x3 window</strong>
+                      <canvas id="filterInputCanvas" width="256" height="256"></canvas>
+                    </div>
+                    <div class="canvas-panel">
+                      <strong>Filtered output</strong>
+                      <canvas id="filterOutputCanvas" width="256" height="256"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="debugging">
+        <div class="inner">
+          <h2>5. Debugging CNNs</h2>
+          <table>
+            <thead><tr><th>Symptom</th><th>Likely cause</th><th>Inspection</th></tr></thead>
+            <tbody>
+              <tr><td>Training accuracy high, validation poor</td><td>Weak augmentation, leakage, too much capacity, distribution mismatch.</td><td>Inspect splits, duplicate images, class balance, and augmentations by visualizing batches.</td></tr>
+              <tr><td>Loss does not move</td><td>Wrong labels, frozen parameters, bad learning rate, normalization mismatch.</td><td>Overfit 16 samples, print gradient norms, verify train/eval mode.</td></tr>
+              <tr><td>Small objects missed</td><td>Downsampled too early, low input resolution, anchor/stride mismatch.</td><td>Track feature map sizes and receptive fields per stage.</td></tr>
+              <tr><td>Shape error before linear layer</td><td>Flatten dimension hard-coded for one input size.</td><td>Use adaptive pooling or print tensor shapes in forward pass.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">Part of the Machine Learning Book. Related pages: <a href="deep_ml_torch_layers_book.html">Deep ML</a>, <a href="computer_vision_ml_book.html">Computer Vision ML</a>.</footer>
+    </main>
+  </div>
+
+  <script>
+    const ids = ["inputSize", "inChannels", "outChannels", "kernel", "stride", "padding", "dilation", "groups", "bias"];
+    const get = (id) => document.getElementById(id);
+
+    function metric(label, value) {
+      return `<div class="metric"><b>${value}</b><span>${label}</span></div>`;
+    }
+
+    function updateShape() {
+      const input = Number(get("inputSize").value);
+      const cin = Number(get("inChannels").value);
+      const cout = Number(get("outChannels").value);
+      const k = Number(get("kernel").value);
+      const s = Number(get("stride").value);
+      const p = Number(get("padding").value);
+      const d = Number(get("dilation").value);
+      let groups = Number(get("groups").value);
+      if (groups < 1) groups = 1;
+      const effective = d * (k - 1) + 1;
+      const out = Math.floor((input + 2 * p - effective) / s) + 1;
+      const validGroups = cin % groups === 0 && cout % groups === 0;
+      const weights = validGroups ? cout * (cin / groups) * k * k : NaN;
+      const bias = get("bias").value === "yes" ? cout : 0;
+      get("shapeResult").innerHTML = [
+        metric("Output shape", out > 0 ? `N x ${cout} x ${out} x ${out}` : "invalid"),
+        metric("Effective kernel", `${effective} x ${effective}`),
+        metric("Parameters", validGroups ? (weights + bias).toLocaleString() : "bad groups"),
+        metric("Multiply-adds/location", validGroups ? weights.toLocaleString() : "bad groups")
+      ].join("");
+    }
+
+    function updateRf() {
+      const layers = Number(get("rfLayers").value);
+      const k = Number(get("rfKernel").value);
+      const every = Number(get("rfStrideEvery").value);
+      let rf = 1;
+      let jump = 1;
+      const rows = [];
+      for (let i = 1; i <= layers; i++) {
+        const stride = i % every === 0 ? 2 : 1;
+        rf += (k - 1) * jump;
+        rows.push({ layer: i, rf, stride, jump });
+        jump *= stride;
+      }
+      const canvas = get("rfCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#f6f8fb";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const maxRf = Math.max(...rows.map((r) => r.rf));
+      rows.forEach((row, index) => {
+        const x = 40 + index * ((canvas.width - 80) / Math.max(1, layers - 1));
+        const h = 30 + (row.rf / maxRf) * 200;
+        ctx.fillStyle = row.stride === 2 ? "#b4463a" : "#2364aa";
+        ctx.fillRect(x - 14, canvas.height - 36 - h, 28, h);
+        ctx.fillStyle = "#17212a";
+        ctx.font = "13px system-ui";
+        ctx.fillText(row.layer, x - 4, canvas.height - 14);
+      });
+      get("rfResult").innerHTML = [
+        metric("Final receptive field", `${rf} px`),
+        metric("Final jump", `${jump} px`),
+        metric("Layers", layers),
+        metric("Kernel", `${k} x ${k}`)
+      ].join("");
+    }
+
+    const kernelPresets = [
+      { name: "Identity", values: [0, 0, 0, 0, 1, 0, 0, 0, 0] },
+      { name: "Box blur", values: [1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9] },
+      { name: "Gaussian blur", values: [1/16, 2/16, 1/16, 2/16, 4/16, 2/16, 1/16, 2/16, 1/16] },
+      { name: "Sharpen", values: [0, -1, 0, -1, 5, -1, 0, -1, 0] },
+      { name: "Unsharp mask", values: [-1, -1, -1, -1, 9, -1, -1, -1, -1] },
+      { name: "Laplacian 4-neighbor", values: [0, -1, 0, -1, 4, -1, 0, -1, 0] },
+      { name: "Laplacian 8-neighbor", values: [-1, -1, -1, -1, 8, -1, -1, -1, -1] },
+      { name: "Sobel X", values: [-1, 0, 1, -2, 0, 2, -1, 0, 1] },
+      { name: "Sobel Y", values: [-1, -2, -1, 0, 0, 0, 1, 2, 1] },
+      { name: "Prewitt X", values: [-1, 0, 1, -1, 0, 1, -1, 0, 1] },
+      { name: "Prewitt Y", values: [-1, -1, -1, 0, 0, 0, 1, 1, 1] },
+      { name: "Scharr X", values: [-3, 0, 3, -10, 0, 10, -3, 0, 3] },
+      { name: "Scharr Y", values: [-3, -10, -3, 0, 0, 0, 3, 10, 3] },
+      { name: "Emboss", values: [-2, -1, 0, -1, 1, 1, 0, 1, 2] },
+      { name: "Outline", values: [-1, -1, -1, -1, 8, -1, -1, -1, -1] },
+      { name: "Edge enhance", values: [0, 0, 0, -1, 1, 0, 0, 0, 0] },
+      { name: "Horizontal line detector", values: [-1, -1, -1, 2, 2, 2, -1, -1, -1] },
+      { name: "Vertical line detector", values: [-1, 2, -1, -1, 2, -1, -1, 2, -1] },
+      { name: "Motion blur diagonal", values: [1/3, 0, 0, 0, 1/3, 0, 0, 0, 1/3] },
+      { name: "Custom", values: [0, 0, 0, 0, 1, 0, 0, 0, 0], custom: true }
+    ];
+
+    const filterImages = [
+      "Shapes and edges",
+      "Checkerboard",
+      "Smooth gradient",
+      "Vertical stripes",
+      "Dot field",
+      "Diagonal split",
+      "Text glyphs",
+      "Noisy texture"
+    ];
+
+    let sourcePixels = [];
+    let outputPixels = [];
+    let animationFrame = null;
+    let animationIndex = 0;
+    let animationStartedAt = 0;
+    let animationElapsedMs = 0;
+    let lastAnimationTs = 0;
+    const filterSize = 64;
+    const baseAnimationMs = 50000;
+
+    function formatWeight(value) {
+      return Number.isInteger(value) ? String(value) : Number(value.toFixed(4)).toString();
+    }
+
+    function initKernelLab() {
+      const preset = get("kernelPreset");
+      preset.innerHTML = kernelPresets.map((item, index) => `<option value="${index}">${item.name}</option>`).join("");
+      get("filterImage").innerHTML = filterImages.map((name) => `<option value="${name}">${name}</option>`).join("");
+      const grid = get("kernelGrid");
+      grid.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const input = document.createElement("input");
+        input.type = "number";
+        input.step = "0.0625";
+        input.className = "kernel-value";
+        input.setAttribute("aria-label", `Kernel value ${i + 1}`);
+        input.addEventListener("input", () => {
+          get("kernelPreset").value = String(kernelPresets.length - 1);
+          renderFilterOutput(false);
+        });
+        grid.appendChild(input);
+      }
+      applyKernelPreset(0);
+      drawSelectedImage();
+      renderFilterOutput(false);
+    }
+
+    function applyKernelPreset(index) {
+      const values = kernelPresets[index].values;
+      document.querySelectorAll(".kernel-value").forEach((input, i) => {
+        input.value = formatWeight(values[i]);
+      });
+    }
+
+    function currentKernel() {
+      return Array.from(document.querySelectorAll(".kernel-value")).map((input) => Number(input.value) || 0);
+    }
+
+    function sampleSource(x, y) {
+      const xx = Math.max(0, Math.min(filterSize - 1, x));
+      const yy = Math.max(0, Math.min(filterSize - 1, y));
+      return sourcePixels[yy * filterSize + xx] || 0;
+    }
+
+    function makeImageValue(kind, x, y) {
+      const cx = x - filterSize / 2;
+      const cy = y - filterSize / 2;
+      if (kind === "Checkerboard") return (Math.floor(x / 8) + Math.floor(y / 8)) % 2 ? 230 : 35;
+      if (kind === "Smooth gradient") return Math.round((x / (filterSize - 1)) * 180 + (y / (filterSize - 1)) * 55);
+      if (kind === "Vertical stripes") return Math.floor(x / 6) % 2 ? 220 : 45;
+      if (kind === "Dot field") {
+        const dx = (x % 16) - 8;
+        const dy = (y % 16) - 8;
+        return dx * dx + dy * dy < 13 ? 235 : 42;
+      }
+      if (kind === "Diagonal split") return x > y + 5 ? 220 : 35;
+      if (kind === "Text glyphs") {
+        const inM = (x > 8 && x < 14 && y > 12 && y < 48) || (x > 25 && x < 31 && y > 12 && y < 48) || (Math.abs((x - 11) - (y - 12) * .45) < 2 && y < 35) || (Math.abs((30 - x) - (y - 12) * .45) < 2 && y < 35);
+        const inL = (x > 42 && x < 48 && y > 12 && y < 48) || (x > 42 && x < 58 && y > 42 && y < 48);
+        return inM || inL ? 235 : 35;
+      }
+      if (kind === "Noisy texture") {
+        const v = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+        return 50 + Math.floor((v - Math.floor(v)) * 180);
+      }
+      const circle = cx * cx + cy * cy < 16 * 16;
+      const square = x > 7 && x < 25 && y > 8 && y < 26;
+      const bar = x > 39 && x < 47 && y > 7 && y < 57;
+      const diagonal = Math.abs(x - y) < 3;
+      return circle || square || bar || diagonal ? 230 : 35;
+    }
+
+    function drawSelectedImage() {
+      const kind = get("filterImage").value || filterImages[0];
+      sourcePixels = [];
+      for (let y = 0; y < filterSize; y++) {
+        for (let x = 0; x < filterSize; x++) {
+          sourcePixels.push(makeImageValue(kind, x, y));
+        }
+      }
+      drawInputCanvas(-1, -1);
+    }
+
+    function drawInputCanvas(activeX, activeY) {
+      const canvas = get("filterInputCanvas");
+      const ctx = canvas.getContext("2d");
+      const scale = canvas.width / filterSize;
+      const image = ctx.createImageData(filterSize, filterSize);
+      sourcePixels.forEach((value, i) => {
+        image.data[i * 4] = value;
+        image.data[i * 4 + 1] = value;
+        image.data[i * 4 + 2] = value;
+        image.data[i * 4 + 3] = 255;
+      });
+      const offscreen = document.createElement("canvas");
+      offscreen.width = filterSize;
+      offscreen.height = filterSize;
+      offscreen.getContext("2d").putImageData(image, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
+      if (activeX >= 0 && activeY >= 0) {
+        ctx.strokeStyle = "#b4463a";
+        ctx.lineWidth = 3;
+        ctx.strokeRect((activeX - 1) * scale, (activeY - 1) * scale, 3 * scale, 3 * scale);
+      }
+    }
+
+    function rawConvolution(kernel) {
+      const raw = [];
+      let min = Infinity;
+      let max = -Infinity;
+      for (let y = 0; y < filterSize; y++) {
+        for (let x = 0; x < filterSize; x++) {
+          let sum = 0;
+          for (let ky = -1; ky <= 1; ky++) {
+            for (let kx = -1; kx <= 1; kx++) {
+              sum += sampleSource(x + kx, y + ky) * kernel[(ky + 1) * 3 + (kx + 1)];
+            }
+          }
+          raw.push(sum);
+          min = Math.min(min, sum);
+          max = Math.max(max, sum);
+        }
+      }
+      return { raw, min, max };
+    }
+
+    function mapConvolution(raw, min, max) {
+      const mode = get("outputMode").value;
+      return raw.map((value) => {
+        if (mode === "absolute") return Math.max(0, Math.min(255, Math.abs(value)));
+        if (mode === "clip") return Math.max(0, Math.min(255, value));
+        if (max === min) return 0;
+        return ((value - min) / (max - min)) * 255;
+      });
+    }
+
+    function drawOutputCanvas(limit) {
+      const canvas = get("filterOutputCanvas");
+      const ctx = canvas.getContext("2d");
+      const image = ctx.createImageData(filterSize, filterSize);
+      for (let i = 0; i < filterSize * filterSize; i++) {
+        const value = i <= limit ? Math.round(outputPixels[i] || 0) : 245;
+        image.data[i * 4] = value;
+        image.data[i * 4 + 1] = value;
+        image.data[i * 4 + 2] = value;
+        image.data[i * 4 + 3] = 255;
+      }
+      const offscreen = document.createElement("canvas");
+      offscreen.width = filterSize;
+      offscreen.height = filterSize;
+      offscreen.getContext("2d").putImageData(image, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
+    }
+
+    function updateFilterMetrics(rawMin, rawMax, processedCount) {
+      const kernel = currentKernel();
+      const sum = kernel.reduce((a, b) => a + b, 0);
+      const positive = kernel.filter((v) => v > 0).reduce((a, b) => a + b, 0);
+      const negative = kernel.filter((v) => v < 0).reduce((a, b) => a + b, 0);
+      get("filterResult").innerHTML = [
+        metric("Kernel sum", sum.toFixed(3)),
+        metric("Positive / negative", `${positive.toFixed(2)} / ${negative.toFixed(2)}`),
+        metric("Raw range", `${rawMin.toFixed(1)}..${rawMax.toFixed(1)}`),
+        metric("Pixels done", `${processedCount}/${filterSize * filterSize}`)
+      ].join("");
+    }
+
+    function renderFilterOutput(partial) {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+      const { raw, min, max } = rawConvolution(currentKernel());
+      outputPixels = mapConvolution(raw, min, max);
+      animationIndex = partial ? -1 : outputPixels.length - 1;
+      drawInputCanvas(-1, -1);
+      drawOutputCanvas(animationIndex);
+      updateFilterMetrics(min, max, partial ? 0 : outputPixels.length);
+      return { min, max };
+    }
+
+    function playFilterAnimation() {
+      const stats = renderFilterOutput(true);
+      const total = filterSize * filterSize;
+      animationStartedAt = performance.now();
+      animationElapsedMs = 0;
+      lastAnimationTs = animationStartedAt;
+      const step = (now) => {
+        const delta = Math.max(0, now - lastAnimationTs);
+        lastAnimationTs = now;
+        const speed = Number(get("filterSpeed").value) || 1;
+        animationElapsedMs += delta * speed;
+        const progress = Math.min(1, animationElapsedMs / baseAnimationMs);
+        animationIndex = Math.min(total - 1, Math.floor(progress * total));
+        const x = animationIndex % filterSize;
+        const y = Math.floor(animationIndex / filterSize);
+        drawInputCanvas(x, y);
+        drawOutputCanvas(animationIndex);
+        updateFilterMetrics(stats.min, stats.max, Math.min(total, animationIndex + 1));
+        if (progress < 1) {
+          animationFrame = requestAnimationFrame(step);
+        } else {
+          animationFrame = null;
+        }
+      };
+      animationFrame = requestAnimationFrame(step);
+    }
+
+    ids.forEach((id) => get(id).addEventListener("input", updateShape));
+    ["rfLayers", "rfKernel", "rfStrideEvery"].forEach((id) => get(id).addEventListener("input", updateRf));
+    get("kernelPreset").addEventListener("change", () => {
+      applyKernelPreset(Number(get("kernelPreset").value));
+      renderFilterOutput(false);
+    });
+    get("filterImage").addEventListener("change", () => {
+      drawSelectedImage();
+      renderFilterOutput(false);
+    });
+    get("outputMode").addEventListener("change", () => renderFilterOutput(false));
+    get("filterSpeed").addEventListener("input", () => {
+      get("speedLabel").textContent = `${Number(get("filterSpeed").value).toFixed(1)}x`;
+    });
+    get("playFilter").addEventListener("click", playFilterAnimation);
+    get("showFilter").addEventListener("click", () => renderFilterOutput(false));
+    updateShape();
+    updateRf();
+    initKernelLab();
+  </script>
+</body>
+</html>

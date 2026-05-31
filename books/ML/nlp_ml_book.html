@@ -771,14 +771,20 @@
       <nav class="breadcrumbs" aria-label="Book breadcrumbs">
         <a href="index.html">Home</a>
         <a href="deep_ml_torch_layers_book.html">Prev: Deep ML</a>
+        <a href="tokenizers_deep_dive.html">Tokenizers</a>
+        <a href="transformers_deep_dive.html">Transformers</a>
+        <a href="llms_deep_dive.html">LLMs</a>
       </nav>
       <div class="toc-title">NLP ML</div>
       <nav>
         <a href="#preface">Preface</a>
         <a href="#contracts">Text contracts</a>
+        <a href="tokenizers_deep_dive.html">Tokenizer deep dive</a>
         <a href="#classic">Classic NLP ML</a>
         <a href="#neural">Neural representations</a>
         <a href="#transformers">Transformers and LLMs</a>
+        <a href="transformers_deep_dive.html">Transformer deep dive</a>
+        <a href="llms_deep_dive.html">LLM deep dive</a>
         <a href="#simulators">Interactive demos</a>
         <a href="#atlas">NLP atlas</a>
         <a href="#workflow">Workflow</a>
@@ -882,6 +888,7 @@ question -> embedding -> nearest chunks -> prompt -> generated answer + citation
           <h3>BPE and LLM tokenization</h3>
           <p>Modern LLM tokenizers usually operate below the word level. Byte Pair Encoding-style tokenizers start from small units, repeatedly merge frequent adjacent pieces, and produce a vocabulary that can represent common words compactly while still handling rare words, names, code, and mixed-language text.</p>
           <div class="formula">characters or bytes -> learned merges -> subword tokens -> token ids</div>
+          <div class="note"><b>New deep dive:</b> open <a href="tokenizers_deep_dive.html">Tokenizers: Text as Model Input</a> for normalization, pre-tokenization, BPE-style merges, WordPiece, Unigram, special tokens, span offsets, token budgets, and two interactive tokenizer labs.</div>
         </div>
       </section>
 
@@ -977,6 +984,7 @@ question -> embedding -> nearest chunks -> prompt -> generated answer + citation
         <div class="inner">
           <h2>4. Transformers and LLMs</h2>
           <p class="lead">Transformers scale because attention lets every token exchange information with other tokens in parallel. LLMs are transformer language models trained to predict text and later adapted for instruction following, tool use, retrieval, or domain tasks.</p>
+          <div class="note"><b>New deep dives:</b> open <a href="transformers_deep_dive.html">Transformers as Token Mixing Machines</a> for attention, masks, positions, blocks, and KV cache details; then open <a href="llms_deep_dive.html">LLMs as Probabilistic Text Systems</a> for decoding, prompting, RAG, tools, and evaluation.</div>
 
           <div class="split">
             <div>

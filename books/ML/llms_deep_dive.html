@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Deep Dive: Decoding, Prompting, RAG, Tools, and Evaluation</title>
+  <style>
+    :root { --ink:#17212a; --muted:#66717c; --paper:#f8f5ef; --surface:#fff; --line:#ded7cb; --blue:#355f8c; --green:#2f6f64; --red:#954c43; --gold:#b88a36; --shadow:0 18px 42px rgba(40,35,28,.12); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:linear-gradient(180deg,#f4f7f2,var(--paper)); }
+    a { color:inherit; text-decoration:none; }
+    code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; }
+    .layout { display:grid; grid-template-columns:280px minmax(0,1fr); min-height:100vh; }
+    .toc { position:sticky; top:0; height:100vh; overflow:auto; padding:22px; border-right:1px solid var(--line); background:rgba(255,255,255,.82); backdrop-filter:blur(14px); }
+    .breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .breadcrumbs a,.toc nav a { display:inline-flex; min-height:34px; align-items:center; padding:0 10px; border:1px solid rgba(53,95,140,.16); border-radius:7px; background:#fff; color:#31414f; font-weight:800; font-size:.88rem; }
+    .toc-title { margin:16px 0 12px; font-family:Georgia,"Times New Roman",serif; font-size:1.45rem; font-weight:800; }
+    .toc nav { display:grid; gap:8px; }
+    .hero,.chapter { padding:44px 0; }
+    .hero { background:#17212a; color:#fff; }
+    .inner { width:min(1040px,calc(100% - 36px)); margin:0 auto; }
+    .hero-grid { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:30px; align-items:center; }
+    .kicker { margin:0 0 12px; color:#f0c987; font-weight:900; letter-spacing:.12em; text-transform:uppercase; font-size:.78rem; }
+    h1,h2,h3 { font-family:Georgia,"Times New Roman",serif; letter-spacing:0; }
+    h1 { margin:0; font-size:clamp(2.7rem,6vw,5.2rem); line-height:.96; }
+    h2 { margin:0 0 14px; font-size:clamp(2rem,4vw,3rem); }
+    h3 { margin:0 0 10px; font-size:1.45rem; }
+    .subtitle,.lead { color:#d7e1ea; font-size:1.1rem; line-height:1.65; max-width:780px; }
+    .lead { color:#475461; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 14px; border-radius:7px; background:var(--gold); color:#17212a; font-weight:950; }
+    .button.secondary { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+    .chat-visual { display:grid; gap:10px; min-height:280px; padding:22px; border:1px solid rgba(255,255,255,.14); border-radius:8px; box-shadow:0 20px 50px rgba(0,0,0,.22); background:rgba(255,255,255,.06); align-content:center; }
+    .bubble { padding:12px 14px; border-radius:8px; color:#fff; line-height:1.4; border:1px solid rgba(255,255,255,.16); }
+    .bubble.user { background:rgba(53,95,140,.56); margin-right:30px; }
+    .bubble.model { background:rgba(47,111,100,.56); margin-left:30px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .card,.sim { border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); padding:20px; }
+    .card p,.card li,.sim p { color:#485560; line-height:1.6; }
+    pre { overflow:auto; margin:16px 0 0; padding:16px; border-radius:8px; background:#17212a; color:#e8edf2; line-height:1.55; }
+    .controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:14px 0; }
+    label { display:grid; gap:6px; color:#394856; font-weight:850; font-size:.9rem; }
+    textarea,input,select { width:100%; border:1px solid var(--line); border-radius:7px; padding:10px; color:var(--ink); background:#fff; }
+    textarea { min-height:90px; resize:vertical; }
+    input[type=range] { padding:0; }
+    .result { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:14px; }
+    .metric { padding:12px; border-radius:8px; background:#f6f8fb; border:1px solid #dbe3ea; }
+    .metric b { display:block; font-size:1.18rem; }
+    .metric span { color:var(--muted); font-size:.78rem; font-weight:800; text-transform:uppercase; }
+    .dist { display:grid; gap:7px; margin-top:14px; }
+    .bar { display:grid; grid-template-columns:90px 1fr 56px; gap:8px; align-items:center; font-size:.9rem; }
+    .track { height:12px; border-radius:999px; background:#edf1f5; overflow:hidden; }
+    .fill { height:100%; border-radius:999px; background:var(--green); }
+    table { width:100%; border-collapse:collapse; margin-top:12px; background:#fff; }
+    th,td { padding:11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:#3a4a56; background:#f6f8fb; }
+    .footer { padding:28px 0 44px; color:var(--muted); text-align:center; }
+    @media (max-width:880px) { .layout,.hero-grid,.grid,.controls,.result { grid-template-columns:1fr; } .toc { position:static; height:auto; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Breadcrumbs">
+        <a href="index.html">ML Home</a>
+        <a href="nlp_ml_book.html">NLP ML</a>
+      </nav>
+      <div class="toc-title">LLM Deep Dive</div>
+      <nav>
+        <a href="#model">Model Contract</a>
+        <a href="#decoding">Decoding</a>
+        <a href="#systems">RAG and Tools</a>
+        <a href="#simulators">Simulators</a>
+        <a href="#evaluation">Evaluation</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | LLM deep dive</p>
+            <h1>LLMs as Probabilistic Text Systems</h1>
+            <p class="subtitle">An LLM predicts token distributions. Useful assistants emerge when that core model is wrapped with prompt contracts, decoding controls, retrieval, tools, memory, safety gates, and evaluation loops.</p>
+            <div class="hero-actions">
+              <a class="button" href="#simulators">Open Decoding Lab</a>
+              <a class="button secondary" href="mlops_production_ml_book.html">Production Context</a>
+            </div>
+          </div>
+          <div class="chat-visual" aria-hidden="true">
+            <div class="bubble user">User: explain attention with an example</div>
+            <div class="bubble model">Model: attention assigns weights from one token to other tokens...</div>
+            <div class="bubble user">Tool: retrieve chapter notes</div>
+            <div class="bubble model">Final: grounded answer with citations</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="model">
+        <div class="inner">
+          <h2>1. Model Contract</h2>
+          <p class="lead">A decoder LLM consumes token ids and returns logits for the next token. Everything else is system design: templates, instructions, retrieval, tool schemas, output parsers, memory, and evaluation.</p>
+          <div class="grid">
+            <article class="card">
+              <h3>Autoregressive loop</h3>
+              <pre><code>tokens = tokenize(prompt)
+while not done:
+    logits = model(tokens, kv_cache)
+    next_token = decode(logits, temperature, top_p, penalties)
+    tokens.append(next_token)</code></pre>
+            </article>
+            <article class="card">
+              <h3>Pretraining vs adaptation</h3>
+              <p>Pretraining teaches broad next-token prediction. Instruction tuning teaches response style and task following. Preference optimization or reinforcement-style alignment adjusts behavior toward selected outputs. Retrieval and tools add external information and actions without changing model weights.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="decoding">
+        <div class="inner">
+          <h2>2. Decoding Controls</h2>
+          <table>
+            <thead><tr><th>Control</th><th>Effect</th><th>Failure mode</th></tr></thead>
+            <tbody>
+              <tr><td>Temperature</td><td>Scales logits before softmax. Lower is sharper, higher is more exploratory.</td><td>Too low can be repetitive; too high can be incoherent.</td></tr>
+              <tr><td>Top-k</td><td>Keeps only the most likely k candidates.</td><td>Can remove rare but correct tokens.</td></tr>
+              <tr><td>Top-p</td><td>Keeps the smallest set whose probability mass reaches p.</td><td>Candidate count changes by confidence, which can surprise tests.</td></tr>
+              <tr><td>Repetition penalty</td><td>Reduces probability of already used tokens.</td><td>Can hurt exact code, names, or citations.</td></tr>
+              <tr><td>Stop sequences</td><td>Terminate generation when a delimiter appears.</td><td>Wrong stop strings truncate valid content.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="systems">
+        <div class="inner">
+          <h2>3. RAG, Tools, and Structured Outputs</h2>
+          <div class="grid">
+            <article class="card">
+              <h3>RAG pattern</h3>
+              <p>Retrieval-augmented generation usually means: chunk documents, embed chunks, retrieve candidates, optionally rerank, pack evidence into the prompt, generate an answer, and evaluate whether the answer is supported by retrieved evidence.</p>
+            </article>
+            <article class="card">
+              <h3>Tool-calling pattern</h3>
+              <p>A tool-capable LLM chooses a structured action from a schema. The application validates arguments, executes the tool, adds tool results to the context, and asks the model to continue. Never treat tool arguments as trusted just because they were model-generated.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>4. Interactive Simulators</h2>
+          <div class="grid">
+            <article class="sim">
+              <h3>Next Token Decoding Lab</h3>
+              <p>Adjust temperature and top-p to see how candidate probabilities change.</p>
+              <div class="controls">
+                <label>Scenario
+                  <select id="scenario">
+                    <option value="explain">Explain attention</option>
+                    <option value="code">Write code</option>
+                    <option value="creative">Creative answer</option>
+                  </select>
+                </label>
+                <label>Temperature <input id="temperature" type="range" min="0.2" max="2.0" step="0.1" value="0.8"></label>
+                <label>Top-p <input id="topP" type="range" min="0.3" max="1" step="0.05" value="0.9"></label>
+                <label>Repetition penalty <input id="repPenalty" type="range" min="1" max="1.8" step="0.1" value="1.1"></label>
+              </div>
+              <div class="result" id="decodeMetrics"></div>
+              <div class="dist" id="distribution"></div>
+            </article>
+
+            <article class="sim">
+              <h3>RAG Packing Planner</h3>
+              <label>Question
+                <textarea id="question">How does a transformer use attention, and when does an LLM need retrieval?</textarea>
+              </label>
+              <div class="controls">
+                <label>Context window <input id="window" type="number" min="512" value="8192"></label>
+                <label>System + template tokens <input id="template" type="number" min="0" value="650"></label>
+                <label>Chunk size <input id="chunkSize" type="number" min="50" value="450"></label>
+                <label>Retrieved chunks <input id="chunks" type="number" min="0" value="8"></label>
+                <label>Reserved answer <input id="answer" type="number" min="1" value="1000"></label>
+                <label>Tool schema tokens <input id="tools" type="number" min="0" value="500"></label>
+              </div>
+              <div class="result" id="ragMetrics"></div>
+              <pre id="ragAdvice"></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="evaluation">
+        <div class="inner">
+          <h2>5. Evaluation and Failure Analysis</h2>
+          <table>
+            <thead><tr><th>Evaluation target</th><th>Metric or test</th><th>Important detail</th></tr></thead>
+            <tbody>
+              <tr><td>Question answering</td><td>Correctness, citation support, abstention quality.</td><td>Separate answer style from factual grounding.</td></tr>
+              <tr><td>Extraction</td><td>Schema validity, field F1, exact match, null handling.</td><td>Evaluate parse failures as failures, not missing data.</td></tr>
+              <tr><td>RAG</td><td>Recall@k, answer support, contradiction rate.</td><td>Bad retrieval cannot be fixed reliably by a fluent generator.</td></tr>
+              <tr><td>Tool use</td><td>Tool choice accuracy, argument validity, execution success.</td><td>Validate permissions and side effects outside the model.</td></tr>
+              <tr><td>Agents</td><td>Task success, step count, rollback rate, approval rate.</td><td>Use sandboxed tools and explicit stop conditions.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">Part of the Machine Learning Book. Related pages: <a href="tokenizers_deep_dive.html">Tokenizers</a>, <a href="transformers_deep_dive.html">Transformers</a>, <a href="mlops_production_ml_book.html">MLOps</a>.</footer>
+    </main>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    function metric(label, value) { return `<div class="metric"><b>${value}</b><span>${label}</span></div>`; }
+    const logits = {
+      explain: [["Attention", 4.2], ["is", 3.7], ["lets", 3.3], ["uses", 3.0], ["because", 2.4], ["banana", .2]],
+      code: [["def", 4.4], ["import", 3.8], ["class", 3.1], ["The", 1.9], ["```", 1.8], ["maybe", .6]],
+      creative: [["Imagine", 3.6], ["A", 3.3], ["The", 3.1], ["First", 2.5], ["Because", 2.1], ["therefore", 1.4]]
+    };
+    function softmax(items, temp, penalty) {
+      const scaled = items.map(([tok, logit]) => [tok, (logit / temp) / (tok.length < 4 ? penalty : 1)]);
+      const max = Math.max(...scaled.map((x) => x[1]));
+      const exps = scaled.map(([tok, l]) => [tok, Math.exp(l - max)]);
+      const sum = exps.reduce((s, [, e]) => s + e, 0);
+      return exps.map(([tok, e]) => [tok, e / sum]).sort((a, b) => b[1] - a[1]);
+    }
+    function nucleus(dist, p) {
+      let total = 0;
+      const kept = [];
+      for (const item of dist) {
+        if (total < p) kept.push(item);
+        total += item[1];
+      }
+      const norm = kept.reduce((s, [, v]) => s + v, 0) || 1;
+      return kept.map(([tok, v]) => [tok, v / norm]);
+    }
+    function updateDecode() {
+      const dist = softmax(logits[$("scenario").value], Number($("temperature").value), Number($("repPenalty").value));
+      const kept = nucleus(dist, Number($("topP").value));
+      $("decodeMetrics").innerHTML = [
+        metric("Candidates kept", kept.length),
+        metric("Top token", kept[0][0]),
+        metric("Top probability", `${Math.round(kept[0][1] * 100)}%`)
+      ].join("");
+      $("distribution").innerHTML = kept.map(([tok, p]) => `
+        <div class="bar"><b>${tok}</b><div class="track"><div class="fill" style="width:${Math.round(p * 100)}%"></div></div><span>${p.toFixed(2)}</span></div>
+      `).join("");
+    }
+    function estimateTokens(text) {
+      return Math.ceil((text.match(/[A-Za-z]+|\d+|[^\sA-Za-z\d]/g) || []).length * 1.15);
+    }
+    function updateRag() {
+      const q = estimateTokens($("question").value);
+      const windowSize = Number($("window").value), template = Number($("template").value), chunk = Number($("chunkSize").value);
+      const chunks = Number($("chunks").value), answer = Number($("answer").value), tools = Number($("tools").value);
+      const used = q + template + chunk * chunks + answer + tools;
+      const remaining = windowSize - used;
+      $("ragMetrics").innerHTML = [
+        metric("Estimated used", used),
+        metric("Remaining", remaining),
+        metric("Retrieval budget", chunk * chunks)
+      ].join("");
+      $("ragAdvice").textContent = remaining >= 0
+        ? "This pack fits. Evaluate whether the retrieved chunks contain answer evidence; fitting in context is not the same as grounding."
+        : `Over budget by ${Math.abs(remaining)} tokens. Reduce chunks, shrink chunk size, remove tool schemas, or reserve less output.`;
+    }
+    ["scenario", "temperature", "topP", "repPenalty"].forEach((id) => $(id).addEventListener("input", updateDecode));
+    ["question", "window", "template", "chunkSize", "chunks", "answer", "tools"].forEach((id) => $(id).addEventListener("input", updateRag));
+    updateDecode();
+    updateRag();
+  </script>
+</body>
+</html>

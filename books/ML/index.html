@@ -590,14 +590,14 @@
     <div class="inner hero-content">
       <p class="kicker">Softel Labs Education</p>
       <h1>Machine Learning Book</h1>
-      <p class="subtitle">A growing, interactive machine learning book with chapters for basic ML, computer vision, deep learning, natural language processing, and ML productionisation. Each page is self-contained and teaches concepts through explanations, metrics, and browser-based simulations.</p>
+      <p class="subtitle">A growing, interactive machine learning book with chapters for basic ML, computer vision, deep learning, natural language processing, ML productionisation, and focused deep dives on CNNs, tokenizers, transformers, and LLM systems. Each page is self-contained and teaches concepts through explanations, metrics, and browser-based simulations.</p>
       <div class="hero-actions">
         <a class="button" href="#chapters">Start Reading</a>
         <a class="button secondary" href="classic_ml_algorithms_book.html">Open Basic ML</a>
       </div>
       <div class="hero-stats">
-        <div class="stat"><b>5 complete sections</b><br>Basic ML, CV, DL, NLP, and MLOps foundations.</div>
-        <div class="stat"><b>31+ simulators</b><br>Metrics, filters, models, tensors, masks, boxes, clusters, tokens, retrieval, decoding, drift, and deployment.</div>
+        <div class="stat"><b>9 linked pages</b><br>5 foundation chapters plus 4 detailed CNN, tokenizer, transformer, and LLM deep dives.</div>
+        <div class="stat"><b>39+ simulators</b><br>Metrics, filters, models, tensors, masks, boxes, clusters, tokens, attention, retrieval, decoding, drift, and deployment.</div>
         <div class="stat"><b>Interactive chapters</b><br>Every chapter runs locally with HTML, CSS, and JavaScript.</div>
       </div>
     </div>
@@ -617,7 +617,7 @@
   <main>
     <section class="section" id="chapters">
       <div class="inner">
-          <p class="lead">Start with basic machine learning if you want the classical foundations. Move to computer vision for image tasks and evaluation. Use deep learning when you are ready for CNNs, tensors, and Torch-style layers. Use NLP to connect scikit-learn style vectorizers to modern transformer and LLM systems. Use MLOps to turn models into operated production systems.</p>
+          <p class="lead">Start with basic machine learning if you want the classical foundations. Move to computer vision for image tasks and evaluation. Use deep learning when you are ready for CNNs, tensors, and Torch-style layers. Use NLP to connect scikit-learn style vectorizers to modern transformer and LLM systems. Then use the focused deep dives to study CNNs, tokenizers, transformers, and LLM mechanics in more detail.</p>
 
         <div class="tools">
           <input id="chapterSearch" type="search" placeholder="Search sections, simulators, metrics, topics" aria-label="Search ML book sections">
@@ -645,8 +645,8 @@
           <div class="path">
             <div class="path-step"><div><b>Basic ML</b><span>Learn feature matrices, supervised and unsupervised algorithms, validation, metrics, and classical model behavior.</span></div></div>
             <div class="path-step"><div><b>Computer Vision ML</b><span>Move from general ML metrics to image-specific tasks: filters, classification, detection, masks, augmentation, and visual evaluation.</span></div></div>
-            <div class="path-step"><div><b>Deep Learning</b><span>Study CNN mechanics, tensor shape contracts, Torch base layers, normalization, attention, and layer-level simulations.</span></div></div>
-            <div class="path-step"><div><b>NLP and Transformers</b><span>Move from count vectorizers, TF-IDF, and Naive Bayes to embeddings, attention, decoding, retrieval, and LLM evaluation.</span></div></div>
+            <div class="path-step"><div><b>Deep Learning</b><span>Study CNN mechanics, tensor shape contracts, Torch base layers, normalization, attention, and layer-level simulations. Then open the CNN deep dive for receptive fields, channel design, and architecture details.</span></div></div>
+            <div class="path-step"><div><b>NLP and Transformers</b><span>Move from count vectorizers, TF-IDF, and Naive Bayes to embeddings, attention, decoding, retrieval, and LLM evaluation. Then open the tokenizer, transformer, and LLM deep dives.</span></div></div>
             <div class="path-step"><div><b>MLOps and Production ML</b><span>Connect models to labels, training, evaluation, deployment, monitoring, feedback loops, large-model operations, and agent safety.</span></div></div>
             <div class="path-step"><div><b>Future Chapters</b><span>Add recommender systems, time series, optimization, data engineering, and advanced evaluation as the book grows.</span></div></div>
           </div>
@@ -657,8 +657,8 @@
           <div class="meter-list">
             <div class="meter"><span>Classic ML</span><div class="meter-track"><div class="meter-fill" style="width: 92%"></div></div><span>92%</span></div>
             <div class="meter"><span>Vision ML</span><div class="meter-track"><div class="meter-fill" style="width: 88%"></div></div><span>88%</span></div>
-            <div class="meter"><span>Deep ML</span><div class="meter-track"><div class="meter-fill" style="width: 90%"></div></div><span>90%</span></div>
-            <div class="meter"><span>NLP ML</span><div class="meter-track"><div class="meter-fill" style="width: 86%"></div></div><span>86%</span></div>
+            <div class="meter"><span>Deep ML</span><div class="meter-track"><div class="meter-fill" style="width: 96%"></div></div><span>96%</span></div>
+            <div class="meter"><span>NLP ML</span><div class="meter-track"><div class="meter-fill" style="width: 95%"></div></div><span>95%</span></div>
             <div class="meter"><span>Production</span><div class="meter-track"><div class="meter-fill" style="width: 84%"></div></div><span>84%</span></div>
           </div>
         </aside>
@@ -668,7 +668,7 @@
     <section class="section" id="future">
       <div class="inner">
         <h2>Future Pages</h2>
-        <p class="lead">The index is designed as the start of a larger ML book. NLP and MLOps have moved from planned next steps into full interactive chapters; the remaining slots can become full chapters later without changing the overall structure.</p>
+        <p class="lead">The index is designed as the start of a larger ML book. NLP and MLOps have moved from planned next steps into full interactive chapters, and the most compressed topics now have their own detailed pages. The remaining slots can become full chapters later without changing the overall structure.</p>
         <div class="future-grid">
           <div class="future"><b>Optimization and Training</b><span>Loss surfaces, gradient descent, schedulers, regularization, batch effects, and optimizer dynamics.</span></div>
           <div class="future"><b>Recommender Systems</b><span>Collaborative filtering, ranking losses, retrieval, candidate generation, and online metrics.</span></div>
@@ -716,6 +716,16 @@
         simulators: "Convolution, pooling, activations, linear layers, normalization, embeddings, attention"
       },
       {
+        number: "03A",
+        title: "CNN Deep Dive",
+        file: "cnn_deep_dive.html",
+        group: "deep",
+        status: "ready",
+        summary: "Detailed convolution arithmetic, learned filters, channels, receptive fields, parameter counts, architecture design, PyTorch examples, and CNN debugging.",
+        topics: ["CNN", "receptive fields", "Conv2d", "stride", "padding", "dilation", "groups", "architecture"],
+        simulators: "Convolution shape calculator, parameter calculator, receptive field stack"
+      },
+      {
         number: "04",
         title: "NLP and Transformers",
         file: "nlp_ml_book.html",
@@ -724,6 +734,36 @@
         summary: "Natural language processing from classical ML to modern LLMs: tokenization, CountVectorizer, TF-IDF, Naive Bayes, embeddings, attention, transformers, decoding, retrieval, RAG, and evaluation.",
         topics: ["NLP", "CountVectorizer", "TF-IDF", "Naive Bayes", "transformers", "attention", "LLMs", "retrieval"],
         simulators: "Tokenizer, vectorizer, Naive Bayes, attention, next-token decoding, embedding retrieval"
+      },
+      {
+        number: "04A",
+        title: "Tokenizer Deep Dive",
+        file: "tokenizers_deep_dive.html",
+        group: "nlp",
+        status: "ready",
+        summary: "Detailed tokenizer contracts: normalization, pre-tokenization, BPE-style merges, WordPiece, Unigram, special tokens, span offsets, and context budgeting.",
+        topics: ["tokenizers", "BPE", "WordPiece", "Unigram", "token ids", "offsets", "context windows"],
+        simulators: "BPE merge trainer, token budget estimator"
+      },
+      {
+        number: "04B",
+        title: "Transformer Deep Dive",
+        file: "transformers_deep_dive.html",
+        group: "nlp",
+        status: "ready",
+        summary: "Attention internals, masks, positional information, residual blocks, normalization, MLPs, architecture sizing, and KV cache behavior.",
+        topics: ["transformers", "attention", "masks", "positions", "KV cache", "LayerNorm", "MLP"],
+        simulators: "Attention matrix lab, transformer parameter and KV cache calculator"
+      },
+      {
+        number: "04C",
+        title: "LLM Deep Dive",
+        file: "llms_deep_dive.html",
+        group: "nlp",
+        status: "ready",
+        summary: "LLM mechanics and systems: autoregressive decoding, temperature, top-p, prompting, RAG, tool calling, structured outputs, and evaluation.",
+        topics: ["LLMs", "decoding", "temperature", "top-p", "RAG", "tools", "evaluation", "agents"],
+        simulators: "Next-token decoding lab, RAG packing planner"
       },
       {
         number: "05",

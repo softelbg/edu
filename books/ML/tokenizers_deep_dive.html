@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tokenizer Deep Dive: BPE, WordPiece, Unigram, and Token Budgets</title>
+  <style>
+    :root {
+      --ink: #17212a; --muted: #66717c; --paper: #f8f5ef; --surface: #fff; --line: #ded7cb;
+      --blue: #355f8c; --green: #2f6f64; --red: #954c43; --gold: #b88a36; --shadow: 0 18px 42px rgba(40, 35, 28, .12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: linear-gradient(180deg, #f3f7f5, var(--paper)); }
+    a { color: inherit; text-decoration: none; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 100vh; }
+    .toc { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 22px; border-right: 1px solid var(--line); background: rgba(255,255,255,.82); backdrop-filter: blur(14px); }
+    .breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .breadcrumbs a, .toc nav a { display: inline-flex; min-height: 34px; align-items: center; padding: 0 10px; border: 1px solid rgba(53,95,140,.16); border-radius: 7px; background: #fff; color: #31414f; font-weight: 800; font-size: .88rem; }
+    .toc-title { margin: 16px 0 12px; font-family: Georgia, "Times New Roman", serif; font-size: 1.45rem; font-weight: 800; }
+    .toc nav { display: grid; gap: 8px; }
+    .hero, .chapter { padding: 44px 0; }
+    .hero { background: #17212a; color: #fff; }
+    .inner { width: min(1040px, calc(100% - 36px)); margin: 0 auto; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 30px; align-items: center; }
+    .kicker { margin: 0 0 12px; color: #9ed7cb; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; font-size: .78rem; }
+    h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    h1 { margin: 0; font-size: clamp(2.7rem, 6vw, 5.2rem); line-height: .96; }
+    h2 { margin: 0 0 14px; font-size: clamp(2rem, 4vw, 3rem); }
+    h3 { margin: 0 0 10px; font-size: 1.45rem; }
+    .subtitle, .lead { color: #d7e1ea; font-size: 1.1rem; line-height: 1.65; max-width: 780px; }
+    .lead { color: #475461; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 14px; border-radius: 7px; background: var(--green); color: #fff; font-weight: 900; }
+    .button.secondary { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .token-visual { min-height: 280px; padding: 22px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,.22); background: rgba(255,255,255,.06); }
+    .token-line { display: flex; flex-wrap: wrap; gap: 8px; align-content: center; min-height: 230px; }
+    .chip { display: inline-flex; align-items: center; min-height: 34px; padding: 0 10px; border-radius: 999px; background: rgba(158,215,203,.18); border: 1px solid rgba(255,255,255,.18); color: #fff; font-weight: 850; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card, .sim { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); padding: 20px; }
+    .card p, .card li, .sim p { color: #485560; line-height: 1.6; }
+    pre { overflow: auto; margin: 16px 0 0; padding: 16px; border-radius: 8px; background: #17212a; color: #e8edf2; line-height: 1.55; }
+    .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 14px 0; }
+    label { display: grid; gap: 6px; color: #394856; font-weight: 850; font-size: .9rem; }
+    textarea, input, select { width: 100%; border: 1px solid var(--line); border-radius: 7px; padding: 10px; color: var(--ink); background: #fff; }
+    textarea { min-height: 110px; resize: vertical; }
+    input[type="range"] { padding: 0; }
+    .tokens { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .tok { display: inline-flex; align-items: center; min-height: 30px; padding: 0 8px; border-radius: 7px; background: #edf5f2; border: 1px solid #d5e5df; font-weight: 800; }
+    .tok.byte { background: #f7efe8; border-color: #ead7c7; }
+    .result { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .metric { padding: 12px; border-radius: 8px; background: #f6f8fb; border: 1px solid #dbe3ea; }
+    .metric b { display: block; font-size: 1.25rem; }
+    .metric span { color: var(--muted); font-size: .82rem; font-weight: 800; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: #fff; }
+    th, td { padding: 11px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: #3a4a56; background: #f6f8fb; }
+    .footer { padding: 28px 0 44px; color: var(--muted); text-align: center; }
+    @media (max-width: 880px) { .layout, .hero-grid, .grid, .controls, .result { grid-template-columns: 1fr; } .toc { position: static; height: auto; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav class="breadcrumbs" aria-label="Breadcrumbs">
+        <a href="index.html">ML Home</a>
+        <a href="nlp_ml_book.html">NLP ML</a>
+      </nav>
+      <div class="toc-title">Tokenizers</div>
+      <nav>
+        <a href="#contracts">Contracts</a>
+        <a href="#families">Tokenizer Families</a>
+        <a href="#edge-cases">Edge Cases</a>
+        <a href="#simulators">Simulators</a>
+        <a href="#debugging">Debugging</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Machine Learning Book | Tokenizer deep dive</p>
+            <h1>Tokenizers: Text as Model Input</h1>
+            <p class="subtitle">Tokenization is the contract between human text and model tensors. This page covers normalization, pre-tokenization, BPE-style merges, WordPiece scoring, unigram tokenization, special tokens, span alignment, and context budgeting.</p>
+            <div class="hero-actions">
+              <a class="button" href="#simulators">Open Token Labs</a>
+              <a class="button secondary" href="transformers_deep_dive.html">Next: Transformers</a>
+            </div>
+          </div>
+          <div class="token-visual" aria-hidden="true">
+            <div class="token-line">
+              <span class="chip">Text</span><span class="chip">-></span><span class="chip">normalization</span><span class="chip">pre-tokenize</span><span class="chip">subword</span><span class="chip">ids</span><span class="chip">mask</span><span class="chip">positions</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="contracts">
+        <div class="inner">
+          <h2>1. Tokenizer Contracts</h2>
+          <p class="lead">A tokenizer does not merely split strings. It defines how text becomes ids, how offsets map back to original characters, which special tokens mark boundaries, and how many model positions are consumed.</p>
+          <div class="grid">
+            <article class="card">
+              <h3>Pipeline</h3>
+              <pre><code>raw text
+-> normalization       # Unicode, case, whitespace, accents
+-> pre-tokenization    # words, punctuation, bytes, regex chunks
+-> model tokenization  # BPE, WordPiece, Unigram, byte-level rules
+-> post-processing     # BOS/EOS/SEP, chat template, truncation
+-> tensors             # input_ids, attention_mask, token_type_ids</code></pre>
+            </article>
+            <article class="card">
+              <h3>Why boundaries matter</h3>
+              <p>Token boundaries are not word boundaries. A single word can become many tokens, and a single token can include a leading space. This affects cost, context windows, character span labels, retrieval chunking, and streaming output.</p>
+              <p>For NER and extraction, always keep offset mappings. For LLM prompts, count tokens after applying the actual chat or instruction template.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="families">
+        <div class="inner">
+          <h2>2. Tokenizer Families</h2>
+          <table>
+            <thead><tr><th>Family</th><th>Mechanics</th><th>Common detail</th></tr></thead>
+            <tbody>
+              <tr><td>BPE</td><td>Starts from small symbols and repeatedly merges frequent adjacent pairs.</td><td>Fast, common in GPT-style tokenizers; byte-level BPE can represent any byte sequence.</td></tr>
+              <tr><td>WordPiece</td><td>Chooses subwords with a likelihood-like score, often using continuation markers such as <code>##ing</code>.</td><td>Common in BERT-style encoders.</td></tr>
+              <tr><td>Unigram</td><td>Starts with a large candidate vocabulary and prunes pieces based on a probabilistic model.</td><td>Can choose alternate segmentations; common in SentencePiece workflows.</td></tr>
+              <tr><td>Character/byte</td><td>Every character or byte is a token.</td><td>Robust coverage, but longer sequences and harder long-range modeling.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="edge-cases">
+        <div class="inner">
+          <h2>3. Edge Cases</h2>
+          <div class="grid">
+            <article class="card">
+              <h3>Spaces and punctuation</h3>
+              <p>Many tokenizers encode leading spaces into tokens, so <code>"cat"</code> and <code>" cat"</code> can be different ids. Punctuation often becomes separate tokens unless frequent pairs have been merged.</p>
+            </article>
+            <article class="card">
+              <h3>Code, math, and rare names</h3>
+              <p>Identifiers such as <code>HTTPRequestHandler</code>, paths, formulas, and mixed-language names can explode into many tokens. That increases latency and makes span alignment harder.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="simulators">
+        <div class="inner">
+          <h2>4. Interactive Simulators</h2>
+          <div class="grid">
+            <article class="sim">
+              <h3>BPE Merge Trainer</h3>
+              <p>Train a tiny BPE-like tokenizer on the text below. This intentionally simplified trainer exposes merge frequency, not production tokenizer details.</p>
+              <label>Training text
+                <textarea id="trainText">low lower newest widest low lower lower transformer transforms token tokenization tokenize</textarea>
+              </label>
+              <div class="controls">
+                <label>Merges <input id="mergeCount" type="range" min="0" max="20" value="8"></label>
+                <label>Sample to encode <input id="sampleText" value="lower tokenization transformers"></label>
+              </div>
+              <div class="result" id="bpeMetrics"></div>
+              <div class="tokens" id="encodedTokens"></div>
+              <pre id="mergeList"></pre>
+            </article>
+
+            <article class="sim">
+              <h3>Token Budget Estimator</h3>
+              <p>Estimate prompt packing. The heuristic is local and transparent: it compares whitespace tokens, punctuation splits, and byte-ish fallback pressure.</p>
+              <label>Prompt
+                <textarea id="budgetText">System: You are a careful tutor.
+User: Explain why convolution uses local weight sharing, then give a PyTorch example.</textarea>
+              </label>
+              <div class="controls">
+                <label>Context window <input id="contextWindow" type="number" min="128" value="4096"></label>
+                <label>Reserved output <input id="reservedOutput" type="number" min="1" value="700"></label>
+              </div>
+              <div class="result" id="budgetMetrics"></div>
+              <div class="tokens" id="budgetTokens"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="debugging">
+        <div class="inner">
+          <h2>5. Debugging Tokenization</h2>
+          <table>
+            <thead><tr><th>Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr><td>NER spans shifted</td><td>Labels aligned to words after tokenizer changed.</td><td>Use offset mappings from the exact tokenizer and template.</td></tr>
+              <tr><td>Prompt unexpectedly expensive</td><td>Code, tables, JSON, or rare strings create many subword tokens.</td><td>Measure tokens on final prompt text, then compress repeated syntax.</td></tr>
+              <tr><td>Model ignores tail of prompt</td><td>Truncation removed important evidence or instructions.</td><td>Put non-negotiable instructions early and validate retained token ranges.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">Part of the Machine Learning Book. Related pages: <a href="nlp_ml_book.html">NLP ML</a>, <a href="transformers_deep_dive.html">Transformers</a>, <a href="llms_deep_dive.html">LLMs</a>.</footer>
+    </main>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    function metric(label, value) { return `<div class="metric"><b>${value}</b><span>${label}</span></div>`; }
+    function words(text) { return text.trim().split(/\s+/).filter(Boolean); }
+    function initialPieces(word) { return [...word].concat("</w>"); }
+    function pairKey(a, b) { return `${a} ${b}`; }
+
+    function trainBpe(text, count) {
+      let vocab = words(text.toLowerCase()).map(initialPieces);
+      const merges = [];
+      for (let step = 0; step < count; step++) {
+        const freq = new Map();
+        vocab.forEach((pieces) => {
+          for (let i = 0; i < pieces.length - 1; i++) {
+            const key = pairKey(pieces[i], pieces[i + 1]);
+            freq.set(key, (freq.get(key) || 0) + 1);
+          }
+        });
+        const best = [...freq.entries()].sort((a, b) => b[1] - a[1])[0];
+        if (!best || best[1] < 2) break;
+        const [key, n] = best;
+        const [a, b] = key.split(" ");
+        const merged = a + b.replace("</w>", "");
+        merges.push({ a, b, merged, n });
+        vocab = vocab.map((pieces) => {
+          const out = [];
+          for (let i = 0; i < pieces.length; i++) {
+            if (i < pieces.length - 1 && pieces[i] === a && pieces[i + 1] === b) {
+              out.push(merged);
+              i++;
+            } else {
+              out.push(pieces[i]);
+            }
+          }
+          return out;
+        });
+      }
+      return merges;
+    }
+
+    function encodeWord(word, merges) {
+      let pieces = initialPieces(word.toLowerCase());
+      merges.forEach(({ a, b, merged }) => {
+        const out = [];
+        for (let i = 0; i < pieces.length; i++) {
+          if (i < pieces.length - 1 && pieces[i] === a && pieces[i + 1] === b) {
+            out.push(merged);
+            i++;
+          } else {
+            out.push(pieces[i]);
+          }
+        }
+        pieces = out;
+      });
+      return pieces.map((p) => p.replace("</w>", ""));
+    }
+
+    function updateBpe() {
+      const merges = trainBpe($("trainText").value, Number($("mergeCount").value));
+      const encoded = words($("sampleText").value).flatMap((word) => encodeWord(word, merges));
+      $("bpeMetrics").innerHTML = [
+        metric("Learned merges", merges.length),
+        metric("Sample tokens", encoded.length),
+        metric("Training words", words($("trainText").value).length)
+      ].join("");
+      $("encodedTokens").innerHTML = encoded.map((t) => `<span class="tok">${t || "&lt;/w&gt;"}</span>`).join("");
+      $("mergeList").textContent = merges.map((m, i) => `${i + 1}. ${m.a} + ${m.b} -> ${m.merged}  (${m.n}x)`).join("\n") || "No merges learned yet.";
+    }
+
+    function heuristicTokens(text) {
+      return text.match(/[A-Za-z]+|\d+|[^\sA-Za-z\d]/g) || [];
+    }
+
+    function updateBudget() {
+      const text = $("budgetText").value;
+      const toks = heuristicTokens(text);
+      const rarePenalty = (text.match(/[{}_[\]\\/]|[A-Z]{2,}|[^\x00-\x7F]/g) || []).length;
+      const estimate = Math.ceil(toks.length + rarePenalty * 0.8);
+      const context = Number($("contextWindow").value);
+      const reserved = Number($("reservedOutput").value);
+      const remaining = context - reserved - estimate;
+      $("budgetMetrics").innerHTML = [
+        metric("Estimated input", estimate),
+        metric("Remaining", remaining),
+        metric("Utilization", `${Math.max(0, Math.round((estimate / context) * 100))}%`)
+      ].join("");
+      $("budgetTokens").innerHTML = toks.slice(0, 80).map((t) => `<span class="tok ${t.length === 1 ? "byte" : ""}">${t.replace(/</g, "&lt;")}</span>`).join("");
+    }
+
+    ["trainText", "mergeCount", "sampleText"].forEach((id) => $(id).addEventListener("input", updateBpe));
+    ["budgetText", "contextWindow", "reservedOutput"].forEach((id) => $(id).addEventListener("input", updateBudget));
+    updateBpe();
+    updateBudget();
+  </script>
+</body>
+</html>
