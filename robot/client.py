@@ -142,7 +142,7 @@ class BaseRobotCommandsDaemon(DaemonBase):
 
   def draw_prediction(self):
     current_prediction = self.get_prediction()
-    if current_prediction is not None:
+    if current_prediction is not None and self.frame is not None:
       self.frame_play = self.frame.copy()
 
       font = cv2.FONT_HERSHEY_SIMPLEX
@@ -157,8 +157,10 @@ class BaseRobotCommandsDaemon(DaemonBase):
       lh = h // 4
       cv2.line(self.frame_play, (w // 2 - lh // 2, h // 2), (w // 2 + lh // 2, h // 2), (0, 255, 0), thickness=2)
       cv2.line(self.frame_play, (w // 2, h // 2 - lh // 2), (w // 2, h // 2 + lh // 2), (0, 255, 0), thickness=2)
-    else:
+    elif current_prediction is None:
       debug("draw_prediction current_prediction is NONE")
+    else:
+      debug("draw_prediction frame is NONE")
 
   def play(self):
     if self.frame_play is not None:
@@ -202,8 +204,8 @@ class RobotArmDaemon(BaseRobotCommandsDaemon):
 
 
 if __name__ == "__main__":
-  # ip = "10.37.0.22"
-  ip = None
+  ip = "10.37.0.6"
+  #ip = None
   enable_car = os.environ.get("ROBOT_ENABLE_CAR", "1").lower() not in ["0", "false", "no"]
   enable_arm = os.environ.get("ROBOT_ENABLE_ARM", "1").lower() not in ["0", "false", "no"]
   daemons = []

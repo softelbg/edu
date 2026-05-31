@@ -11,6 +11,8 @@
 # limitations under the License.
 #
 
+import os
+
 from sciveo.tools.daemon import *
 from sciveo.tools.timers import *
 from robot.predictors.depth import *
@@ -53,11 +55,25 @@ class ArmOpenAIPredictor(OpenAIPredictor):
         self.position[i] = min(self.position[i], self.position_limits[i][1])
         self.position[i] = max(self.position[i], self.position_limits[i][0])
 
+  def position_command(self):
+    cmd = "mv:200"
+    for p in self.position:
+      cmd += f",{int(p)}"
+    return cmd
+
+  def predict(self, frame):
+    with self.lock:
+      self.frame = frame
+      current_prediction = self.prediction
+      self.prediction = {"move": self.position_command()}
+      return current_prediction
+
   def test_search_object(self):
-    command_prompt = " ".join([
+    default_command_prompt = " ".join([
       "Start searching for a bottle of water and try to pick it.",
       "When picked, shake it."
     ])
+    command_prompt = os.environ.get("ROBOT_ARM_COMMAND_PROMPT", default_command_prompt)
     self.set_prompt(command_prompt)
 
   def set_prompt(self, command_prompt):
@@ -77,7 +93,7 @@ class ArmOpenAIPredictor(OpenAIPredictor):
     #   f"Respond with a json dict like {response_template} and be strict of the json validity."
     # ])
 
-    response_template = "{ 'move': 'S' }"
+    response_template = "{ 'move': '<one of N,R,L,U1,D1,U2,D2,U3,D3,GL,GR,G1,G0>', 'task_complete': false }"
     self.prompt = " ".join([
       "You are a robot arm with a gripper.",
       "The possible movement commands are neutral, right, left, up1, down1, up2, down2, up3, down3, rotate gripper left or right and gripper on and gripper off.",
@@ -87,10 +103,11 @@ class ArmOpenAIPredictor(OpenAIPredictor):
       "Every command will move the arm except the neutral command which is just to keep the current position.",
       "Look at the image from the robot arm camera for navigation. The camera is positioned above the gripper.",
       command_prompt,
-      "The move command should include .",
+      "The move command should be one of the listed arm commands.",
       "Keep attention to the move command and try to be very accurate.",
       "When not sure what to do or do not see the target object start some random movement so to try to see it.",
       "When not moving after actual move command, this means the arm is on the limit and should start moving the opposite direction so change the direction.",
+      "When the bottle is picked and shaken, return neutral command 'N' and set task_complete to true.",
       f"Respond with a json dict like {response_template} and be strict of the json validity."
     ])
 
@@ -99,11 +116,11 @@ class ArmOpenAIPredictor(OpenAIPredictor):
   def predict_frame(self, frame):
     prediction = super().predict_frame(frame)
     if 'move' in prediction:
-      cmd = prediction['move']
+      cmd = prediction.get('move', 'N')
+      if cmd not in self.dp:
+        cmd = 'N'
       self.move(cmd)
-      prediction['move'] = f"mv:200"
-      for p in self.position:
-        prediction['move'] += f",{int(p)}"
+      prediction['move'] = self.position_command()
       debug("predict_frame::move", prediction['move'], cmd)
     return prediction
 
@@ -112,16 +129,28 @@ class ArmOpenAIPredictor(OpenAIPredictor):
 
 class ArmPipelinePredictor(PipelinePredictor):
   def __init__(self):
-    self.pipeline = [
-      # ArmOpenAIPredictor(),
-      # DepthEstimator(),
+    predictor_names = os.environ.get("ROBOT_ARM_PREDICTORS", "simulation").split(",")
+    predictor_names = [name.strip().lower() for name in predictor_names if len(name.strip()) > 0]
 
-      # LocalClientPredictor(host="sof-1.softel.bg", port=8901, proto="https"),
+    predictor_factories = {
+      "openai": ArmOpenAIPredictor,
+      "keyboard": ArmKeyboardPredictor,
+      "simulation": ArmSimulationPredictor,
+      "simulation2": ArmSimulationPredictor2,
+      "dummy": ArmDummyPredictor,
+    }
 
-      # ArmKeyboardPredictor(),
-      ArmSimulationPredictor(),
-      # ArmDummyPredictor(),
-    ]
+    self.pipeline = []
+    for name in predictor_names:
+      if name not in predictor_factories:
+        error("Unknown ROBOT_ARM_PREDICTORS entry", name)
+        continue
+      self.pipeline.append(predictor_factories[name]())
+
+    if len(self.pipeline) == 0:
+      self.pipeline.append(ArmSimulationPredictor())
+
+    debug(type(self).__name__, "pipeline", [type(model).__name__ for model in self.pipeline])
 
     self.start()
 

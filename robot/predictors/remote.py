@@ -130,6 +130,7 @@ class OpenAIPredictor(BaseRobotPredictor):
     self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     self.model_name = os.environ.get("ROBOT_OPENAI_MODEL", "gpt-4o")
     self.max_tokens = int(os.environ.get("ROBOT_OPENAI_MAX_TOKENS", 500))
+    self.reasoning_effort = os.environ.get("ROBOT_OPENAI_REASONING_EFFORT")
     self.image_resize = int(os.environ.get("ROBOT_OPENAI_IMAGE_RESIZE", 768))
 
   def predict_frame(self, frame):
@@ -146,15 +147,28 @@ class OpenAIPredictor(BaseRobotPredictor):
     params = {
       "model": self.model_name,
       "messages": PROMPT_MESSAGES,
-      "max_tokens": self.max_tokens
+      "max_completion_tokens": self.max_tokens,
+      "response_format": {"type": "json_object"}
     }
+    if self.reasoning_effort:
+      params["reasoning_effort"] = self.reasoning_effort
 
     response = self.client.chat.completions.create(**params)
-    prediction = response.choices[0].message.content.strip()
-    debug("predict", prediction)
-    prediction = prediction.split("{")[1].split("}")[0].replace("\n", "")
-    prediction = "{" + prediction + "}"
-    debug("predict", prediction)
-    prediction = json.loads(prediction)
+    prediction_text = (response.choices[0].message.content or "").strip()
+    debug("predict", prediction_text)
+    if len(prediction_text) == 0:
+      error("Empty OpenAI prediction", "finish_reason", response.choices[0].finish_reason, "usage", response.usage)
+      prediction = {"move": "S"}
+    else:
+      try:
+        prediction = json.loads(prediction_text)
+      except json.JSONDecodeError:
+        start = prediction_text.find("{")
+        end = prediction_text.rfind("}")
+        if start < 0 or end < start:
+          error("OpenAI prediction has no JSON object", prediction_text)
+          prediction = {"move": "S"}
+        else:
+          prediction = json.loads(prediction_text[start:end + 1].replace("\n", ""))
     prediction["play"] = self.draw_prediction(prediction)
     return prediction

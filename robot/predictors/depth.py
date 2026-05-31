@@ -36,8 +36,8 @@ class DepthEstimator(BaseDaemonPredictor):
 
     model_name = "softel/depth-anything-v0.9"
     debug("loading", model_name)
-    self.image_processor = AutoImageProcessor.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True)
-    self.model = AutoModelForDepthEstimation.from_pretrained(model_name, cache_dir=cache_dir, resume_download=True).to(self.TPU)
+    self.image_processor = AutoImageProcessor.from_pretrained(model_name, cache_dir=cache_dir)
+    self.model = AutoModelForDepthEstimation.from_pretrained(model_name, cache_dir=cache_dir).to(self.TPU)
     debug(model_name, "loaded")
 
   def crop(self, frame, crop_ratio=0.2):
