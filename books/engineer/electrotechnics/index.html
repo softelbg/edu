@@ -1,0 +1,2302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Electrotechnics Book: Circuits, Fields, and Maxwell Laws</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f3ed;
+      --ink: #17212a;
+      --muted: #5f6d77;
+      --line: #d8d0c2;
+      --panel: #ffffff;
+      --nav: #fbfaf7;
+      --soft: #eee8dd;
+      --blue: #1f6fb2;
+      --green: #2f7d57;
+      --red: #bd4b43;
+      --amber: #b87924;
+      --violet: #6b55a3;
+      --cyan: #147f87;
+      --shadow: 0 18px 48px rgba(23, 33, 42, .12);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.62 var(--serif);
+    }
+
+    a {
+      color: var(--blue);
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #edf5ff;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    code {
+      border-radius: 4px;
+      background: #ede7dc;
+      padding: 1px 5px;
+      font-size: .92em;
+    }
+
+    pre {
+      overflow: auto;
+      white-space: pre-wrap;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8f4ed;
+      color: #203645;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    p {
+      margin: 0 0 16px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--nav);
+      padding: 28px 22px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .book-home {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--blue);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc-title {
+      margin-bottom: 18px;
+      color: #203645;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .toc a {
+      display: block;
+      color: #364650;
+      text-decoration: none;
+      padding: 7px 0;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero,
+    .chapter,
+    .band {
+      padding: 54px 0;
+    }
+
+    .inner {
+      width: min(1140px, calc(100vw - 56px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 94vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.9), rgba(255,255,255,.58)),
+        repeating-linear-gradient(0deg, rgba(31,111,178,.08), rgba(31,111,178,.08) 1px, transparent 1px, transparent 32px),
+        repeating-linear-gradient(90deg, rgba(47,125,87,.08), rgba(47,125,87,.08) 1px, transparent 1px, transparent 32px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(330px, .74fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--blue);
+      font: 800 13px/1.2 var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 930px;
+      font-size: 64px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 42px;
+    }
+
+    h3 {
+      margin: 34px 0 10px;
+      font-size: 28px;
+    }
+
+    h4 {
+      margin: 24px 0 8px;
+      font-size: 21px;
+    }
+
+    .subtitle {
+      max-width: 820px;
+      margin: 18px 0 26px;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .lead {
+      max-width: 930px;
+      color: #2c3942;
+      font-size: 21px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    .point {
+      border-top: 3px solid var(--blue);
+      background: rgba(255,255,255,.76);
+      padding: 12px;
+    }
+
+    .point:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .point:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .hero-visual,
+    .simulation {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.95);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid #e5ded3;
+      background: #fff;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font: 13px/1.35 var(--sans);
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .note {
+      margin: 22px 0;
+      border-left: 5px solid var(--green);
+      background: #eef7f1;
+      padding: 16px 18px;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff5e3;
+    }
+
+    .formula {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1ebe0;
+      color: #243643;
+      padding: 14px;
+      font-family: var(--serif);
+      font-size: 19px;
+      line-height: 1.65;
+    }
+
+    .equation {
+      display: block;
+      margin: 4px 0;
+      font-style: italic;
+      white-space: nowrap;
+    }
+
+    .eq-label {
+      display: block;
+      margin: 0 0 6px;
+      color: var(--muted);
+      font: 700 13px/1.2 var(--sans);
+    }
+
+    .inline-math {
+      font-family: var(--serif);
+      font-style: italic;
+      white-space: nowrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #ede7dc;
+      color: #203645;
+    }
+
+    .simulation {
+      margin: 24px 0;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sim-header h3 {
+      margin-top: 0;
+    }
+
+    .sim-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font: 14px/1.45 var(--sans);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(126px, 1fr));
+      gap: 12px;
+      margin: 16px 0 18px;
+      font: 14px/1.3 var(--sans);
+    }
+
+    .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    .control input,
+    .control select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 9px;
+    }
+
+    .control output {
+      color: var(--blue);
+      font-family: var(--mono);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 306px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .lorentz-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .lorentz-grid .metric-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .lorentz-canvas {
+      width: 100%;
+      min-height: 520px;
+    }
+
+    .canvas-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .canvas-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .viz-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      color: #203645;
+      font: 700 14px/1.2 var(--sans);
+    }
+
+    .shape {
+      color: var(--muted);
+      font: 12px/1.2 var(--mono);
+      font-weight: 500;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-family: var(--sans);
+    }
+
+    .metric {
+      min-height: 78px;
+      border-top: 3px solid var(--cyan);
+      background: #f8f4ed;
+      padding: 10px;
+    }
+
+    .metric:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .metric:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .metric:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .metric b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font: 13px/1.2 var(--mono);
+      overflow-wrap: anywhere;
+    }
+
+    .bars,
+    .phasor-list,
+    .matrix {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(92px, .45fr) minmax(0, 1fr) 70px;
+      gap: 8px;
+      align-items: center;
+      margin: 7px 0;
+    }
+
+    .bar-track {
+      height: 18px;
+      overflow: hidden;
+      background: #eee7db;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .bar-row:nth-child(2n) .bar-fill {
+      background: var(--green);
+    }
+
+    .bar-row:nth-child(3n) .bar-fill {
+      background: var(--amber);
+    }
+
+    .phasor-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .phasor-item {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr);
+      gap: 8px;
+      border-left: 4px solid var(--blue);
+      background: #f8f4ed;
+      padding: 8px;
+    }
+
+    .matrix {
+      display: grid;
+      gap: 4px;
+      overflow: auto;
+    }
+
+    .matrix-row {
+      display: grid;
+      gap: 4px;
+      align-items: stretch;
+    }
+
+    .cell {
+      min-width: 52px;
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e5ded3;
+      background: #f8f4ed;
+      color: #203645;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .cell.header {
+      background: #ede7dc;
+      font-weight: 800;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 64px;
+      color: var(--muted);
+      font: 14px/1.4 var(--sans);
+    }
+
+    @media (max-width: 1060px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .toc nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .hero-grid,
+      .split,
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        font-size: 16px;
+      }
+
+      .inner {
+        width: min(100% - 28px, 1140px);
+      }
+
+      .hero,
+      .chapter,
+      .band {
+        padding: 34px 0;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      h2 {
+        font-size: 31px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      .subtitle,
+      .lead {
+        font-size: 18px;
+      }
+
+      .hero-points,
+      .sim-controls,
+      .metric-grid,
+      .lorentz-grid .metric-grid,
+      .canvas-pair,
+      .bar-row,
+      .phasor-item {
+        grid-template-columns: 1fr;
+      }
+
+      .lorentz-canvas {
+        min-height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="Table of contents">
+      <a class="book-home" href="../../index.html">Education Library</a>
+      <a class="book-home" href="../dsp/index.html">Engineering: DSP Book</a>
+      <div class="toc-title">Electrotechnics</div>
+      <nav>
+        <a href="#preface">Preface</a>
+        <a href="#quantities">Quantities and units</a>
+        <a href="#circuits">Circuit laws</a>
+        <a href="#fields">Field operators</a>
+        <a href="#maxwell">Maxwell equations</a>
+        <a href="#materials">Materials and boundaries</a>
+        <a href="#ac">Sinusoidal steady state</a>
+        <a href="#machines">Energy and force</a>
+        <a href="#simulators">Interactive simulations</a>
+        <a href="#problem-solving">Problem solving</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="preface">
+        <div class="inner hero-grid">
+          <div>
+            <p class="kicker">Engineering Book | Electrotechnics</p>
+            <h1>Electrotechnics: Circuits, Fields, and Maxwell Laws</h1>
+            <p class="subtitle">An academic, visual introduction to electrical engineering foundations: Kirchhoff laws, circuit energy, complex impedance, phasors, Lorentz force, divergence and curl, integral and differential Maxwell equations, induction, and electromagnetic fields.</p>
+            <div class="hero-points">
+              <div class="point"><b>Circuits as constraints.</b><br>Use KCL and KVL to solve currents, voltages, power, and equivalent impedance.</div>
+              <div class="point"><b>Fields as geometry.</b><br>Read divergence, curl, flux, circulation, and Lorentz force as measurable structure.</div>
+              <div class="point"><b>Maxwell as unification.</b><br>Connect charge, current, electric fields, magnetic fields, induction, and displacement current.</div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <canvas id="heroCanvas" width="720" height="520" aria-label="Animated electrotechnics field and circuit visual"></canvas>
+            <div class="legend">
+              <span class="legend-chip"><i class="swatch" style="background:#1f6fb2"></i>electric field</span>
+              <span class="legend-chip"><i class="swatch" style="background:#bd4b43"></i>magnetic field</span>
+              <span class="legend-chip"><i class="swatch" style="background:#2f7d57"></i>current</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="chapter" id="quantities">
+        <div class="inner">
+          <p class="lead">Electrotechnics starts by separating circuit variables from field variables. Circuit theory uses lumped voltages and currents. Field theory describes space with electric and magnetic vector fields. The two descriptions agree when the geometry is small compared with the electromagnetic wavelength and when parasitic field storage is controlled.</p>
+
+          <h2>1. Quantities, Units, and Sign Conventions</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Quantity</th>
+                <th>Symbol</th>
+                <th>SI unit</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Charge</td><td><code>q</code></td><td>C</td><td>Source of electric field; current is charge flow rate.</td></tr>
+              <tr><td>Current</td><td><span class="inline-math">i = dq / dt</span></td><td>A</td><td>Net charge crossing an oriented surface per unit time.</td></tr>
+              <tr><td>Voltage</td><td><code>v</code></td><td>V</td><td>Energy per unit charge between two circuit nodes.</td></tr>
+              <tr><td>Electric field</td><td><code>E</code></td><td>V/m</td><td>Force per unit positive charge, excluding magnetic velocity force.</td></tr>
+              <tr><td>Magnetic flux density</td><td><code>B</code></td><td>T</td><td>Magnetic field appearing in Lorentz force and flux.</td></tr>
+              <tr><td>Electric flux density</td><td><span class="inline-math">D</span></td><td>C/m^2</td><td>Field whose divergence equals free charge density.</td></tr>
+              <tr><td>Magnetic field intensity</td><td><code>H</code></td><td>A/m</td><td>Field related to free current and material magnetization.</td></tr>
+              <tr><td>Power</td><td><span class="inline-math">p = vi</span></td><td>W</td><td>Instantaneous rate of energy transfer under passive sign convention.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <b>Passive sign convention:</b> if current enters the positive-voltage terminal of an element, <span class="inline-math">p = vi</span> is absorbed power. If <span class="inline-math">p &lt; 0</span>, the element delivers power.
+          </div>
+
+          <h3>Lumped versus distributed view</h3>
+          <p>A circuit element is an approximation of an electromagnetic field configuration. A resistor converts field energy into heat, a capacitor stores electric field energy, an inductor stores magnetic field energy, and wires constrain potential differences while carrying charge. At high frequencies or large dimensions, wires become transmission lines and the field view becomes necessary.</p>
+        </div>
+      </section>
+
+      <section class="band" id="circuits">
+        <div class="inner">
+          <h2>2. Circuit Laws</h2>
+          <p class="lead">Kirchhoff laws are conservation statements for lumped circuits. KCL conserves charge at a node. KVL follows from a conservative electric field in a lumped circuit without time-varying magnetic flux threading the loop.</p>
+
+          <div class="split">
+            <div>
+              <h3>Kirchhoff Current Law</h3>
+              <div class="formula">
+                <span class="eq-label">Algebraic node form</span>
+                <span class="equation">∑<sub>k</sub> i<sub>k</sub> = 0</span>
+                <span class="eq-label">Equivalent statement</span>
+                <span class="equation">∑ i<sub>entering</sub> = ∑ i<sub>leaving</sub></span>
+              </div>
+              <p>KCL is a low-frequency statement of charge conservation. If charge accumulated at an ideal node, node voltage would change and the circuit assumption would be incomplete. In full field theory, continuity is <span class="inline-math">∇ · J = −∂ρ / ∂t</span>.</p>
+            </div>
+            <div>
+              <h3>Kirchhoff Voltage Law</h3>
+              <div class="formula">
+                <span class="eq-label">Closed-loop voltage form</span>
+                <span class="equation">∑<sub>k</sub> v<sub>k</sub> = 0</span>
+                <span class="eq-label">Rise/drop statement</span>
+                <span class="equation">∑ v<sub>rises</sub> = ∑ v<sub>drops</sub></span>
+              </div>
+              <p>KVL is valid when the changing magnetic flux linked by the loop is negligible or explicitly represented by an element such as an inductor or transformer. Faraday's law is the field-level correction.</p>
+            </div>
+          </div>
+
+          <h3>Element laws</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Time-domain law</th>
+                <th>Stored or dissipated energy</th>
+                <th>Sinusoidal impedance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Resistor</td><td><span class="inline-math">v = Ri</span></td><td><span class="inline-math">p = i<sup>2</sup>R</span> dissipated as heat</td><td><span class="inline-math">Z<sub>R</sub> = R</span></td></tr>
+              <tr><td>Capacitor</td><td><span class="inline-math">i = C dv / dt</span></td><td><span class="inline-math">w<sub>E</sub> = ½Cv<sup>2</sup></span></td><td><span class="inline-math">Z<sub>C</sub> = 1 / (jωC)</span></td></tr>
+              <tr><td>Inductor</td><td><span class="inline-math">v = L di / dt</span></td><td><span class="inline-math">w<sub>B</sub> = ½Li<sup>2</sup></span></td><td><span class="inline-math">Z<sub>L</sub> = jωL</span></td></tr>
+              <tr><td>Voltage source</td><td><span class="inline-math">v = V<sub>s</sub>(t)</span></td><td>Can deliver or absorb power</td><td>Specified phasor voltage</td></tr>
+              <tr><td>Current source</td><td><span class="inline-math">i = I<sub>s</sub>(t)</span></td><td>Can deliver or absorb power</td><td>Specified phasor current</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="fields">
+        <div class="inner">
+          <h2>3. Field Operators: Gradient, Divergence, Curl</h2>
+          <p class="lead">Vector calculus is the grammar of electromagnetic fields. The same field can be described locally by differential operators or globally by integrals over curves, surfaces, and volumes.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Operator</th>
+                <th>Symbol</th>
+                <th>Geometric meaning</th>
+                <th>Electrotechnics use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gradient</td>
+                <td><span class="inline-math">grad φ = ∇φ</span></td>
+                <td>Direction and rate of greatest increase of a scalar field.</td>
+                <td>Electrostatic field from potential: <span class="inline-math">E = −∇V</span>.</td>
+              </tr>
+              <tr>
+                <td>Divergence</td>
+                <td><span class="inline-math">div F = ∇ · F</span></td>
+                <td>Net outward flux density per unit volume.</td>
+                <td>Charge as source of <code>D</code>; no magnetic monopoles for <code>B</code>.</td>
+              </tr>
+              <tr>
+                <td>Curl</td>
+                <td><span class="inline-math">curl F = ∇ × F</span></td>
+                <td>Local circulation density and rotation axis.</td>
+                <td>Induction and magnetic fields around current.</td>
+              </tr>
+              <tr>
+                <td>Laplacian</td>
+                <td><span class="inline-math">∇<sup>2</sup>φ</span></td>
+                <td>Divergence of gradient.</td>
+                <td>Laplace/Poisson equations for electrostatic potential.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Integral theorems</h3>
+          <div class="split">
+            <div class="formula">
+              <span class="eq-label">Divergence theorem</span>
+              <span class="equation">∫<sub>V</sub> (∇ · F) dV = ∯<sub>S</sub> F · n dS</span>
+              <span class="eq-label">Local source density integrates to total outward flux.</span>
+            </div>
+            <div class="formula">
+              <span class="eq-label">Stokes theorem</span>
+              <span class="equation">∫<sub>S</sub> (∇ × F) · n dS = ∮<sub>C</sub> F · dl</span>
+              <span class="eq-label">Local curl integrates to circulation around the boundary.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="maxwell">
+        <div class="inner">
+          <h2>4. Maxwell Equations</h2>
+          <p class="lead">Maxwell's equations connect sources, fields, and time variation. The integral forms are tied directly to measurable fluxes and circulations. The differential forms describe the local field at each point.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Law</th>
+                <th>Integral form</th>
+                <th>Differential form</th>
+                <th>Physical meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gauss law for electricity</td>
+                <td><span class="inline-math">∯<sub>S</sub> D · dS = Q<sub>free,enclosed</sub></span></td>
+                <td><span class="inline-math">∇ · D = ρ<sub>free</sub></span></td>
+                <td>Free charge is the source or sink of electric flux density.</td>
+              </tr>
+              <tr>
+                <td>Gauss law for magnetism</td>
+                <td><span class="inline-math">∯<sub>S</sub> B · dS = 0</span></td>
+                <td><span class="inline-math">∇ · B = 0</span></td>
+                <td>Magnetic flux has no isolated source; field lines close.</td>
+              </tr>
+              <tr>
+                <td>Faraday induction law</td>
+                <td><span class="inline-math">∮<sub>C</sub> E · dl = − d/dt ∫<sub>S</sub> B · dS</span></td>
+                <td><span class="inline-math">∇ × E = −∂B / ∂t</span></td>
+                <td>Changing magnetic flux induces circulating electric field and EMF.</td>
+              </tr>
+              <tr>
+                <td>Ampere-Maxwell law</td>
+                <td><span class="inline-math">∮<sub>C</sub> H · dl = ∫<sub>S</sub> J<sub>free</sub> · dS + d/dt ∫<sub>S</sub> D · dS</span></td>
+                <td><span class="inline-math">∇ × H = J<sub>free</sub> + ∂D / ∂t</span></td>
+                <td>Current and changing electric flux produce magnetic circulation.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Continuity and displacement current</h3>
+          <p>Taking divergence of Ampere-Maxwell gives charge conservation because <span class="inline-math">∇ · (∇ × H) = 0</span> and <span class="inline-math">∇ · D = ρ</span>. The displacement-current term is not optional in time-varying fields; it makes current continuity work through capacitors and enables electromagnetic waves.</p>
+          <div class="formula">
+            <span class="equation">∇ · J<sub>free</sub> + ∂ρ<sub>free</sub> / ∂t = 0</span>
+          </div>
+
+          <h3>Wave implication in a uniform lossless medium</h3>
+          <p>In a source-free, homogeneous medium with <span class="inline-math">D = εE</span> and <span class="inline-math">B = μH</span>, Maxwell equations imply wave equations. The propagation speed is <span class="inline-math">v = 1 / √(με)</span>, which becomes the speed of light in vacuum.</p>
+          <div class="formula">
+            <span class="equation">∇<sup>2</sup>E = με ∂<sup>2</sup>E / ∂t<sup>2</sup></span>
+            <span class="equation">∇<sup>2</sup>H = με ∂<sup>2</sup>H / ∂t<sup>2</sup></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="materials">
+        <div class="inner">
+          <h2>5. Materials, Boundaries, and Energy</h2>
+          <p class="lead">Real electrotechnical systems are shaped by materials. Conductors, dielectrics, magnetic cores, insulation, air gaps, losses, and saturation determine the practical behavior of circuits and machines.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Relation</th>
+                <th>Linear isotropic form</th>
+                <th>Meaning</th>
+                <th>Limitations</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Electric flux</td><td><span class="inline-math">D = εE</span></td><td>Dielectric polarization response.</td><td>Nonlinear, anisotropic, dispersive, or lossy dielectrics.</td></tr>
+              <tr><td>Magnetic flux</td><td><span class="inline-math">B = μH</span></td><td>Magnetization response.</td><td>Saturation, hysteresis, eddy-current loss.</td></tr>
+              <tr><td>Conduction current</td><td><span class="inline-math">J = σE</span></td><td>Ohmic conduction in material.</td><td>Temperature dependence, skin effect, semiconductors.</td></tr>
+              <tr><td>Poynting vector</td><td><span class="inline-math">S = E × H</span></td><td>Electromagnetic power flow density.</td><td>Needs field geometry, not only lumped variables.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Boundary conditions</h3>
+          <div class="formula">
+            <span class="equation">n · (D<sub>2</sub> − D<sub>1</sub>) = ρ<sub>s,free</sub></span>
+            <span class="equation">n · (B<sub>2</sub> − B<sub>1</sub>) = 0</span>
+            <span class="equation">n × (E<sub>2</sub> − E<sub>1</sub>) = 0</span>
+            <span class="equation">n × (H<sub>2</sub> − H<sub>1</sub>) = J<sub>s,free</sub></span>
+          </div>
+
+          <p>These boundary conditions explain why conductors become equipotential in electrostatics, why flux continuity matters in magnetic cores, why insulation thickness affects breakdown, and why high-frequency current crowds near conductor surfaces.</p>
+        </div>
+      </section>
+
+      <section class="band" id="ac">
+        <div class="inner">
+          <h2>6. Sinusoidal Steady State and Complex Impedance</h2>
+          <p class="lead">When sources are sinusoidal at one angular frequency <span class="inline-math">ω</span>, linear circuit differential equations become algebraic equations in complex phasors. This is the main bridge from calculus to practical AC circuit solving.</p>
+
+          <div class="split">
+            <div>
+              <h3>Phasors</h3>
+              <p>A sinusoid can be represented by a complex number storing magnitude and phase. The physical signal is the real part.</p>
+              <div class="formula">
+                <span class="equation">v(t) = ℜ{ V e<sup>jωt</sup> }</span>
+                <span class="equation">i(t) = ℜ{ I e<sup>jωt</sup> }</span>
+              </div>
+            </div>
+            <div>
+              <h3>Impedance</h3>
+              <p>Impedance generalizes resistance. Its real part consumes average power; its imaginary part stores and returns energy each cycle.</p>
+              <div class="formula">
+                <span class="equation">Z<sub>R</sub> = R</span>
+                <span class="equation">Z<sub>L</sub> = jωL</span>
+                <span class="equation">Z<sub>C</sub> = 1 / (jωC)</span>
+                <span class="equation">V = ZI</span>
+              </div>
+            </div>
+          </div>
+
+          <h3>Series and parallel combinations</h3>
+          <div class="formula">
+            <span class="eq-label">Series</span>
+            <span class="equation">Z<sub>eq</sub> = Z<sub>1</sub> + Z<sub>2</sub> + … + Z<sub>n</sub></span>
+            <span class="eq-label">Parallel</span>
+            <span class="equation">1 / Z<sub>eq</sub> = 1 / Z<sub>1</sub> + 1 / Z<sub>2</sub> + … + 1 / Z<sub>n</sub></span>
+          </div>
+
+          <p>Complex impedance problems are not only arithmetic. The engineering interpretation matters: resonance occurs when inductive and capacitive reactances cancel, current may become large, power factor changes apparent power demand, and frequency response determines filtering behavior.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="machines">
+        <div class="inner">
+          <h2>7. Energy, Lorentz Force, and Electromechanical Conversion</h2>
+          <p class="lead">Forces and machines connect fields to motion. A charge in electric and magnetic fields experiences Lorentz force. A current-carrying conductor in a magnetic field experiences a force. A changing flux through a coil induces voltage. These are the foundations of motors, generators, transformers, relays, loudspeakers, and sensors.</p>
+
+          <div class="split">
+            <div>
+              <h3>Lorentz force</h3>
+              <div class="formula">
+                <span class="equation">F = q(E + v × B)</span>
+              </div>
+              <p>Electric field accelerates charge parallel to <code>E</code>. Magnetic force is perpendicular to both velocity and magnetic flux density, so it changes direction of motion without doing work on a point charge by itself.</p>
+            </div>
+            <div>
+              <h3>Force on conductor</h3>
+              <div class="formula">
+                <span class="equation">dF = I dl × B</span>
+                <span class="eq-label">Straight conductor</span>
+                <span class="equation">F = ILB sin θ</span>
+              </div>
+              <p>The direction follows the vector cross product. Reversing current or magnetic field reverses force.</p>
+            </div>
+          </div>
+
+          <h3>Induction and flux linkage</h3>
+          <div class="formula">
+            <span class="equation">Φ = ∫<sub>S</sub> B · dS</span>
+            <span class="equation">λ = NΦ</span>
+            <span class="equation">e = −dλ / dt</span>
+          </div>
+          <p>The negative sign is Lenz's law: induced current opposes the change in magnetic flux that created it. This is a conservation-of-energy statement, not just a sign convention.</p>
+        </div>
+      </section>
+
+      <section class="band" id="simulators">
+        <div class="inner">
+          <h2>8. Interactive Simulations</h2>
+          <p class="lead">The simulations below are simplified but computational: they calculate currents, equivalent impedance, power factor, resonance, field flux, circulation, induction, Lorentz force, and field operator behavior.</p>
+
+          <div class="simulation" id="kirchhoffLab">
+            <div class="sim-header">
+              <div>
+                <h3>Kirchhoff Network Solver</h3>
+                <p>A DC source feeds two resistive branches with a bridge resistor. The simulator solves node voltages from KCL and reports branch currents and power.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Source <output id="kVoltOut">12 V</output>
+                <input id="kVolt" type="range" min="1" max="48" value="12">
+              </label>
+              <label class="control">R1 <output id="kR1Out">120 ohm</output>
+                <input id="kR1" type="range" min="10" max="1000" value="120">
+              </label>
+              <label class="control">R2 <output id="kR2Out">220 ohm</output>
+                <input id="kR2" type="range" min="10" max="1000" value="220">
+              </label>
+              <label class="control">Bridge R5 <output id="kR5Out">330 ohm</output>
+                <input id="kR5" type="range" min="10" max="2000" value="330">
+              </label>
+              <label class="control">R3 <output id="kR3Out">180 ohm</output>
+                <input id="kR3" type="range" min="10" max="1000" value="180">
+              </label>
+              <label class="control">R4 <output id="kR4Out">470 ohm</output>
+                <input id="kR4" type="range" min="10" max="1000" value="470">
+              </label>
+              <label class="control">Current scale
+                <select id="kScale">
+                  <option value="auto">auto</option>
+                  <option value="fixed">fixed</option>
+                </select>
+              </label>
+              <label class="control">View
+                <select id="kView">
+                  <option value="currents">currents</option>
+                  <option value="power">power</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="kirchhoffCanvas" width="760" height="520" aria-label="Kirchhoff circuit solver"></canvas>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Node A</b><span id="kNodeA"></span></div>
+                  <div class="metric"><b>Node B</b><span id="kNodeB"></span></div>
+                  <div class="metric"><b>Source current</b><span id="kSourceI"></span></div>
+                  <div class="metric"><b>Total power</b><span id="kPower"></span></div>
+                </div>
+                <div class="bars" id="kBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="impedanceLab">
+            <div class="sim-header">
+              <div>
+                <h3>Complex Impedance and AC Circuit Solver</h3>
+                <p>Solve a selectable RLC network. The simulator computes effective impedance, current magnitude and phase, power factor, apparent power, and frequency behavior.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Topology
+                <select id="zTopology">
+                  <option value="series">series R-L-C</option>
+                  <option value="parallel">parallel R-L-C</option>
+                  <option value="rc_lowpass">series R, shunt C load</option>
+                  <option value="rl_highpass">series C, shunt R-L load</option>
+                </select>
+              </label>
+              <label class="control">Frequency <output id="zFreqOut">1000 Hz</output>
+                <input id="zFreq" type="range" min="10" max="20000" value="1000">
+              </label>
+              <label class="control">R <output id="zROut">100 ohm</output>
+                <input id="zR" type="range" min="1" max="1000" value="100">
+              </label>
+              <label class="control">L <output id="zLOut">50 mH</output>
+                <input id="zL" type="range" min="1" max="500" value="50">
+              </label>
+              <label class="control">C <output id="zCOut">1.0 uF</output>
+                <input id="zC" type="range" min="1" max="1000" value="100">
+              </label>
+              <label class="control">Source RMS <output id="zVOut">10 V</output>
+                <input id="zV" type="range" min="1" max="240" value="10">
+              </label>
+              <label class="control">Sweep max
+                <select id="zSweepMax">
+                  <option value="2000">2 kHz</option>
+                  <option value="20000" selected>20 kHz</option>
+                  <option value="100000">100 kHz</option>
+                </select>
+              </label>
+              <label class="control">Display
+                <select id="zDisplay">
+                  <option value="magnitude">magnitude</option>
+                  <option value="phase">phase</option>
+                </select>
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-stack">
+                <canvas id="zPhasorCanvas" width="760" height="250" aria-label="AC phasor diagram"></canvas>
+                <canvas id="zResponseCanvas" width="760" height="250" aria-label="Impedance frequency response"></canvas>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Z effective</b><span id="zEff"></span></div>
+                  <div class="metric"><b>Current RMS</b><span id="zCurrent"></span></div>
+                  <div class="metric"><b>Phase</b><span id="zPhase"></span></div>
+                  <div class="metric"><b>Power factor</b><span id="zPf"></span></div>
+                </div>
+                <div class="phasor-list" id="zPhasors"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="fieldLab">
+            <div class="sim-header">
+              <div>
+                <h3>Divergence, Curl, Flux, and Circulation</h3>
+                <p>Choose a 2D vector field. The canvas shows arrows, estimated divergence, curl, flux through a square, and circulation around its boundary.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Field
+                <select id="fieldKind">
+                  <option value="source">radial source</option>
+                  <option value="vortex">vortex curl</option>
+                  <option value="saddle">saddle</option>
+                  <option value="wave">time wave</option>
+                </select>
+              </label>
+              <label class="control">Strength <output id="fieldStrengthOut">1.00</output>
+                <input id="fieldStrength" type="range" min="10" max="250" value="100">
+              </label>
+              <label class="control">Box size <output id="fieldBoxOut">0.70</output>
+                <input id="fieldBox" type="range" min="20" max="120" value="70">
+              </label>
+              <label class="control">Time <output id="fieldTimeOut">0.00</output>
+                <input id="fieldTime" type="range" min="0" max="628" value="0">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="fieldCanvas" width="760" height="520" aria-label="Vector field divergence and curl simulator"></canvas>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>div F at center</b><span id="fieldDiv"></span></div>
+                  <div class="metric"><b>curl F at center</b><span id="fieldCurl"></span></div>
+                  <div class="metric"><b>Flux through box</b><span id="fieldFlux"></span></div>
+                  <div class="metric"><b>Circulation</b><span id="fieldCirc"></span></div>
+                </div>
+                <div class="formula" id="fieldFormula"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="maxwellLab">
+            <div class="sim-header">
+              <div>
+                <h3>Maxwell Integral Laws Lab</h3>
+                <p>Explore Gauss, Faraday, and Ampere-Maxwell integral forms. Changing the selected source changes the flux or circulation predicted by the corresponding law.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Law
+                <select id="mLaw">
+                  <option value="gaussE">Gauss E</option>
+                  <option value="gaussB">Gauss B</option>
+                  <option value="faraday">Faraday induction</option>
+                  <option value="ampere">Ampere-Maxwell</option>
+                </select>
+              </label>
+              <label class="control">Source <output id="mSourceOut">1.00</output>
+                <input id="mSource" type="range" min="-200" max="200" value="100">
+              </label>
+              <label class="control">Surface radius <output id="mRadiusOut">0.55</output>
+                <input id="mRadius" type="range" min="20" max="95" value="55">
+              </label>
+              <label class="control">Time rate <output id="mRateOut">0.40</output>
+                <input id="mRate" type="range" min="-100" max="100" value="40">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <canvas id="maxwellCanvas" width="760" height="520" aria-label="Maxwell integral laws simulator"></canvas>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Flux</b><span id="mFlux"></span></div>
+                  <div class="metric"><b>Circulation</b><span id="mCirc"></span></div>
+                  <div class="metric"><b>Source term</b><span id="mSourceTerm"></span></div>
+                  <div class="metric"><b>Law statement</b><span id="mStatement"></span></div>
+                </div>
+                <div class="formula" id="mFormula"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="lorentzLab">
+            <div class="sim-header">
+              <div>
+                <h3>Lorentz Force and 3D Charge Motion</h3>
+                <p>An electron or ion moves through configurable electric and magnetic field-intensity vectors. Presets emulate magnetic CRT deflection and electrostatic oscilloscope deflection. The force law uses <span class="inline-math">B = μH</span>; the sliders use normalized <span class="inline-math">H</span> components for intuition.</p>
+              </div>
+              <div class="button-row">
+                <button type="button" id="lorentzPlay" aria-pressed="false">Play</button>
+                <button type="button" id="lorentzReset">Reset path</button>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Preset
+                <select id="lPreset">
+                  <option value="custom">custom fields</option>
+                  <option value="magnetic_crt">CRT magnetic deflection</option>
+                  <option value="electric_crt">CRT electrostatic deflection</option>
+                  <option value="crossed">crossed E and H drift</option>
+                  <option value="helix">helical magnetic field</option>
+                </select>
+              </label>
+              <label class="control">Particle
+                <select id="lParticle">
+                  <option value="electron">electron</option>
+                  <option value="proton">proton</option>
+                  <option value="ion">positive ion</option>
+                </select>
+              </label>
+              <label class="control">E<sub>x</sub> <output id="lExOut">0.00</output>
+                <input id="lEx" type="range" min="-120" max="120" value="0">
+              </label>
+              <label class="control">E<sub>y</sub> <output id="lEyOut">0.00</output>
+                <input id="lEy" type="range" min="-120" max="120" value="0">
+              </label>
+              <label class="control">E<sub>z</sub> <output id="lEzOut">0.00</output>
+                <input id="lEz" type="range" min="-120" max="120" value="0">
+              </label>
+              <label class="control">H<sub>x</sub> <output id="lHxOut">0.00</output>
+                <input id="lHx" type="range" min="-160" max="160" value="0">
+              </label>
+              <label class="control">H<sub>y</sub> <output id="lHyOut">0.75</output>
+                <input id="lHy" type="range" min="-160" max="160" value="75">
+              </label>
+              <label class="control">H<sub>z</sub> <output id="lHzOut">0.00</output>
+                <input id="lHz" type="range" min="-160" max="160" value="0">
+              </label>
+              <label class="control">Initial speed <output id="lVOut">0.70</output>
+                <input id="lV" type="range" min="10" max="150" value="70">
+              </label>
+              <label class="control">Yaw <output id="lViewOut">35 deg</output>
+                <input id="lView" type="range" min="-75" max="75" value="35">
+              </label>
+              <label class="control">Pitch <output id="lPitchOut">18 deg</output>
+                <input id="lPitch" type="range" min="-65" max="65" value="18">
+              </label>
+              <label class="control">Visual speed <output id="lPlaySpeedOut">0.35x</output>
+                <input id="lPlaySpeed" type="range" min="5" max="120" value="35">
+              </label>
+            </div>
+            <div class="sim-grid lorentz-grid">
+              <canvas class="lorentz-canvas" id="lorentzCanvas" width="1080" height="700" aria-label="3D Lorentz force charge motion simulator"></canvas>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Force vector</b><span id="lFx"></span></div>
+                  <div class="metric"><b>Speed</b><span id="lFy"></span></div>
+                  <div class="metric"><b>Radius estimate</b><span id="lRadius"></span></div>
+                  <div class="metric"><b>Motion type</b><span id="lType"></span></div>
+                </div>
+                <div class="bars" id="lBars"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation" id="inductionLab">
+            <div class="sim-header">
+              <div>
+                <h3>Faraday Induction and Transformer EMF</h3>
+                <p>A coil links a sinusoidal magnetic flux. Change turns, area, frequency, and field amplitude to see induced RMS voltage and Lenz-law phase.</p>
+              </div>
+            </div>
+            <div class="sim-controls">
+              <label class="control">Turns N <output id="indTurnsOut">120</output>
+                <input id="indTurns" type="range" min="1" max="600" value="120">
+              </label>
+              <label class="control">Area <output id="indAreaOut">20 cm^2</output>
+                <input id="indArea" type="range" min="1" max="120" value="20">
+              </label>
+              <label class="control">B peak <output id="indBOut">0.35 T</output>
+                <input id="indB" type="range" min="1" max="120" value="35">
+              </label>
+              <label class="control">Frequency <output id="indFreqOut">50 Hz</output>
+                <input id="indFreq" type="range" min="1" max="1000" value="50">
+              </label>
+            </div>
+            <div class="sim-grid">
+              <div class="canvas-pair">
+                <canvas id="indFluxCanvas" width="370" height="370" aria-label="Magnetic flux waveform"></canvas>
+                <canvas id="indEmfCanvas" width="370" height="370" aria-label="Induced EMF waveform"></canvas>
+              </div>
+              <div>
+                <div class="metric-grid">
+                  <div class="metric"><b>Flux peak</b><span id="indFlux"></span></div>
+                  <div class="metric"><b>EMF RMS</b><span id="indEmf"></span></div>
+                  <div class="metric"><b>EMF peak</b><span id="indPeak"></span></div>
+                  <div class="metric"><b>Phase</b><span id="indPhase"></span></div>
+                </div>
+                <div class="formula">
+                  <span class="equation">e(t) = −N dΦ / dt</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="problem-solving">
+        <div class="inner">
+          <h2>9. Problem-Solving Method</h2>
+          <p class="lead">Electrotechnics problems become tractable when you choose the correct abstraction: lumped circuit, phasor circuit, static field, quasistatic induction, wave propagation, or electromechanical energy conversion.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Problem type</th>
+                <th>Start with</th>
+                <th>Unknowns</th>
+                <th>Checks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>DC resistor network</td><td>KCL node equations or mesh KVL.</td><td>Node voltages, branch currents.</td><td>Power delivered equals power absorbed.</td></tr>
+              <tr><td>AC impedance network</td><td>Replace R, L, C by complex impedances.</td><td>Phasor voltages/currents.</td><td>Units, phase, power factor, limiting frequency behavior.</td></tr>
+              <tr><td>Transient first-order circuit</td><td>Differential equation and time constant.</td><td>Initial/final values, exponential response.</td><td>Capacitor voltage and inductor current continuity.</td></tr>
+              <tr><td>Electrostatic field</td><td>Gauss law, potential, boundary conditions.</td><td>E field, potential, capacitance.</td><td>Symmetry and units of flux.</td></tr>
+              <tr><td>Magnetostatic field</td><td>Ampere law, Biot-Savart, magnetic circuit approximation.</td><td>B, H, flux, force.</td><td>Flux continuity and saturation limits.</td></tr>
+              <tr><td>Induction</td><td>Flux linkage and Faraday law.</td><td>EMF, induced current, force direction.</td><td>Lenz law and energy conservation.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>General checklist</h3>
+          <ol>
+            <li>Draw the reference directions for currents, voltages, fields, normals, and loop orientation.</li>
+            <li>State the approximation: lumped, sinusoidal steady-state, static field, quasistatic field, or wave.</li>
+            <li>Write conservation laws before substituting numbers.</li>
+            <li>Check units at every derived expression.</li>
+            <li>Evaluate limiting cases: zero frequency, infinite frequency, open circuit, short circuit, no source, no loss.</li>
+            <li>Verify energy: sources must equal storage change plus dissipation plus mechanical work.</li>
+          </ol>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="inner">Electrotechnics basics book. All simulations run locally in the browser.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const COLORS = {
+      blue: "#1f6fb2",
+      green: "#2f7d57",
+      red: "#bd4b43",
+      amber: "#b87924",
+      violet: "#6b55a3",
+      cyan: "#147f87",
+      ink: "#17212a",
+      line: "#d8d0c2"
+    };
+
+    const TAU = Math.PI * 2;
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const round = (value, places = 2) => Number.parseFloat(value).toFixed(places);
+    const hypot = (x, y) => Math.sqrt(x * x + y * y);
+
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return ctx;
+    }
+
+    function drawGrid(ctx, canvas) {
+      ctx.strokeStyle = "rgba(23,33,42,.08)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= canvas.width; x += canvas.width / 8) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += canvas.height / 6) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+
+    function renderBars(target, labels, values, max = null) {
+      const root = document.getElementById(target);
+      const m = max ?? Math.max(...values.map(value => Math.abs(value)), 1e-6);
+      root.innerHTML = "";
+      labels.forEach((label, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const name = document.createElement("span");
+        name.textContent = label;
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.width = `${Math.round(Math.abs(values[index]) / m * 100)}%`;
+        if (values[index] < 0) fill.style.background = COLORS.red;
+        const value = document.createElement("span");
+        value.textContent = round(values[index], 3);
+        track.appendChild(fill);
+        row.append(name, track, value);
+        root.appendChild(row);
+      });
+    }
+
+    function drawArrow(ctx, x1, y1, x2, y2, color, width = 2) {
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - Math.cos(angle - .45) * 10, y2 - Math.sin(angle - .45) * 10);
+      ctx.lineTo(x2 - Math.cos(angle + .45) * 10, y2 - Math.sin(angle + .45) * 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function c(re, im = 0) {
+      return { re, im };
+    }
+
+    function cAdd(a, b) {
+      return c(a.re + b.re, a.im + b.im);
+    }
+
+    function cSub(a, b) {
+      return c(a.re - b.re, a.im - b.im);
+    }
+
+    function cMul(a, b) {
+      return c(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+    }
+
+    function cDiv(a, b) {
+      const d = b.re * b.re + b.im * b.im;
+      return c((a.re * b.re + a.im * b.im) / d, (a.im * b.re - a.re * b.im) / d);
+    }
+
+    function cInv(a) {
+      return cDiv(c(1, 0), a);
+    }
+
+    function cAbs(a) {
+      return Math.sqrt(a.re * a.re + a.im * a.im);
+    }
+
+    function cPhase(a) {
+      return Math.atan2(a.im, a.re);
+    }
+
+    function cFmt(a, unit = "ohm") {
+      const sign = a.im >= 0 ? "+" : "-";
+      return `${round(a.re, 2)} ${sign} j${round(Math.abs(a.im), 2)} ${unit}`;
+    }
+
+    function parallel(zs) {
+      return cInv(zs.map(cInv).reduce(cAdd, c(0, 0)));
+    }
+
+    function updateKirchhoff() {
+      const V = Number(document.getElementById("kVolt").value);
+      const R1 = Number(document.getElementById("kR1").value);
+      const R2 = Number(document.getElementById("kR2").value);
+      const R3 = Number(document.getElementById("kR3").value);
+      const R4 = Number(document.getElementById("kR4").value);
+      const R5 = Number(document.getElementById("kR5").value);
+      const g1 = 1 / R1, g2 = 1 / R2, g3 = 1 / R3, g4 = 1 / R4, g5 = 1 / R5;
+      const a11 = g1 + g3 + g5;
+      const a22 = g2 + g4 + g5;
+      const a12 = -g5;
+      const b1 = g1 * V;
+      const b2 = g2 * V;
+      const det = a11 * a22 - a12 * a12;
+      const Va = (b1 * a22 - a12 * b2) / det;
+      const Vb = (a11 * b2 - a12 * b1) / det;
+      const currents = {
+        I1: (V - Va) / R1,
+        I2: (V - Vb) / R2,
+        I3: Va / R3,
+        I4: Vb / R4,
+        I5: (Va - Vb) / R5
+      };
+      const sourceI = currents.I1 + currents.I2;
+      const power = V * sourceI;
+      document.getElementById("kVoltOut").textContent = `${V} V`;
+      document.getElementById("kR1Out").textContent = `${R1} ohm`;
+      document.getElementById("kR2Out").textContent = `${R2} ohm`;
+      document.getElementById("kR3Out").textContent = `${R3} ohm`;
+      document.getElementById("kR4Out").textContent = `${R4} ohm`;
+      document.getElementById("kR5Out").textContent = `${R5} ohm`;
+      document.getElementById("kNodeA").textContent = `${round(Va, 3)} V`;
+      document.getElementById("kNodeB").textContent = `${round(Vb, 3)} V`;
+      document.getElementById("kSourceI").textContent = `${round(sourceI * 1000, 3)} mA`;
+      document.getElementById("kPower").textContent = `${round(power, 3)} W`;
+      const values = Object.values(currents).map(i => i * 1000);
+      renderBars("kBars", Object.keys(currents), values, document.getElementById("kScale").value === "fixed" ? 200 : null);
+      drawKirchhoffCircuit(V, Va, Vb, currents, power);
+    }
+
+    function drawKirchhoffCircuit(V, Va, Vb, currents, power) {
+      const canvas = document.getElementById("kirchhoffCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const pts = {
+        top: { x: 380, y: 70 },
+        a: { x: 250, y: 235 },
+        b: { x: 510, y: 235 },
+        ground: { x: 380, y: 430 }
+      };
+      function wire(p, q) {
+        ctx.strokeStyle = COLORS.ink;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.stroke();
+      }
+      function resistor(p, q, label, current) {
+        wire(p, q);
+        const mx = (p.x + q.x) / 2;
+        const my = (p.y + q.y) / 2;
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = COLORS.blue;
+        ctx.lineWidth = Math.max(3, Math.min(10, Math.abs(current) * 500));
+        ctx.strokeRect(mx - 35, my - 14, 70, 28);
+        ctx.fillStyle = COLORS.ink;
+        ctx.font = "700 13px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(label, mx, my + 4);
+      }
+      resistor(pts.top, pts.a, "R1", currents.I1);
+      resistor(pts.top, pts.b, "R2", currents.I2);
+      resistor(pts.a, pts.ground, "R3", currents.I3);
+      resistor(pts.b, pts.ground, "R4", currents.I4);
+      resistor(pts.a, pts.b, "R5", currents.I5);
+      [pts.top, pts.a, pts.b, pts.ground].forEach(p => {
+        ctx.fillStyle = COLORS.green;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 8, 0, TAU);
+        ctx.fill();
+      });
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 14px system-ui";
+      ctx.fillText(`${round(V, 2)} V`, pts.top.x + 48, pts.top.y);
+      ctx.fillText(`A ${round(Va, 2)} V`, pts.a.x - 54, pts.a.y);
+      ctx.fillText(`B ${round(Vb, 2)} V`, pts.b.x + 54, pts.b.y);
+      ctx.fillText(`P=${round(power, 2)} W`, 44, 44);
+      if (document.getElementById("kView").value === "currents") {
+        drawArrow(ctx, 355, 102, 290, 188, COLORS.blue, 3);
+        drawArrow(ctx, 405, 102, 470, 188, COLORS.blue, 3);
+        drawArrow(ctx, 250, 275, 340, 405, COLORS.green, 3);
+        drawArrow(ctx, 510, 275, 420, 405, COLORS.green, 3);
+        drawArrow(ctx, currents.I5 >= 0 ? 300 : 460, 235, currents.I5 >= 0 ? 460 : 300, 235, COLORS.amber, 3);
+      }
+    }
+
+    function bindKirchhoff() {
+      ["kVolt", "kR1", "kR2", "kR3", "kR4", "kR5", "kScale", "kView"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateKirchhoff);
+      });
+      updateKirchhoff();
+    }
+
+    function impedanceAt(freq) {
+      const omega = TAU * freq;
+      const R = Number(document.getElementById("zR").value);
+      const L = Number(document.getElementById("zL").value) / 1000;
+      const C = Number(document.getElementById("zC").value) / 100000000;
+      const zR = c(R, 0);
+      const zL = c(0, omega * L);
+      const zC = c(0, -1 / (omega * C));
+      const topology = document.getElementById("zTopology").value;
+      if (topology === "series") return zR ? cAdd(cAdd(zR, zL), zC) : zR;
+      if (topology === "parallel") return parallel([zR, zL, zC]);
+      if (topology === "rc_lowpass") return cAdd(zR, zC);
+      return cAdd(zC, parallel([zR, zL]));
+    }
+
+    function updateImpedance() {
+      const freq = Number(document.getElementById("zFreq").value);
+      const V = Number(document.getElementById("zV").value);
+      const R = Number(document.getElementById("zR").value);
+      const LmH = Number(document.getElementById("zL").value);
+      const Cslider = Number(document.getElementById("zC").value);
+      const Cuf = Cslider / 100;
+      const Z = impedanceAt(freq);
+      const I = cDiv(c(V, 0), Z);
+      const phase = cPhase(I) * 180 / Math.PI;
+      const pf = Math.cos(cPhase(Z));
+      const S = V * cAbs(I);
+      document.getElementById("zFreqOut").textContent = `${freq} Hz`;
+      document.getElementById("zROut").textContent = `${R} ohm`;
+      document.getElementById("zLOut").textContent = `${LmH} mH`;
+      document.getElementById("zCOut").textContent = `${round(Cuf, 2)} uF`;
+      document.getElementById("zVOut").textContent = `${V} V`;
+      document.getElementById("zEff").textContent = cFmt(Z);
+      document.getElementById("zCurrent").textContent = `${round(cAbs(I), 4)} A`;
+      document.getElementById("zPhase").textContent = `${round(phase, 2)} deg`;
+      document.getElementById("zPf").textContent = `${round(Math.abs(pf), 3)} ${pf >= 0 ? "lag/lead by sign" : "capacitive"}`;
+      drawPhasors(V, Z, I);
+      drawImpedanceResponse();
+      renderPhasorList(Z, I, S, pf);
+    }
+
+    function drawPhasors(V, Z, I) {
+      const canvas = document.getElementById("zPhasorCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const scale = 90;
+      drawArrow(ctx, cx, cy, cx + scale, cy, COLORS.blue, 4);
+      const iAngle = cPhase(I);
+      const iLen = clamp(cAbs(I) * 80, 18, 150);
+      drawArrow(ctx, cx, cy, cx + Math.cos(iAngle) * iLen, cy - Math.sin(iAngle) * iLen, COLORS.green, 4);
+      const zAngle = cPhase(Z);
+      const zLen = clamp(cAbs(Z) / 4, 18, 150);
+      drawArrow(ctx, cx, cy, cx + Math.cos(zAngle) * zLen, cy - Math.sin(zAngle) * zLen, COLORS.amber, 3);
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 13px system-ui";
+      ctx.fillText("V reference", cx + scale + 8, cy - 8);
+      ctx.fillText("I", cx + Math.cos(iAngle) * iLen + 8, cy - Math.sin(iAngle) * iLen);
+      ctx.fillText("Z angle", cx + Math.cos(zAngle) * zLen + 8, cy - Math.sin(zAngle) * zLen);
+    }
+
+    function drawImpedanceResponse() {
+      const canvas = document.getElementById("zResponseCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const maxF = Number(document.getElementById("zSweepMax").value);
+      const display = document.getElementById("zDisplay").value;
+      const points = [];
+      for (let i = 0; i < 220; i += 1) {
+        const f = 10 * Math.pow(maxF / 10, i / 219);
+        const Z = impedanceAt(f);
+        points.push({ f, mag: cAbs(Z), phase: cPhase(Z) });
+      }
+      const maxMag = Math.max(...points.map(p => p.mag));
+      ctx.strokeStyle = COLORS.blue;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const x = i / (points.length - 1) * canvas.width;
+        const norm = display === "phase" ? (p.phase + Math.PI) / (2 * Math.PI) : Math.log10(1 + p.mag) / Math.log10(1 + maxMag);
+        const y = canvas.height - 28 - norm * (canvas.height - 56);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 13px system-ui";
+      ctx.fillText(display === "phase" ? "phase(Z)" : "|Z| sweep", 16, 24);
+    }
+
+    function renderPhasorList(Z, I, S, pf) {
+      const root = document.getElementById("zPhasors");
+      root.innerHTML = "";
+      [
+        ["|Z|", `${round(cAbs(Z), 3)} ohm`],
+        ["angle Z", `${round(cPhase(Z) * 180 / Math.PI, 2)} deg`],
+        ["apparent S", `${round(S, 3)} VA`],
+        ["real P", `${round(S * pf, 3)} W`]
+      ].forEach(([name, text], i) => {
+        const item = document.createElement("div");
+        item.className = "phasor-item";
+        item.style.borderLeftColor = [COLORS.blue, COLORS.green, COLORS.amber, COLORS.red][i];
+        item.innerHTML = `<b>${name}</b><span>${text}</span>`;
+        root.appendChild(item);
+      });
+    }
+
+    function bindImpedance() {
+      ["zTopology", "zFreq", "zR", "zL", "zC", "zV", "zSweepMax", "zDisplay"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateImpedance);
+      });
+      updateImpedance();
+    }
+
+    function fieldValue(kind, x, y, strength, t) {
+      if (kind === "source") {
+        const r2 = x * x + y * y + .08;
+        return { x: strength * x / r2, y: strength * y / r2 };
+      }
+      if (kind === "vortex") return { x: -strength * y, y: strength * x };
+      if (kind === "saddle") return { x: strength * x, y: -strength * y };
+      return { x: strength * Math.sin(Math.PI * y + t), y: strength * Math.cos(Math.PI * x - t) };
+    }
+
+    function divCurl(kind, strength, t) {
+      const h = .001;
+      const fx1 = fieldValue(kind, h, 0, strength, t);
+      const fx0 = fieldValue(kind, -h, 0, strength, t);
+      const fy1 = fieldValue(kind, 0, h, strength, t);
+      const fy0 = fieldValue(kind, 0, -h, strength, t);
+      const div = (fx1.x - fx0.x) / (2 * h) + (fy1.y - fy0.y) / (2 * h);
+      const curl = (fx1.y - fx0.y) / (2 * h) - (fy1.x - fy0.x) / (2 * h);
+      return { div, curl };
+    }
+
+    function updateFieldLab() {
+      const kind = document.getElementById("fieldKind").value;
+      const strength = Number(document.getElementById("fieldStrength").value) / 100;
+      const box = Number(document.getElementById("fieldBox").value) / 100;
+      const t = Number(document.getElementById("fieldTime").value) / 100;
+      const canvas = document.getElementById("fieldCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      for (let ix = 1; ix < 12; ix += 1) {
+        for (let iy = 1; iy < 8; iy += 1) {
+          const x = ix / 12 * 2 - 1;
+          const y = 1 - iy / 8 * 2;
+          const v = fieldValue(kind, x, y, strength, t);
+          const px = (x + 1) / 2 * canvas.width;
+          const py = (1 - (y + 1) / 2) * canvas.height;
+          const m = Math.min(34, hypot(v.x, v.y) * 20);
+          const a = Math.atan2(v.y, v.x);
+          drawArrow(ctx, px, py, px + Math.cos(a) * m, py - Math.sin(a) * m, COLORS.blue, 1.8);
+        }
+      }
+      const size = box * Math.min(canvas.width, canvas.height) * .36;
+      ctx.strokeStyle = COLORS.red;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(canvas.width / 2 - size, canvas.height / 2 - size, size * 2, size * 2);
+      const dc = divCurl(kind, strength, t);
+      const area = (2 * box) * (2 * box);
+      const flux = dc.div * area;
+      const circ = dc.curl * area;
+      document.getElementById("fieldStrengthOut").textContent = round(strength, 2);
+      document.getElementById("fieldBoxOut").textContent = round(box, 2);
+      document.getElementById("fieldTimeOut").textContent = round(t, 2);
+      document.getElementById("fieldDiv").textContent = round(dc.div, 3);
+      document.getElementById("fieldCurl").textContent = round(dc.curl, 3);
+      document.getElementById("fieldFlux").textContent = round(flux, 3);
+      document.getElementById("fieldCirc").textContent = round(circ, 3);
+      document.getElementById("fieldFormula").textContent = kind === "source" ? "Radial field: positive divergence near source." :
+        kind === "vortex" ? "Vortex field: nonzero curl, near-zero divergence." :
+        kind === "saddle" ? "Saddle field: stretching in x, compression in y." :
+        "Time-varying wave-like field: divergence and curl vary with phase.";
+    }
+
+    function bindFieldLab() {
+      ["fieldKind", "fieldStrength", "fieldBox", "fieldTime"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateFieldLab);
+      });
+      updateFieldLab();
+    }
+
+    function updateMaxwellLab() {
+      const law = document.getElementById("mLaw").value;
+      const source = Number(document.getElementById("mSource").value) / 100;
+      const radius = Number(document.getElementById("mRadius").value) / 100;
+      const rate = Number(document.getElementById("mRate").value) / 100;
+      const canvas = document.getElementById("maxwellCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      const r = radius * 190;
+      ctx.strokeStyle = COLORS.ink;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, TAU);
+      ctx.stroke();
+      let flux = 0, circ = 0, sourceTerm = 0, statement = "", formula = "";
+      if (law === "gaussE") {
+        sourceTerm = source;
+        flux = source;
+        statement = "electric flux encloses charge";
+        formula = "∯S D · dS = Qfree";
+        for (let i = 0; i < 24; i += 1) {
+          const a = i / 24 * TAU;
+          drawArrow(ctx, cx, cy, cx + Math.cos(a) * r * .82, cy + Math.sin(a) * r * .82, source >= 0 ? COLORS.blue : COLORS.red, 2);
+        }
+      } else if (law === "gaussB") {
+        flux = 0;
+        sourceTerm = 0;
+        statement = "magnetic flux is closed";
+        formula = "∯S B · dS = 0";
+        for (let i = 0; i < 18; i += 1) {
+          const a = i / 18 * TAU;
+          drawArrow(ctx, cx + Math.cos(a) * r * .5, cy + Math.sin(a) * r * .25, cx - Math.sin(a) * 18 + Math.cos(a) * r * .5, cy + Math.cos(a) * 18 + Math.sin(a) * r * .25, COLORS.red, 2);
+        }
+      } else if (law === "faraday") {
+        flux = source;
+        circ = -rate * Math.PI * radius * radius;
+        sourceTerm = rate;
+        statement = "changing B flux induces E circulation";
+        formula = "∮C E · dl = −dΦB/dt";
+        for (let i = 0; i < 22; i += 1) {
+          const a = i / 22 * TAU;
+          const p = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
+          const q = { x: cx + Math.cos(a + .18 * Math.sign(-rate || 1)) * r, y: cy + Math.sin(a + .18 * Math.sign(-rate || 1)) * r };
+          drawArrow(ctx, p.x, p.y, q.x, q.y, COLORS.blue, 2);
+        }
+      } else {
+        const area = Math.PI * radius * radius;
+        sourceTerm = source + rate * area;
+        circ = sourceTerm;
+        statement = "current plus displacement current creates H circulation";
+        formula = "∮C H · dl = Ifree + dΨD/dt";
+        for (let i = 0; i < 22; i += 1) {
+          const a = i / 22 * TAU;
+          const p = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
+          const q = { x: cx + Math.cos(a + .18 * Math.sign(sourceTerm || 1)) * r, y: cy + Math.sin(a + .18 * Math.sign(sourceTerm || 1)) * r };
+          drawArrow(ctx, p.x, p.y, q.x, q.y, COLORS.red, 2);
+        }
+      }
+      ctx.fillStyle = COLORS.green;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 14 + Math.abs(source) * 10, 0, TAU);
+      ctx.fill();
+      document.getElementById("mSourceOut").textContent = round(source, 2);
+      document.getElementById("mRadiusOut").textContent = round(radius, 2);
+      document.getElementById("mRateOut").textContent = round(rate, 2);
+      document.getElementById("mFlux").textContent = round(flux, 3);
+      document.getElementById("mCirc").textContent = round(circ, 3);
+      document.getElementById("mSourceTerm").textContent = round(sourceTerm, 3);
+      document.getElementById("mStatement").textContent = statement;
+      document.getElementById("mFormula").textContent = formula;
+    }
+
+    function bindMaxwellLab() {
+      ["mLaw", "mSource", "mRadius", "mRate"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateMaxwellLab);
+      });
+      updateMaxwellLab();
+    }
+
+    const lorentzState = {
+      path: [],
+      particle: null,
+      playing: false,
+      frame: null
+    };
+
+    function lorentzParams() {
+      const particle = document.getElementById("lParticle").value;
+      const charge = particle === "electron" ? -1 : particle === "proton" ? 1 : .65;
+      const mass = particle === "electron" ? 1 : particle === "proton" ? 3.2 : 5.5;
+      return {
+        preset: document.getElementById("lPreset").value,
+        particle,
+        q: charge,
+        m: mass,
+        E: {
+          x: Number(document.getElementById("lEx").value) / 100,
+          y: Number(document.getElementById("lEy").value) / 100,
+          z: Number(document.getElementById("lEz").value) / 100
+        },
+        H: {
+          x: Number(document.getElementById("lHx").value) / 100,
+          y: Number(document.getElementById("lHy").value) / 100,
+          z: Number(document.getElementById("lHz").value) / 100
+        },
+        speed: Number(document.getElementById("lV").value) / 100,
+        view: Number(document.getElementById("lView").value) * Math.PI / 180,
+        pitch: Number(document.getElementById("lPitch").value) * Math.PI / 180,
+        playSpeed: Number(document.getElementById("lPlaySpeed").value) / 100
+      };
+    }
+
+    function setLorentzPreset(preset) {
+      const values = {
+        custom: null,
+        magnetic_crt: { particle: "electron", E: [0, 0, 0], H: [0, 75, 0], v: 95, view: 35, pitch: 18 },
+        electric_crt: { particle: "electron", E: [0, -55, 0], H: [0, 0, 0], v: 95, view: 20, pitch: 12 },
+        crossed: { particle: "electron", E: [0, -35, 0], H: [0, 0, 70], v: 70, view: 38, pitch: 24 },
+        helix: { particle: "electron", E: [0, 0, 0], H: [100, 0, 0], v: 85, view: 48, pitch: 30 }
+      }[preset];
+      if (!values) return;
+      document.getElementById("lParticle").value = values.particle;
+      ["lEx", "lEy", "lEz"].forEach((id, index) => document.getElementById(id).value = String(values.E[index]));
+      ["lHx", "lHy", "lHz"].forEach((id, index) => document.getElementById(id).value = String(values.H[index]));
+      document.getElementById("lV").value = String(values.v);
+      document.getElementById("lView").value = String(values.view);
+      document.getElementById("lPitch").value = String(values.pitch);
+    }
+
+    function initialLorentzState(params = lorentzParams()) {
+      return {
+        x: -1.35,
+        y: 0,
+        z: 0,
+        vx: params.speed,
+        vy: params.preset === "helix" ? .28 : 0,
+        vz: params.preset === "helix" ? .2 : 0
+      };
+    }
+
+    function lorentzForce(state, params) {
+      const vCrossH = {
+        x: state.vy * params.H.z - state.vz * params.H.y,
+        y: state.vz * params.H.x - state.vx * params.H.z,
+        z: state.vx * params.H.y - state.vy * params.H.x
+      };
+      return {
+        x: params.q * (params.E.x + vCrossH.x),
+        y: params.q * (params.E.y + vCrossH.y),
+        z: params.q * (params.E.z + vCrossH.z)
+      };
+    }
+
+    function stepLorentz(dt = .024) {
+      const params = lorentzParams();
+      if (!lorentzState.particle) {
+        lorentzState.particle = initialLorentzState(params);
+        lorentzState.path = [{ ...lorentzState.particle }];
+      }
+      const f = lorentzForce(lorentzState.particle, params);
+      lorentzState.particle.vx += f.x / params.m * dt;
+      lorentzState.particle.vy += f.y / params.m * dt;
+      lorentzState.particle.vz += f.z / params.m * dt;
+      lorentzState.particle.x += lorentzState.particle.vx * dt;
+      lorentzState.particle.y += lorentzState.particle.vy * dt;
+      lorentzState.particle.z += lorentzState.particle.vz * dt;
+      if (lorentzState.particle.x > 1.45 || Math.abs(lorentzState.particle.y) > 1.05 || Math.abs(lorentzState.particle.z) > 1.05) {
+        lorentzState.particle = initialLorentzState(params);
+        lorentzState.path = [{ ...lorentzState.particle }];
+      } else {
+        lorentzState.path.push({ ...lorentzState.particle });
+        if (lorentzState.path.length > 900) lorentzState.path.shift();
+      }
+    }
+
+    function project3D(point, params, canvas) {
+      const yaw = params.view;
+      const pitch = params.pitch;
+      const cy = Math.cos(yaw);
+      const sy = Math.sin(yaw);
+      const cp = Math.cos(pitch);
+      const sp = Math.sin(pitch);
+      const xYaw = point.x * cy + point.z * sy;
+      const zYaw = -point.x * sy + point.z * cy;
+      const yPitch = point.y * cp - zYaw * sp;
+      const z = point.y * sp + zYaw * cp;
+      const depth = 1 + z * .22;
+      const scale = Math.min(canvas.width, canvas.height) * .34 / Math.max(.62, depth);
+      return {
+        x: canvas.width / 2 + xYaw * scale,
+        y: canvas.height / 2 - yPitch * scale + z * 14,
+        scale
+      };
+    }
+
+    function draw3DVector(ctx, canvas, params, vector, color, label, scale = .75) {
+      const origin = project3D({ x: 0, y: 0, z: 0 }, params, canvas);
+      const end = project3D({ x: vector.x * scale, y: vector.y * scale, z: vector.z * scale }, params, canvas);
+      drawArrow(ctx, origin.x, origin.y, end.x, end.y, color, 4);
+      ctx.fillStyle = color;
+      ctx.font = "800 13px system-ui";
+      ctx.fillText(label, end.x + 8, end.y - 4);
+    }
+
+    function drawLorentzApparatus(ctx, canvas, params) {
+      const left = project3D({ x: -1.35, y: -.55, z: -.45 }, params, canvas);
+      const right = project3D({ x: 1.35, y: .55, z: .45 }, params, canvas);
+      ctx.strokeStyle = "rgba(23,33,42,.35)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(Math.min(left.x, right.x), Math.min(left.y, right.y), Math.abs(right.x - left.x), Math.abs(right.y - left.y));
+      const screen = project3D({ x: 1.36, y: 0, z: 0 }, params, canvas);
+      ctx.strokeStyle = COLORS.green;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(screen.x, screen.y - 82);
+      ctx.lineTo(screen.x, screen.y + 82);
+      ctx.stroke();
+      if (params.preset === "magnetic_crt") {
+        ctx.strokeStyle = COLORS.red;
+        ctx.lineWidth = 3;
+        for (let i = 0; i < 4; i += 1) {
+          ctx.strokeRect(canvas.width / 2 - 75 + i * 8, canvas.height / 2 - 112, 140, 24);
+          ctx.strokeRect(canvas.width / 2 - 75 + i * 8, canvas.height / 2 + 88, 140, 24);
+        }
+        ctx.fillStyle = COLORS.red;
+        ctx.font = "700 13px system-ui";
+        ctx.fillText("deflection coils", canvas.width / 2 - 58, canvas.height / 2 - 122);
+      }
+      if (params.preset === "electric_crt") {
+        ctx.fillStyle = "rgba(31,111,178,.18)";
+        ctx.strokeStyle = COLORS.blue;
+        ctx.lineWidth = 3;
+        ctx.fillRect(canvas.width / 2 - 125, canvas.height / 2 - 82, 250, 18);
+        ctx.fillRect(canvas.width / 2 - 125, canvas.height / 2 + 64, 250, 18);
+        ctx.strokeRect(canvas.width / 2 - 125, canvas.height / 2 - 82, 250, 18);
+        ctx.strokeRect(canvas.width / 2 - 125, canvas.height / 2 + 64, 250, 18);
+        ctx.fillStyle = COLORS.blue;
+        ctx.font = "700 13px system-ui";
+        ctx.fillText("deflection plates", canvas.width / 2 - 56, canvas.height / 2 - 92);
+      }
+    }
+
+    function updateLorentz(reset = false) {
+      const params = lorentzParams();
+      if (reset || !lorentzState.particle) {
+        lorentzState.particle = initialLorentzState(params);
+        lorentzState.path = [{ ...lorentzState.particle }];
+        for (let i = 0; i < 22; i += 1) stepLorentz(.01);
+      }
+      const particle = lorentzState.path[lorentzState.path.length - 1] || lorentzState.particle;
+      const f = lorentzForce(particle, params);
+      const speed = hypot(hypot(particle.vx, particle.vy), particle.vz);
+      const hMag = hypot(hypot(params.H.x, params.H.y), params.H.z);
+      const radius = Math.abs(params.q * hMag) > .001 ? params.m * speed / Math.abs(params.q * hMag) : Infinity;
+      const canvas = document.getElementById("lorentzCanvas");
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      drawLorentzApparatus(ctx, canvas, params);
+      draw3DVector(ctx, canvas, params, { x: 1, y: 0, z: 0 }, "rgba(23,33,42,.55)", "x", .55);
+      draw3DVector(ctx, canvas, params, { x: 0, y: 1, z: 0 }, "rgba(23,33,42,.55)", "y", .55);
+      draw3DVector(ctx, canvas, params, { x: 0, y: 0, z: 1 }, "rgba(23,33,42,.55)", "z", .55);
+      draw3DVector(ctx, canvas, params, params.E, COLORS.blue, "E", .8);
+      draw3DVector(ctx, canvas, params, params.H, COLORS.red, "H", .62);
+      ctx.strokeStyle = params.q < 0 ? COLORS.red : COLORS.blue;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      lorentzState.path.forEach((p, i) => {
+        const q = project3D(p, params, canvas);
+        if (i === 0) ctx.moveTo(q.x, q.y);
+        else ctx.lineTo(q.x, q.y);
+      });
+      ctx.stroke();
+      const pp = project3D(particle, params, canvas);
+      ctx.fillStyle = params.q < 0 ? COLORS.red : COLORS.blue;
+      ctx.beginPath();
+      ctx.arc(pp.x, pp.y, params.particle === "electron" ? 7 : 9, 0, TAU);
+      ctx.fill();
+      const fEnd = project3D({ x: particle.x + f.x * .3, y: particle.y + f.y * .3, z: particle.z + f.z * .3 }, params, canvas);
+      drawArrow(ctx, pp.x, pp.y, fEnd.x, fEnd.y, COLORS.amber, 4);
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 13px system-ui";
+      ctx.fillText("F = q(E + v × B), with H shown as the magnetic-field control", 18, 28);
+
+      document.getElementById("lExOut").textContent = round(params.E.x, 2);
+      document.getElementById("lEyOut").textContent = round(params.E.y, 2);
+      document.getElementById("lEzOut").textContent = round(params.E.z, 2);
+      document.getElementById("lHxOut").textContent = round(params.H.x, 2);
+      document.getElementById("lHyOut").textContent = round(params.H.y, 2);
+      document.getElementById("lHzOut").textContent = round(params.H.z, 2);
+      document.getElementById("lVOut").textContent = round(params.speed, 2);
+      document.getElementById("lViewOut").textContent = `${round(params.view * 180 / Math.PI, 0)} deg`;
+      document.getElementById("lPitchOut").textContent = `${round(params.pitch * 180 / Math.PI, 0)} deg`;
+      document.getElementById("lPlaySpeedOut").textContent = `${round(params.playSpeed, 2)}x`;
+      document.getElementById("lFx").textContent = `(${round(f.x, 2)}, ${round(f.y, 2)}, ${round(f.z, 2)})`;
+      document.getElementById("lFy").textContent = round(speed, 3);
+      document.getElementById("lRadius").textContent = Number.isFinite(radius) ? round(radius, 3) : "infinite";
+      document.getElementById("lType").textContent = params.preset === "magnetic_crt" ? "magnetic CRT beam sweep" :
+        params.preset === "electric_crt" ? "electrostatic CRT deflection" :
+        hMag < .02 ? "electric acceleration" :
+        hypot(hypot(params.E.x, params.E.y), params.E.z) < .02 ? "magnetic helical motion" :
+        "combined E and H motion";
+      renderBars("lBars", ["|E|", "|H|", "|v|", "|F|"], [
+        hypot(hypot(params.E.x, params.E.y), params.E.z),
+        hMag,
+        speed,
+        hypot(hypot(f.x, f.y), f.z)
+      ]);
+    }
+
+    function animateLorentz() {
+      if (!lorentzState.playing) return;
+      const params = lorentzParams();
+      const steps = Math.max(1, Math.round(params.playSpeed * 2));
+      const dt = .0075 * params.playSpeed;
+      for (let i = 0; i < steps; i += 1) stepLorentz(dt);
+      updateLorentz(false);
+      lorentzState.frame = requestAnimationFrame(animateLorentz);
+    }
+
+    function setLorentzPlaying(playing) {
+      lorentzState.playing = playing;
+      const button = document.getElementById("lorentzPlay");
+      button.textContent = playing ? "Pause" : "Play";
+      button.setAttribute("aria-pressed", String(playing));
+      if (playing) animateLorentz();
+      else if (lorentzState.frame) cancelAnimationFrame(lorentzState.frame);
+    }
+
+    function bindLorentz() {
+      document.getElementById("lPreset").addEventListener("input", event => {
+        setLorentzPreset(event.target.value);
+        updateLorentz(true);
+      });
+      ["lParticle", "lEx", "lEy", "lEz", "lHx", "lHy", "lHz", "lV", "lView", "lPitch", "lPlaySpeed"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => {
+          if (!["lView", "lPitch", "lPlaySpeed"].includes(id)) document.getElementById("lPreset").value = "custom";
+          updateLorentz(!["lView", "lPitch", "lPlaySpeed"].includes(id));
+        });
+      });
+      document.getElementById("lorentzReset").addEventListener("click", () => updateLorentz(true));
+      document.getElementById("lorentzPlay").addEventListener("click", () => setLorentzPlaying(!lorentzState.playing));
+      const canvas = document.getElementById("lorentzCanvas");
+      let dragging = false;
+      let last = { x: 0, y: 0 };
+      canvas.addEventListener("pointerdown", event => {
+        dragging = true;
+        last = { x: event.clientX, y: event.clientY };
+        canvas.setPointerCapture(event.pointerId);
+      });
+      canvas.addEventListener("pointermove", event => {
+        if (!dragging) return;
+        const dx = event.clientX - last.x;
+        const dy = event.clientY - last.y;
+        last = { x: event.clientX, y: event.clientY };
+        const yaw = clamp(Number(document.getElementById("lView").value) + dx * .35, -75, 75);
+        const pitch = clamp(Number(document.getElementById("lPitch").value) - dy * .35, -65, 65);
+        document.getElementById("lView").value = String(round(yaw, 0));
+        document.getElementById("lPitch").value = String(round(pitch, 0));
+        updateLorentz(false);
+      });
+      canvas.addEventListener("pointerup", event => {
+        dragging = false;
+        canvas.releasePointerCapture(event.pointerId);
+      });
+      canvas.addEventListener("pointercancel", () => {
+        dragging = false;
+      });
+      setLorentzPreset("magnetic_crt");
+      document.getElementById("lPreset").value = "magnetic_crt";
+      updateLorentz(true);
+    }
+
+    function drawWave(canvas, fn, color, label) {
+      const ctx = clearCanvas(canvas);
+      drawGrid(ctx, canvas);
+      const mid = canvas.height / 2;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i = 0; i < 260; i += 1) {
+        const x = i / 259 * canvas.width;
+        const y = mid - fn(i / 259 * TAU) * canvas.height * .34;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.fillStyle = COLORS.ink;
+      ctx.font = "700 13px system-ui";
+      ctx.fillText(label, 16, 24);
+    }
+
+    function updateInduction() {
+      const N = Number(document.getElementById("indTurns").value);
+      const areaCm2 = Number(document.getElementById("indArea").value);
+      const area = areaCm2 / 10000;
+      const B = Number(document.getElementById("indB").value) / 100;
+      const f = Number(document.getElementById("indFreq").value);
+      const phiPeak = B * area;
+      const emfPeak = N * TAU * f * phiPeak;
+      const emfRms = emfPeak / Math.sqrt(2);
+      drawWave(document.getElementById("indFluxCanvas"), t => Math.sin(t), COLORS.red, "Φ(t)");
+      drawWave(document.getElementById("indEmfCanvas"), t => -Math.cos(t), COLORS.blue, "e(t) = −N dΦ/dt");
+      document.getElementById("indTurnsOut").textContent = String(N);
+      document.getElementById("indAreaOut").textContent = `${areaCm2} cm^2`;
+      document.getElementById("indBOut").textContent = `${round(B, 2)} T`;
+      document.getElementById("indFreqOut").textContent = `${f} Hz`;
+      document.getElementById("indFlux").textContent = `${round(phiPeak * 1000, 4)} mWb`;
+      document.getElementById("indEmf").textContent = `${round(emfRms, 3)} V`;
+      document.getElementById("indPeak").textContent = `${round(emfPeak, 3)} V`;
+      document.getElementById("indPhase").textContent = "e(t) opposes dΦ/dt";
+    }
+
+    function bindInduction() {
+      ["indTurns", "indArea", "indB", "indFreq"].forEach(id => {
+        document.getElementById(id).addEventListener("input", updateInduction);
+      });
+      updateInduction();
+    }
+
+    function drawHero() {
+      const canvas = document.getElementById("heroCanvas");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#17212a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255,255,255,.08)";
+        for (let x = 0; x <= canvas.width; x += 48) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= canvas.height; y += 48) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        for (let i = 0; i < 18; i += 1) {
+          const a = i / 18 * TAU + frame * .01;
+          const r = 70 + (i % 5) * 26;
+          drawArrow(ctx, cx + Math.cos(a) * r, cy + Math.sin(a) * r, cx + Math.cos(a + .28) * r, cy + Math.sin(a + .28) * r, COLORS.red, 2);
+        }
+        for (let i = 0; i < 14; i += 1) {
+          const y = 110 + i * 24;
+          const x1 = 90 + Math.sin(frame * .02 + i) * 24;
+          drawArrow(ctx, x1, y, x1 + 120, y, COLORS.blue, 2);
+        }
+        ctx.strokeStyle = COLORS.green;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(430, 120);
+        ctx.lineTo(610, 120);
+        ctx.lineTo(610, 360);
+        ctx.lineTo(430, 360);
+        ctx.closePath();
+        ctx.stroke();
+        [["R", 520, 120], ["L", 610, 240], ["C", 520, 360], ["~", 430, 240]].forEach(([label, x, y]) => {
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(x - 22, y - 16, 44, 32);
+          ctx.fillStyle = COLORS.ink;
+          ctx.font = "800 18px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(label, x, y + 7);
+        });
+        const px = 250 + Math.cos(frame * .035) * 70;
+        const py = 260 + Math.sin(frame * .035) * 70;
+        ctx.fillStyle = COLORS.amber;
+        ctx.beginPath();
+        ctx.arc(px, py, 9, 0, TAU);
+        ctx.fill();
+        frame += 1;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function init() {
+      bindKirchhoff();
+      bindImpedance();
+      bindFieldLab();
+      bindMaxwellLab();
+      bindLorentz();
+      bindInduction();
+      drawHero();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>
